@@ -151,9 +151,9 @@ operations, roles, and behaviors of HPKE:
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
-- `pk(sk)`: The public key corresponding to a private key
-- `len(x)`: The two-octet length of the octet string `x`, in network
-  (big-endian) byte order
+- `pk(skX)`: The public key corresponding to a private key
+- `len(x)`: The length of the octet string `x`, expressed as a
+  two-octet unsigned integer in network (big-endian) byte order
 - `encode_big_endian(x, n)`: An octet string encoding the integer
   value `x` as an n-byte big-endian value
 - `+`: Concatenation of octet strings; `0x01 + 0x02 = 0x0102`
@@ -212,9 +212,12 @@ following operations:
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a shared secret
+  private key sk and public key pk to produce a fixed-length shared
+  secret
 - Marshal(pk): Produce a fixed-length octet string encoding the
   public key `pk`
+- Unmarshal(enc): Parse a fixed-length octet string to recover a
+  public key
 
 Then we can construct a KEM (which we'll call "DHKEM") in the
 following way:
@@ -241,13 +244,13 @@ def AuthDecap(enc, skR, pkI):
   return DH(skR, pkE) + DH(skR, pkI)
 ~~~
 
-The GenerateKeyPair function is the same as for the underlying DH
-group.  The Marshal functions for the curves used in the
-ciphersuites in {#ciphersuites} are as follows:
+The GenerateKeyPair, Marshal, and Unmarshal functions are the same
+as for the underlying DH group.  The Marshal functions for the
+curves used in the ciphersuites in {#ciphersuites} are as follows:
 
 * P-256: The X-coordinate of the point, encoded as a 32-octet
   big-endian integer
-* P-521: The X-coordinate of the point, encoded as a 32-octet
+* P-521: The X-coordinate of the point, encoded as a 66-octet
   big-endian integer
 * Curve25519: The standard 32-octet representation of the public key
 * Curve448: The standard 56-octet representation of the public key
@@ -315,7 +318,7 @@ def SetupCore(mode, secret, kemContext, info):
 
 def SetupBase(pkR, zz, enc, info):
   kemContext = enc + pkR
-  secret = Extract(0\*Nh, zz)
+  secret = Extract(0*Nh, zz)
   return SetupCore(mode_base, secret, kemContext, info)
 
 def SetupBaseI(pkR, info):
@@ -463,7 +466,7 @@ def Context.Seal(aad, pt):
   return ct
 
 def Context.Open(aad, ct):
-  pt = Open(self.key, self.Nonce(self.seq), aad, pt)
+  pt = Open(self.key, self.Nonce(self.seq), aad, ct)
   if pt == OpenError:
     return OpenError
   self.seq += 1
