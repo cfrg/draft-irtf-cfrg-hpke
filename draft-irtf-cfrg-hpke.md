@@ -1,0 +1,537 @@
+---
+title: Hybrid Public Key Encryption
+abbrev: HPKE
+docname: draft-irtf-cfrg-hpke-latest
+date:
+category: info
+
+ipr: trust200902
+keyword: Internet-Draft
+
+stand_alone: yes
+pi: [toc, sortrefs, symrefs]
+
+author:
+ -  ins: R. L. Barnes
+    name: Richard L. Barnes
+    org: Cisco
+    email: rlb@ipv.sx
+ -  ins: K. Bhargavan
+    name: Karthik Bhargavan
+    org: Inria
+    email: karthikeyan.bhargavan@inria.fr
+
+informative:
+  S01:
+    title: A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)
+    target: http://www.shoup.net/papers/iso-2_1.pdf
+    authors:
+      -
+        ins: Victor Shoup
+        org: IBM Zurich Research Lab, Saumerstr. 4, 8803 Ruschlikon, Switzerland
+  ANSI:
+    title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
+    year: 2001
+    authors:
+      -
+        ins:
+        org: American National Standards Institute
+  IEEE:
+    title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
+    year: 2004
+    authors:
+      -
+        ins:
+        org: Institute of Electrical and Electronics Engineers
+  ISO:
+    title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
+    year: 2006
+    authors:
+      -
+        ins:
+        org: International Organization for Standardization / International Electrotechnical Commission
+
+  SECG:
+    title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
+    target: http://www.secg.org/download/aid-780/sec1-v2.pdf
+    year: 2009
+
+  MAEA10:
+    title: A Comparison of the Standardized Versions of ECIES
+    target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
+    authors:
+      -
+        ins: V. Gayoso Martinez
+        org: Applied Physics Institute, CSIC, Madrid, Spain
+      -
+        ins: F. Hernandez Alvarez
+        org: Applied Physics Institute, CSIC, Madrid, Spain
+      -
+        ins: L. Hernandez Encinas
+        org: Applied Physics Institute, CSIC, Madrid, Spain
+      -
+        ins: C. Sanchez Avila
+        org: Polytechnic University, Madrid, Spain
+
+  keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
+
+  fiveG:
+    title: Security architecture and procedures for 5G System
+    target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
+    year: 2019
+
+--- abstract
+
+This document describes a scheme for hybrid public-key encryption
+(HPKE).  This scheme provides authenticated public key encryption of
+arbitrary-sized plaintexts for a recipient public key. HPKE works
+for any combination of an asymmetric key encapsulation mechanism
+(KEM), key derivation function (KDF), and authenticated encryption
+with additional data (AEAD) encryption function. We provide
+instantiations of the scheme using widely-used and efficient
+primitives.
+
+--- middle
+
+# Introduction
+
+"Hybrid" public-key encryption schemes (HPKE) that combine
+asymmetric and symmetric algorithms are a substantially more
+efficient solution than traditional public key encryption techniques
+such as those based on RSA or ElGamal.  Encrypted messages convey a
+single ciphertext and authentication tag alongside a short public
+key, which may be further compressed. The key size and computational
+complexity of elliptic curve cryptographic primitives for
+authenticated encryption therefore make it compelling for a variety
+of use cases. This type of public key encryption has many
+applications in practice, for example:
+
+* PGP {{?RFC6637}}
+* Messaging Layer Security {{?I-D.ietf-mls-protocol}}
+* Encrypted Server Name Indication {{?I-D.ietf-tls-esni}}
+* Protection of 5G subscriber identities {{fiveG}}
+
+Currently, there are numerous competing and non-interoperable
+standards and variants for hybrid encryption, including ANSI X9.63
+{{ANSI}}, IEEE 1363a {{IEEE}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC
+1 {{SECG}}.  All of these existing schemes have problems, e.g.,
+because they rely on outdated primitives, lack proofs of IND-CCA2
+security, or fail to provide test vectors.
+
+This document defines an HPKE scheme that provides a subset
+of the functions provided by the collection of schemes above, but
+specified with sufficient clarity that they can be interoperably
+implemented and formally verified.
+
+# Requirements Notation
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in
+BCP14 {{!RFC2119}} {{!RFC8174}}  when, and only when, they appear in
+all capitals, as shown here.
+
+# Security Properties
+
+As a hybrid authentication encryption algorithm, we desire security
+against (adaptive) chosen ciphertext attacks (IND-CCA2 secure). The
+HPKE variants described in this document achieve this property under
+the Random Oracle model assuming the gap Computational Diffie
+Hellman (CDH) problem is hard {{S01}}.
+
+[[ TODO - Provide citations to these proofs once they exist ]]
+
+# Notation
+
+The following terms are used throughout this document to describe the
+operations, roles, and behaviors of HPKE:
+
+- Initiator (I): Sender of an encrypted message.
+- Responder (R): Receiver of an encrypted message.
+- Ephemeral (E): A fresh random value meant for one-time use.
+- `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
+  key and `pkX` is the public key
+- `pk(sk)`: The public key corresponding to a private key
+- `len(x)`: The two-octet length of the octet string `x`, in network
+  (big-endian) byte order
+- `encode_big_endian(x, n)`: An octet string encoding the integer
+  value `x` as an n-byte big-endian value
+- `+`: Concatenation of octet strings; `0x01 + 0x02 = 0x0102`
+- `*`: Repetition of an octet string; `0x01 * 4 = 0x01010101`
+- `^`: XOR of octet strings; `0xF0F0 ^ 0x1234 = 0xE2C4`
+
+# Cryptographic Dependencies
+
+HPKE variants rely on the following primitives:
+
+* A Key Encapsulation Mechanism (KEM):
+  - GenerateKeyPair(): Generate a key pair (sk, pk)
+  - Marshal(pk): Produce a fixed-length octet string encoding the
+    public key `pk`
+  - Unmarshal(enc): Parse a fixed-length octet string to recover a
+    public key
+  - Encap(pk): Generate an ephemeral symmetric key and a
+    fixed-length encapsulation of that key that can be decapsulated
+    by the holder of the private key corresponding to pk
+  - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
+    symmetric key from its encapsulated representation `enc`
+  - AuthEncap(pkR, skI) (optional): Same as Encap(), but the outputs
+    encode an assurance that the ephemeral shared key is known only
+    to the holder of the private key `skI`
+  - AuthDecap(skR, pkI) (optional): Same as Decap(), but the holder
+    of the private key `skR` is assured that the ephemeral shared
+    key is known only to the holder of the private key corresponding
+    to `pkI`
+
+* A Key Derivation Function:
+  - Extract(salt, IKM): Extract a pseudorandom key of fixed length
+    from input keying material `IKM` and an optional octet string
+    `salt`
+  - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
+    optional string `info` into `L` bytes of output keying material
+  - Nh: The output size of the Extract function
+
+* An AEAD encryption algorithm {{!RFC5116}}:
+  - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
+    `pt` with associated data `aad` using secret key `key` and nonce
+    `nonce`, yielding ciphertext and tag `ct`
+  - Open(key, nonce, aad, ct): Decrypt ciphertext `ct` using
+    associated data `aad` with secret key `key` and nonce `nonce`,
+    returning plaintext message `pt` or the error value `OpenError`
+  - Nk: The length in octets of a key for this algorithm
+  - Nn: The length in octets of a nonce for this algorithm
+
+A set of concrete instantiations of these primitives is provided in
+{{ciphersuites}}.  Ciphersuite values are two octets long.
+
+## DH-Based KEM
+
+Suppose we are given a Diffie-Hellman group that provides the
+following operations:
+
+- GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
+  for the DH group in use
+- DH(sk, pk): Perform a non-interactive DH exchange using the
+  private key sk and public key pk to produce a shared secret
+- Marshal(pk): Produce a fixed-length octet string encoding the
+  public key `pk`
+
+Then we can construct a KEM (which we'll call "DHKEM") in the
+following way:
+
+~~~
+def Encap(pkR):
+  skE, pkE = GenerateKeyPair()
+  zz = DH(skE, pkR)
+  enc = Marshal(pkE)
+  return zz, enc
+
+def Decap(enc, skR):
+  pkE = Unmarshal(enc)
+  return DH(skR, pkE)
+
+def AuthEncap(pkR, skI):
+  skE, pkE = GenerateKeyPair()
+  zz = DH(skE, pkR) + DH(skI, pkR)
+  enc = Marshal(pkE)
+  return zz, enc
+
+def AuthDecap(enc, skR, pkI):
+  pkE = Unmarshal(enc)
+  return DH(skR, pkE) + DH(skR, pkI)
+~~~
+
+The GenerateKeyPair function is the same as for the underlying DH
+group.  The Marshal functions for the curves used in the
+ciphersuites in {#ciphersuites} are as follows:
+
+* P-256: The X-coordinate of the point, encoded as a 32-octet
+  big-endian integer
+* P-521: The X-coordinate of the point, encoded as a 32-octet
+  big-endian integer
+* Curve25519: The standard 32-octet representation of the public key
+* Curve448: The standard 56-octet representation of the public key
+
+# Hybrid Public Key Encryption
+
+In this section, we define a few HPKE variants.  All variants take a
+recipient public key and a sequence of plaintexts `pt`, and produce an
+encapsulated key `enc` and a sequence of ciphertexts `ct`.  These outputs are
+constructed so that only the holder of the private key corresponding
+to `pkR` can decapsulate the key from `enc` and decrypt the
+ciphertexts.  All of the algorithms also take an `info` parameter
+that can be used to influence the generation of keys (e.g., to fold
+in identity information) and an `aad` parameter that provides
+Additional Authenticated Data to the AEAD algorithm in use.
+
+In addition to the base case of encrypting to a public key, we
+include two authenticated variants, one of which authenticates
+possession of a pre-shared key, and one of which authenticates
+possession of a KEM private key.  The following one-octet values
+will be used to distinguish between modes:
+
+| Mode      | Value |
+|:==========|:======|
+| mode_base | 0x00  |
+| mode_psk  | 0x01  |
+| mode_auth | 0x02  |
+
+All of these cases follow the same basic two-step pattern:
+
+1. Set up an encryption context that is shared between the sender
+   and the recipient
+2. Use that context to encrypt or decrypt content
+
+A "context" encodes the AEAD algorithm and key in use, and manages
+the nonces used so that the same nonce is not used with multiple
+plaintexts.
+
+The procedures described in this session are laid out in a
+Python-like pseudocode.  The ciphersuite in use is left implicit.
+
+## Encryption to a Public Key
+
+The most basic function of an HPKE scheme is to enable encryption
+for the holder of a given KEM private key.  The `SetupBaseI()` and
+`SetupBaseR()` procedures establish contexts that can be used to
+encrypt and decrypt, respectively, for a given private key.
+
+The the shared secret produced by the KEM is combined via the KDF
+with information describing the key exchange, as well as the
+explicit `info` parameter provided by the caller.
+
+Note that the `SetupCore()` method is also used by the other HPKE
+variants describe below.  The value `0*Nh` in the `SetupBase()`
+procedure represents an all-zero octet string of length `Nh`.
+
+~~~~~
+def SetupCore(mode, secret, kemContext, info):
+  context = ciphersuite + mode +
+            len(kemContext) + kemContext +
+            len(info) + info
+  key = Expand(secret, "hpke key" + context, Nk)
+  nonce = Expand(secret, "hpke nonce" + context, Nn)
+  return Context(key, nonce)
+
+def SetupBase(pkR, zz, enc, info):
+  kemContext = enc + pkR
+  secret = Extract(0\*Nh, zz)
+  return SetupCore(mode_base, secret, kemContext, info)
+
+def SetupBaseI(pkR, info):
+  zz, enc = Encap(pkR)
+  return enc, SetupBase(pkR, zz, enc, info)
+
+def SetupBaseR(enc, skR, info):
+  zz = Decap(enc, skR)
+  return SetupBase(pk(skR), zz, enc, info)
+~~~~~
+
+Note that the context construction in the SetupCore procedure is
+equivalent to serializing a structure of the following form in the
+TLS presentation syntax:
+
+~~~~~
+struct {
+    uint16 ciphersuite;
+    uint8 mode;
+    opaque kemContext<0..255>;
+    opaque info<0..255>;
+} HPKEContext;
+~~~~~
+
+## Authentication using a Pre-Shared Key
+
+This variant extends the base mechansism by allowing the recipient
+to authenticate that the sender possessed a given pre-shared key
+(PSK).  We assume that both parties have been provisioned with both
+the PSK value `psk` and another octet string `pskID` that is used to
+identify which PSK should be used.
+
+The primary differences from the base case are:
+
+* The PSK is used as the `salt` input to the KDF (instead of 0)
+* The PSK ID is added to the context string used as the `info` input
+  to the KDF
+
+This mechanism is not suitable for use with a low-entropy password
+as the PSK.  A malicious recipient that does not possess the PSK can
+use decryption of a plaintext as an oracle for performing offline
+dictionary attacks.
+
+~~~~~
+def SetupPSK(pkR, psk, pskID, zz, enc, info):
+  kemContext = enc + pkR + pskID
+  secret = Extract(psk, zz)
+  return SetupCore(mode_psk, secret, kemContext, info)
+
+def SetupPSKI(pkR, psk, pskID, info):
+  zz, enc = Encap(pkR)
+  return enc, SetupPSK(pkR, psk, pskID, zz, enc, info)
+
+def SetupPSKR(enc, skR, psk, pskID, info):
+  zz = Decap(enc, skR)
+  return SetupPSK(pk(skR), psk, pskID, zz, enc, info)
+~~~~~
+
+## Authentication using an Asymmetric Key
+
+This variant extends the base mechansism by allowing the recipient
+to authenticate that the sender possessed a given KEM private key.
+This assurance is based on the assumption that
+`AuthDecap(enc, skR, pkI)` produces the correct shared secret
+only if the encapsulated value `enc` was produced by
+`AuthEncap(pkR, skI)`, where `skI` is the private key corresponding
+to `pkI`.  In other words, only two people could have produced this
+secret, so if the recipient is one, then the sender must be the
+other.
+
+The primary differences from the base case are:
+
+* The calls to `Encap` and `Decap` are replaced with calls to
+  `AuthEncap` and `AuthDecap`.
+* The initiator public key is added to the context string used as
+  the `info` input to the KDF
+
+Obviously, this variant can only be used with a KEM that provides
+`AuthEncap()` and `AuthDecap()` procuedures.
+
+This mechanism authenticates only the key pair of the initiator, not
+any other identity.  If an application wishes to authenticate some
+other identity for the sender (e.g., an email address or domain
+name), then this identity should be included in the `info` parameter
+to avoid unknown key share attacks.
+
+~~~~~
+def SetupAuth(pkR, pkI, zz, enc, info):
+  kemContext = enc + pkR + pkI
+  secret = Extract(0*Nh, zz)
+  return SetupCore(mode_auth, secret, kemContext, info)
+
+def SetupAuthI(pkR, skI, info):
+  zz, enc = AuthEncap(pkR, skI)
+  return enc, SetupAuth(pkR, pk(skI), zz, enc, info)
+
+def SetupAuthR(enc, skR, pkI, info):
+  zz = AuthDecap(enc, skR, pkI)
+  return SetupAuth(pk(skR), pkI, zz, enc, info)
+~~~~~
+
+## Encryption and Decryption
+
+HPKE allows multiple encryption operations to be done based on a
+given setup transaction.  Since the public-key operations involved
+in setup are typically more expensive than symmetric encryption or
+decryption, this allows applications to "amortize" the cost of the
+public-key operations, reducing the overall overhead.
+
+In order to avoid nonce reuse, however, this decryption must be
+stateful.  Each of the setup procedures above produces a context
+object that stores the required state:
+
+* The AEAD algorithm in use
+* The key to be used with the AEAD algorithm
+* A base nonce value
+* A sequence number (initially 0)
+
+All of these fields except the sequence number are constant.  The
+sequence number is used to provide nonce uniqueness: The nonce used
+for each encryption or decryption operation is the result of XORing
+the base nonce with the current sequence number, encoded as a
+big-endian integer of the same length as the nonce.  Implementations
+MAY use a sequence number that is shorter than the nonce (padding on
+the left with zero), but MUST return an error if the sequence number
+overflows.
+
+Each encryption or decryption operation increments the sequence
+number for the context in use.  A given context SHOULD be used either
+only for encryption or only for decryption.
+
+It is up to the application to ensure that encryptions and
+decryptions are done in the proper sequence, so that the nonce
+values used for encryption and decryption line up.
+
+~~~~~
+[[ TODO: Check for overflow, a la TLS ]]
+def Context.Nonce(seq):
+  encSeq = encode_big_endian(seq, len(self.nonce))
+  return self.nonce ^ encSeq
+
+def Context.Seal(aad, pt):
+  ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
+  self.seq += 1
+  return ct
+
+def Context.Open(aad, ct):
+  pt = Open(self.key, self.Nonce(self.seq), aad, pt)
+  if pt == OpenError:
+    return OpenError
+  self.seq += 1
+  return pt
+~~~~~
+
+# Ciphersuites {#ciphersuites}
+
+The HPKE variants as presented will function correctly for any
+combination of primitives that provides the functions described
+above. In this section, we provide specific instantiations of these
+primitives for standard groups, including: Curve25519, Curve448
+{{!RFC7748}}, and the NIST curves P-256 and P-512.
+
+| Value  | KEM               | KDF         | AEAD             |
+|:-------|:------------------|:------------|:-----------------|
+| 0x0001 | DHKEM(P-256)      | HKDF-SHA256 | AES-GCM-128      |
+| 0x0002 | DHKEM(P-256)      | HKDF-SHA256 | ChaCha20Poly1305 |
+| 0x0003 | DHKEM(Curve25519) | HKDF-SHA256 | AES-GCM-128      |
+| 0x0004 | DHKEM(Curve25519) | HKDF-SHA256 | ChaCha20Poly1305 |
+| 0x0005 | DHKEM(P-521)      | HKDF-SHA512 | AES-GCM-256      |
+| 0x0006 | DHKEM(P-521)      | HKDF-SHA512 | ChaCha20Poly1305 |
+| 0x0007 | DHKEM(Curve448)   | HKDF-SHA512 | AES-GCM-256      |
+| 0x0008 | DHKEM(Curve448)   | HKDF-SHA512 | ChaCha20Poly1305 |
+
+For the NIST curves P-256 and P-521, the Marshal function of the DH
+scheme produces the normal (non-compressed) representation of the
+public key, according to {{SECG}}.  When these curves are used, the
+recipient of an HPKE ciphertext MUST validate that the ephemeral public
+key `pkE` is on the curve.  The relevant validation procedures are
+defined in {{keyagreement}}
+
+For the CFRG curves Curve25519 and Curve448, the Marshal function is
+the identity function, since these curves already use fixed-length
+octet strings for public keys.
+
+The values `Nk` and `Nn` for the AEAD algorithms referenced above
+are as follows:
+
+| AEAD             | Nk  | Nn  |
+|:-----------------|:----|:----|
+| AES-GCM-128      | 16  | 12  |
+| AES-GCM-256      | 32  | 12  |
+| ChaCha20Poly1305 | 32  | 12  |
+
+# Security Considerations
+
+[[ TODO ]]
+
+# IANA Considerations
+
+[[ OPEN ISSUE: Should the above table be in an IANA registry? ]]
+
+--- back
+
+# Possible TODOs
+
+The following extensions might be worth specifying:
+
+* Multiple recipients - It might be possible to add some
+  simplifications / assurances for the case where the same value is
+  being encrypted to multiple recipients.
+
+* Test vectors - Obviously, we can provide decryption test vectors
+  in this document.  In order to provide known-answer tests, we
+  would have to introduce a non-secure deterministic mode where the
+  ephemeral key pair is derived from the inputs.  And to do that
+  safely, we would need to augment the decrypt function to detect
+  the deterministic mode and fail.
+
+* A reference implementation in hacspec or similar
