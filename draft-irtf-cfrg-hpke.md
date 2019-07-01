@@ -74,11 +74,14 @@ informative:
         org: Polytechnic University, Madrid, Spain
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
+  NISTCurves: DOI.10.6028/NIST.FIPS.186-4
+  GCM: DOI.10.6028/NIST.SP.800-38D
 
   fiveG:
     title: Security architecture and procedures for 5G System
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
     year: 2019
+
 
 --- abstract
 
@@ -208,8 +211,9 @@ HPKE variants rely on the following primitives:
   - Nk: The length in octets of a key for this algorithm
   - Nn: The length in octets of a nonce for this algorithm
 
-A set of concrete instantiations of these primitives is provided in
-{{ciphersuites}}.  Ciphersuite values are two octets long.
+A set of algorithm identifiers for concrete instantiations of these
+primitives is provided in {{ciphersuites}}.  Algorithm identifier
+values are two octets long.
 
 ## DH-Based KEM
 
@@ -253,7 +257,7 @@ def AuthDecap(enc, skR, pkI):
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
-curves used in the ciphersuites in {#ciphersuites} are as follows:
+curves referenced in {#ciphersuites} are as follows:
 
 * P-256: The X-coordinate of the point, encoded as a 32-octet
   big-endian integer
@@ -298,7 +302,7 @@ the nonces used so that the same nonce is not used with multiple
 plaintexts.
 
 The procedures described in this session are laid out in a
-Python-like pseudocode.  The ciphersuite in use is left implicit.
+Python-like pseudocode.  The algorithms in use is left implicit.
 
 ## Key Schedule
 
@@ -307,8 +311,9 @@ mechanism for translating the inputs to the protocol into an
 encryption context.  The inputs to the key schedule are as follows:
 
 * `pkR` - The receiver's public key
-* `zz` - A shared secret generated via the KEM for this transaction
-* `enc` - An encapsulated key produced by the KEM for the receiver
+* `zz` and `enc` - The outputs from a KEM transaction
+* `kem_id`, `kdf_id`, `aead_id` - Identifiers for the algorithms
+  used in this transaction
 * `info` (optional) - Application-supplied information
 * `psk` (optional) - A pre-shared secret held by both the initiator
   and the receiver.
@@ -353,7 +358,7 @@ def KeySchedule(pkR, zz, enc, info, psk, pskID, pkI):
     pkIm = Marshal(pkI)
 
   mode = SelectMode(psk, pskID, pkI)
-  context = concat(mode, ciphersuite,
+  context = concat(mode, kem_id, kdf_id, aead_id,
                    len(enc), enc, len(pkRm), pkRm,
                    len(pskIDm), pskIDm, len(pkIm), pkIm
                    len(info), info)
@@ -542,24 +547,17 @@ def Context.Open(aad, ct):
   return pt
 ~~~~~
 
-# Ciphersuites {#ciphersuites}
+# Algorithm Identifiers {#ciphersuites}
 
-The HPKE variants as presented will function correctly for any
-combination of primitives that provides the functions described
-above. In this section, we provide specific instantiations of these
-primitives for standard groups, including: Curve25519, Curve448
-{{!RFC7748}}, and the NIST curves P-256 and P-512.
+## Key Encapsulation Mechanisms (KEMs)
 
-| Value  | KEM               | KDF         | AEAD             |
-|:-------|:------------------|:------------|:-----------------|
-| 0x0001 | DHKEM(P-256)      | HKDF-SHA256 | AES-GCM-128      |
-| 0x0002 | DHKEM(P-256)      | HKDF-SHA256 | ChaCha20Poly1305 |
-| 0x0003 | DHKEM(Curve25519) | HKDF-SHA256 | AES-GCM-128      |
-| 0x0004 | DHKEM(Curve25519) | HKDF-SHA256 | ChaCha20Poly1305 |
-| 0x0005 | DHKEM(P-521)      | HKDF-SHA512 | AES-GCM-256      |
-| 0x0006 | DHKEM(P-521)      | HKDF-SHA512 | ChaCha20Poly1305 |
-| 0x0007 | DHKEM(Curve448)   | HKDF-SHA512 | AES-GCM-256      |
-| 0x0008 | DHKEM(Curve448)   | HKDF-SHA512 | ChaCha20Poly1305 |
+| Value  | KEM               | Nenc | Npk | Reference      |
+|:-------|:------------------|:-----|:----|:---------------|
+| 0x0000 | (reserved)        | N/A  | N/A | N/A            |
+| 0x0001 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
+| 0x0002 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
+| 0x0003 | DHKEM(P-521)      | 65   | 65  | {{NISTCurves}} |
+| 0x0004 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
 For the NIST curves P-256 and P-521, the Marshal function of the DH
 scheme produces the normal (non-compressed) representation of the
@@ -572,14 +570,22 @@ For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
 octet strings for public keys.
 
-The values `Nk` and `Nn` for the AEAD algorithms referenced above
-are as follows:
+## Key Derivation Functions (KDFs)
 
-| AEAD             | Nk  | Nn  |
-|:-----------------|:----|:----|
-| AES-GCM-128      | 16  | 12  |
-| AES-GCM-256      | 32  | 12  |
-| ChaCha20Poly1305 | 32  | 12  |
+| Value  | KDF         | Nh  | Reference    |
+|:-------|:------------|-----|:-------------|
+| 0x0000 | (reserved)  | N/A | N/A          |
+| 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
+| 0x0002 | HKDF-SHA512 | 64  | {{?RFC5869}} |
+
+## Authentication Encryption with Associated Data (AEAD) Functions
+
+| Value  | AEAD             | Nk  | Nn  | Reference    |
+|:-------|:-----------------|:----|:----|:-------------|
+| 0x0000 | (reserved)       | N/A | N/A | N/A          |
+| 0x0001 | AES-GCM-128      | 16  | 12  | {{GCM}}      |
+| 0x0002 | AES-GCM-256      | 32  | 12  | {{GCM}}      |
+| 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
 
 # Security Considerations
 
@@ -587,7 +593,7 @@ are as follows:
 
 # IANA Considerations
 
-[[ OPEN ISSUE: Should the above table be in an IANA registry? ]]
+[[ TODO: Make IANA registries for the above ]]
 
 --- back
 
