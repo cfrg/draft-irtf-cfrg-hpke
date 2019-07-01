@@ -187,6 +187,8 @@ HPKE variants rely on the following primitives:
     of the private key `skR` is assured that the ephemeral shared
     key is known only to the holder of the private key corresponding
     to `pkI`
+  - Nenc: The length in octets of an encapsulated key from this KEM
+  - Npk: The length in octets of a public key for this KEM
 
 * A Key Derivation Function:
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
@@ -278,11 +280,12 @@ possession of a pre-shared key, and one of which authenticates
 possession of a KEM private key.  The following one-octet values
 will be used to distinguish between modes:
 
-| Mode      | Value |
-|:==========|:======|
-| mode_base | 0x00  |
-| mode_psk  | 0x01  |
-| mode_auth | 0x02  |
+| Mode          | Value |
+|:==============|:======|
+| mode_base     | 0x00  |
+| mode_psk      | 0x01  |
+| mode_auth     | 0x02  |
+| mode_psk_auth | 0x03  |
 
 All of these cases follow the same basic two-step pattern:
 
@@ -297,6 +300,91 @@ plaintexts.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The ciphersuite in use is left implicit.
 
+## Key Schedule
+
+The variants of HPKE defined in this document share a common
+mechanism for translating the inputs to the protocol into an
+encryption context.  The inputs to the key schedule are as follows:
+
+* `pkR` - The receiver's public key
+* `zz` - A shared secret generated via the KEM for this transaction
+* `enc` - An encapsulated key produced by the KEM for the receiver
+* `info` (optional) - Application-supplied information
+* `psk` (optional) - A pre-shared secret held by both the initiator
+  and the receiver.
+* `pskID` (optional) - An identifier for the PSK
+* `pkI` (optional) - The initiator's public key
+
+If any of the optional values is not present (e.g., set to `None`
+in a Python implementation), then it is treated in the same way as
+an empty octet string.
+
+The key and nonce produced by this algorithm have the property that
+they are only known to the holder of the receipient private key, and
+the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
+and `pskID` arguments are provided, then the recipient is assured
+that the initiator held the PSK.  If the `pkIm` argument is
+provided, then the recipient is assued that the initator held the
+corresponding private key (assuming that `zz` and `enc` were
+generated using the AuthEncap / AuthDecap methods; see below).
+
+~~~~~
+def SelectMode(psk, pskID, pkI):
+  if not psk and not pskID and not pkI:
+    return mode_base
+  elif psk and pskID and not pkI:
+    return mode_psk
+  elif not psk and not pskID and pkI:
+    return mode_auth
+  elif psk and pskID and pkI:
+    return mode_psk_auth
+
+  raise Exception("Invalid configuration")
+
+def KeySchedule(pkR, zz, enc, info, psk, pskID, pkI):
+  salt = zero(Nh)
+  if psk:
+    salt = psk
+    pskIDm = pskID
+
+  pkRm = Marshal(pkR)
+  pkIm = ""
+  if pkI:
+    pkIm = Marshal(pkI)
+
+  mode = SelectMode(psk, pskID, pkI)
+  context = concat(mode, ciphersuite,
+                   len(enc), enc, len(pkRm), pkRm,
+                   len(pskIDm), pskIDm, len(pkIm), pkIm
+                   len(info), info)
+
+  secret = Extract(salt, zz)
+  key = Expand(secret, concat("hpke key", context), Nk)
+  nonce = Expand(secret, concat("hpke nonce", context), Nn)
+  return Context(key, nonce)
+~~~~~
+
+Note that the context construction in the KeySchedule procedure is
+equivalent to serializing a structure of the following form in the
+TLS presentation syntax:
+
+~~~~~
+struct {
+    // Mode and algorithms
+    uint8 mode;
+    uint16 ciphersuite;
+
+    // Public inputs to this key exchange
+    opaque enc[Nenc];
+    opaque pkR[Npk];
+    opaque pskID<0..2^16-1>;
+    opaque pkI<0..2^16-1>;
+
+    // Application-supplied info
+    opaque info<0..2^16-1>;
+} HPKEContext;
+~~~~~
+
 ## Encryption to a Public Key
 
 The most basic function of an HPKE scheme is to enable encryption
@@ -308,42 +396,14 @@ The the shared secret produced by the KEM is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
-Note that the `SetupCore()` method is also used by the other HPKE
-variants describe below.
 ~~~~~
-def SetupCore(mode, secret, kemContext, info):
-  context = Concat(ciphersuite, mode,
-                   len(kemContext), kemContext,
-                   len(info), info)
-  key = Expand(secret, concat("hpke key", context), Nk)
-  nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  return Context(key, nonce)
-
-def SetupBase(pkR, zz, enc, info):
-  kemContext = concat(enc, pkR)
-  secret = Extract(zero(Nh), zz)
-  return SetupCore(mode_base, secret, kemContext, info)
-
 def SetupBaseI(pkR, info):
   zz, enc = Encap(pkR)
-  return enc, SetupBase(pkR, zz, enc, info)
+  return enc, KeySchedule(pkR, zz, enc, info, None, None, None)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
-  return SetupBase(pk(skR), zz, enc, info)
-~~~~~
-
-Note that the context construction in the SetupCore procedure is
-equivalent to serializing a structure of the following form in the
-TLS presentation syntax:
-
-~~~~~
-struct {
-    uint16 ciphersuite;
-    uint8 mode;
-    opaque kemContext<0..255>;
-    opaque info<0..255>;
-} HPKEContext;
+  return KeySchedule(pk(skR), zz, enc, info, None, None, None)
 ~~~~~
 
 ## Authentication using a Pre-Shared Key
@@ -366,18 +426,13 @@ use decryption of a plaintext as an oracle for performing offline
 dictionary attacks.
 
 ~~~~~
-def SetupPSK(pkR, psk, pskID, zz, enc, info):
-  kemContext = concat(enc, pkR, pskID)
-  secret = Extract(psk, zz)
-  return SetupCore(mode_psk, secret, kemContext, info)
-
 def SetupPSKI(pkR, psk, pskID, info):
   zz, enc = Encap(pkR)
-  return enc, SetupPSK(pkR, psk, pskID, zz, enc, info)
+  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, None)
 
 def SetupPSKR(enc, skR, psk, pskID, info):
   zz = Decap(enc, skR)
-  return SetupPSK(pk(skR), psk, pskID, zz, enc, info)
+  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, None)
 ~~~~~
 
 ## Authentication using an Asymmetric Key
@@ -396,8 +451,7 @@ The primary differences from the base case are:
 
 * The calls to `Encap` and `Decap` are replaced with calls to
   `AuthEncap` and `AuthDecap`.
-* The initiator public key is added to the context string used as
-  the `info` input to the KDF
+* The initiator public key is added to the context string
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procuedures.
@@ -409,18 +463,30 @@ name), then this identity should be included in the `info` parameter
 to avoid unknown key share attacks.
 
 ~~~~~
-def SetupAuth(pkR, pkI, zz, enc, info):
-  kemContext = concat(enc, pkR, pkI)
-  secret = Extract(zero(Nh), zz)
-  return SetupCore(mode_auth, secret, kemContext, info)
-
 def SetupAuthI(pkR, skI, info):
   zz, enc = AuthEncap(pkR, skI)
-  return enc, SetupAuth(pkR, pk(skI), zz, enc, info)
+  return enc, KeySchedule(pkR, zz, enc, info, None, None, pk(skI))
 
 def SetupAuthR(enc, skR, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
-  return SetupAuth(pk(skR), pkI, zz, enc, info)
+  return KeySchedule(pk(skR), zz, enc, info, None, None, pkI)
+~~~~~
+
+## Authentication using both a PSK and an Asymmetric Key
+
+This mode is a straightforward combination of the PSK and
+authenticated modes.  The PSK is passed through to the key schedule
+as in the former, and as in the latter, we use the authenticated KEM
+variants.
+
+~~~~~
+def SetupAuthI(pkR, psk, pskID, skI, info):
+  zz, enc = AuthEncap(pkR, skI)
+  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pk(skI))
+
+def SetupAuthR(enc, skR, psk, pskID, pkI, info):
+  zz = AuthDecap(enc, skR, pkI)
+  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkI)
 ~~~~~
 
 ## Encryption and Decryption
