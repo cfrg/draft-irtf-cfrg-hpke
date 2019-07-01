@@ -156,9 +156,14 @@ operations, roles, and behaviors of HPKE:
   two-octet unsigned integer in network (big-endian) byte order
 - `encode_big_endian(x, n)`: An octet string encoding the integer
   value `x` as an n-byte big-endian value
-- `+`: Concatenation of octet strings; `0x01 + 0x02 = 0x0102`
-- `*`: Repetition of an octet string; `0x01 * 4 = 0x01010101`
-- `^`: XOR of octet strings; `0xF0F0 ^ 0x1234 = 0xE2C4`
+- `concat(x0, ..., xN)`: Concatenation of octet strings.  An empty
+  value is treated as equivalent to an empty octet string.
+  `concat(0x01, None, 0x0203) = 0x010203`
+- `zero(n)`: An all-zero octet string of length `n`; `zero(4) =
+  0x00000000`
+- `xor(a,b)`: XOR of octet strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
+  It is an error to call this function with two arguments of unequal
+  length.
 
 # Cryptographic Dependencies
 
@@ -235,13 +240,13 @@ def Decap(enc, skR):
 
 def AuthEncap(pkR, skI):
   skE, pkE = GenerateKeyPair()
-  zz = DH(skE, pkR) + DH(skI, pkR)
+  zz = concat(DH(skE, pkR), DH(skI, pkR))
   enc = Marshal(pkE)
   return zz, enc
 
 def AuthDecap(enc, skR, pkI):
   pkE = Unmarshal(enc)
-  return DH(skR, pkE) + DH(skR, pkI)
+  return concat(DH(skR, pkE), DH(skR, pkI))
 ~~~
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
@@ -304,21 +309,19 @@ with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
 Note that the `SetupCore()` method is also used by the other HPKE
-variants describe below.  The value `0*Nh` in the `SetupBase()`
-procedure represents an all-zero octet string of length `Nh`.
-
+variants describe below.
 ~~~~~
 def SetupCore(mode, secret, kemContext, info):
-  context = ciphersuite + mode +
-            len(kemContext) + kemContext +
-            len(info) + info
-  key = Expand(secret, "hpke key" + context, Nk)
-  nonce = Expand(secret, "hpke nonce" + context, Nn)
+  context = Concat(ciphersuite, mode,
+                   len(kemContext), kemContext,
+                   len(info), info)
+  key = Expand(secret, concat("hpke key", context), Nk)
+  nonce = Expand(secret, concat("hpke nonce", context), Nn)
   return Context(key, nonce)
 
 def SetupBase(pkR, zz, enc, info):
-  kemContext = enc + pkR
-  secret = Extract(0*Nh, zz)
+  kemContext = concat(enc, pkR)
+  secret = Extract(zero(Nh), zz)
   return SetupCore(mode_base, secret, kemContext, info)
 
 def SetupBaseI(pkR, info):
@@ -364,7 +367,7 @@ dictionary attacks.
 
 ~~~~~
 def SetupPSK(pkR, psk, pskID, zz, enc, info):
-  kemContext = enc + pkR + pskID
+  kemContext = concat(enc, pkR, pskID)
   secret = Extract(psk, zz)
   return SetupCore(mode_psk, secret, kemContext, info)
 
@@ -407,8 +410,8 @@ to avoid unknown key share attacks.
 
 ~~~~~
 def SetupAuth(pkR, pkI, zz, enc, info):
-  kemContext = enc + pkR + pkI
-  secret = Extract(0*Nh, zz)
+  kemContext = concat(enc, pkR, pkI)
+  secret = Extract(zero(Nh), zz)
   return SetupCore(mode_auth, secret, kemContext, info)
 
 def SetupAuthI(pkR, skI, info):
@@ -458,7 +461,7 @@ values used for encryption and decryption line up.
 [[ TODO: Check for overflow, a la TLS ]]
 def Context.Nonce(seq):
   encSeq = encode_big_endian(seq, len(self.nonce))
-  return self.nonce ^ encSeq
+  return xor(self.nonce, encSeq)
 
 def Context.Seal(aad, pt):
   ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
