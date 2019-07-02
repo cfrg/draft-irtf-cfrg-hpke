@@ -151,15 +151,14 @@ operations, roles, and behaviors of HPKE:
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
-- `pk(skX)`: The public key corresponding to a private key
+- `pk(skX)`: The public key corresponding to private key `skX`
 - `len(x)`: The length of the octet string `x`, expressed as a
   two-octet unsigned integer in network (big-endian) byte order
 - `encode_big_endian(x, n)`: An octet string encoding the integer
   value `x` as an n-byte big-endian value
-- `concat(x0, ..., xN)`: Concatenation of octet strings.  An empty
-  value is treated as equivalent to an empty octet string.
-  `concat(0x01, None, 0x0203) = 0x010203`
-- `zero(n)`: An all-zero octet string of length `n`; `zero(4) =
+- `concat(x0, ..., xN)`: Concatenation of octet strings.
+  `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
+- `zero(n)`: An all-zero octet string of length `n`. `zero(4) =
   0x00000000`
 - `xor(a,b)`: XOR of octet strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
@@ -312,7 +311,7 @@ Note that the `SetupCore()` method is also used by the other HPKE
 variants describe below.
 ~~~~~
 def SetupCore(mode, secret, kemContext, info):
-  context = Concat(ciphersuite, mode,
+  context = concat(ciphersuite, mode,
                    len(kemContext), kemContext,
                    len(info), info)
   key = Expand(secret, concat("hpke key", context), Nk)
