@@ -151,14 +151,18 @@ operations, roles, and behaviors of HPKE:
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
-- `pk(sk)`: The public key corresponding to a private key
-- `len(x)`: The two-octet length of the octet string `x`, in network
-  (big-endian) byte order
+- `pk(skX)`: The public key corresponding to private key `skX`
+- `len(x)`: The length of the octet string `x`, expressed as a
+  two-octet unsigned integer in network (big-endian) byte order
 - `encode_big_endian(x, n)`: An octet string encoding the integer
   value `x` as an n-byte big-endian value
-- `+`: Concatenation of octet strings; `0x01 + 0x02 = 0x0102`
-- `*`: Repetition of an octet string; `0x01 * 4 = 0x01010101`
-- `^`: XOR of octet strings; `0xF0F0 ^ 0x1234 = 0xE2C4`
+- `concat(x0, ..., xN)`: Concatenation of octet strings.
+  `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
+- `zero(n)`: An all-zero octet string of length `n`. `zero(4) =
+  0x00000000`
+- `xor(a,b)`: XOR of octet strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
+  It is an error to call this function with two arguments of unequal
+  length.
 
 # Cryptographic Dependencies
 
@@ -212,9 +216,12 @@ following operations:
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a shared secret
+  private key sk and public key pk to produce a fixed-length shared
+  secret
 - Marshal(pk): Produce a fixed-length octet string encoding the
   public key `pk`
+- Unmarshal(enc): Parse a fixed-length octet string to recover a
+  public key
 
 Then we can construct a KEM (which we'll call "DHKEM") in the
 following way:
@@ -232,22 +239,22 @@ def Decap(enc, skR):
 
 def AuthEncap(pkR, skI):
   skE, pkE = GenerateKeyPair()
-  zz = DH(skE, pkR) + DH(skI, pkR)
+  zz = concat(DH(skE, pkR), DH(skI, pkR))
   enc = Marshal(pkE)
   return zz, enc
 
 def AuthDecap(enc, skR, pkI):
   pkE = Unmarshal(enc)
-  return DH(skR, pkE) + DH(skR, pkI)
+  return concat(DH(skR, pkE), DH(skR, pkI))
 ~~~
 
-The GenerateKeyPair function is the same as for the underlying DH
-group.  The Marshal functions for the curves used in the
-ciphersuites in {#ciphersuites} are as follows:
+The GenerateKeyPair, Marshal, and Unmarshal functions are the same
+as for the underlying DH group.  The Marshal functions for the
+curves used in the ciphersuites in {#ciphersuites} are as follows:
 
 * P-256: The X-coordinate of the point, encoded as a 32-octet
   big-endian integer
-* P-521: The X-coordinate of the point, encoded as a 32-octet
+* P-521: The X-coordinate of the point, encoded as a 66-octet
   big-endian integer
 * Curve25519: The standard 32-octet representation of the public key
 * Curve448: The standard 56-octet representation of the public key
@@ -301,21 +308,19 @@ with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
 Note that the `SetupCore()` method is also used by the other HPKE
-variants describe below.  The value `0*Nh` in the `SetupBase()`
-procedure represents an all-zero octet string of length `Nh`.
-
+variants describe below.
 ~~~~~
 def SetupCore(mode, secret, kemContext, info):
-  context = ciphersuite + mode +
-            len(kemContext) + kemContext +
-            len(info) + info
-  key = Expand(secret, "hpke key" + context, Nk)
-  nonce = Expand(secret, "hpke nonce" + context, Nn)
+  context = concat(ciphersuite, mode,
+                   len(kemContext), kemContext,
+                   len(info), info)
+  key = Expand(secret, concat("hpke key", context), Nk)
+  nonce = Expand(secret, concat("hpke nonce", context), Nn)
   return Context(key, nonce)
 
 def SetupBase(pkR, zz, enc, info):
-  kemContext = enc + pkR
-  secret = Extract(0\*Nh, zz)
+  kemContext = concat(enc, pkR)
+  secret = Extract(zero(Nh), zz)
   return SetupCore(mode_base, secret, kemContext, info)
 
 def SetupBaseI(pkR, info):
@@ -361,7 +366,7 @@ dictionary attacks.
 
 ~~~~~
 def SetupPSK(pkR, psk, pskID, zz, enc, info):
-  kemContext = enc + pkR + pskID
+  kemContext = concat(enc, pkR, pskID)
   secret = Extract(psk, zz)
   return SetupCore(mode_psk, secret, kemContext, info)
 
@@ -404,8 +409,8 @@ to avoid unknown key share attacks.
 
 ~~~~~
 def SetupAuth(pkR, pkI, zz, enc, info):
-  kemContext = enc + pkR + pkI
-  secret = Extract(0*Nh, zz)
+  kemContext = concat(enc, pkR, pkI)
+  secret = Extract(zero(Nh), zz)
   return SetupCore(mode_auth, secret, kemContext, info)
 
 def SetupAuthI(pkR, skI, info):
@@ -455,7 +460,7 @@ values used for encryption and decryption line up.
 [[ TODO: Check for overflow, a la TLS ]]
 def Context.Nonce(seq):
   encSeq = encode_big_endian(seq, len(self.nonce))
-  return self.nonce ^ encSeq
+  return xor(self.nonce, encSeq)
 
 def Context.Seal(aad, pt):
   ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
@@ -463,7 +468,7 @@ def Context.Seal(aad, pt):
   return ct
 
 def Context.Open(aad, ct):
-  pt = Open(self.key, self.Nonce(self.seq), aad, pt)
+  pt = Open(self.key, self.Nonce(self.seq), aad, ct)
   if pt == OpenError:
     return OpenError
   self.seq += 1
