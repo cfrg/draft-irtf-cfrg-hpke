@@ -343,6 +343,7 @@ def SelectMode(psk, pskID, pkI):
 
 def KeySchedule(pkR, zz, enc, info, psk, pskID, pkI):
   salt = zero(Nh)
+  pskIDm = ""
   if psk:
     salt = psk
     pskIDm = pskID
