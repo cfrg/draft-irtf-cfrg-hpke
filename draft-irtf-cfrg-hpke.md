@@ -329,35 +329,32 @@ corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
 ~~~~~
-def SelectMode(psk, pskID, pkI):
-  if not psk and not pskID and not pkI:
-    return mode_base
-  elif psk and pskID and not pkI:
-    return mode_psk
-  elif not psk and not pskID and pkI:
-    return mode_auth
-  elif psk and pskID and pkI:
-    return mode_psk_auth
+default_pkIm = zero(Npk)
+default_salt = zero(Nh)
+default_pskId = zero(0)
 
-  raise Exception("Invalid configuration")
+def VerifyMode(mode, salt, pskID, pkIm):
+  got_psk = (salt != default_salt and pskID != default_pskID)
+  no_psk = (salt == default_salt and pskID == default_pskID)
+  got_pkIm = (pkIm != default_pkIm)
+  no_pkIm = (pkIm == default_pkIm)
 
-def KeySchedule(pkR, zz, enc, info, psk, pskID, pkI):
-  salt = zero(Nh)
-  pskIDm = ""
-  if psk:
-    salt = psk
-    pskIDm = pskID
+  if mode == mode_base and (got_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_base")
+  if mode == mode_psk and (no_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_psk")
+  if mode == mode_auth and (got_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_auth")
+  if mode == mode_psk_auth and (no_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_psk_auth")
+
+def KeySchedule(mode, pkRm, zz, enc, info, salt, pskID, pkIm):
+  VerifyMode(mode, psk, pskID, pkI)
 
   pkRm = Marshal(pkR)
-  pkIm = ""
-  if pkI:
-    pkIm = Marshal(pkI)
-
-  mode = SelectMode(psk, pskID, pkI)
   context = concat(mode, ciphersuite,
-                   len(enc), enc, len(pkRm), pkRm,
-                   len(pskIDm), pskIDm, len(pkIm), pkIm
-                   len(info), info)
+                   len(enc), enc, len(pkRm), pkRm, pkIm,
+                   len(pskIDm), pskIDm, len(info), info)
 
   secret = Extract(salt, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
@@ -378,8 +375,8 @@ struct {
     // Public inputs to this key exchange
     opaque enc[Nenc];
     opaque pkR[Npk];
+    opaque pkI[Npk];
     opaque pskID<0..2^16-1>;
-    opaque pkI<0..2^16-1>;
 
     // Application-supplied info
     opaque info<0..2^16-1>;
@@ -400,11 +397,13 @@ explicit `info` parameter provided by the caller.
 ~~~~~
 def SetupBaseI(pkR, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(pkR, zz, enc, info, None, None, None)
+  return enc, KeySchedule(mode_base, pkR, zz, enc, info,
+                          default_salt, default_pskID, default_pkIm)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
-  return KeySchedule(pk(skR), zz, enc, info, None, None, None)
+  return KeySchedule(mode_base, pk(skR), zz, enc, info,
+                     default_salt, default_pskID, default_pkIm)
 ~~~~~
 
 ## Authentication using a Pre-Shared Key
@@ -429,11 +428,13 @@ dictionary attacks.
 ~~~~~
 def SetupPSKI(pkR, psk, pskID, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, None)
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          psk, pskId, default_pkIm)
 
 def SetupPSKR(enc, skR, psk, pskID, info):
   zz = Decap(enc, skR)
-  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, None)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     psk, pskId, default_pkIm)
 ~~~~~
 
 ## Authentication using an Asymmetric Key
@@ -466,11 +467,15 @@ to avoid unknown key share attacks.
 ~~~~~
 def SetupAuthI(pkR, skI, info):
   zz, enc = AuthEncap(pkR, skI)
-  return enc, KeySchedule(pkR, zz, enc, info, None, None, pk(skI))
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          default_salt, default_pskID, pkIm)
 
 def SetupAuthR(enc, skR, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
-  return KeySchedule(pk(skR), zz, enc, info, None, None, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     default_salt, default_pskID, pkIm)
 ~~~~~
 
 ## Authentication using both a PSK and an Asymmetric Key
@@ -483,11 +488,13 @@ variants.
 ~~~~~
 def SetupAuthI(pkR, psk, pskID, skI, info):
   zz, enc = AuthEncap(pkR, skI)
-  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pk(skI))
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
 
 def SetupAuthR(enc, skR, psk, pskID, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
-  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
 ~~~~~
 
 ## Encryption and Decryption
