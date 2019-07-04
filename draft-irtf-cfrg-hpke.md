@@ -299,26 +299,29 @@ plaintexts.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The ciphersuite in use is left implicit.
 
-## Key Schedule
+## Creating an Encryption Context
 
 The variants of HPKE defined in this document share a common
-mechanism for translating the inputs to the protocol into an
-encryption context.  The inputs to the key schedule are as follows:
+mechanism for translating the protocol inputs into an encryption
+context.  The key schedule inputs are as follows:
 
 * `pkR` - The receiver's public key
 * `zz` - A shared secret generated via the KEM for this transaction
 * `enc` - An encapsulated key produced by the KEM for the receiver
-* `info` (optional) - Application-supplied information
-* `psk` (optional) - A pre-shared secret held by both the initiator
-  and the receiver.
-* `pskID` (optional) - An identifier for the PSK
-* `pkI` (optional) - The initiator's public key
+* `info` - Application-supplied information (optional; default value
+  "")
+* `psk` - A pre-shared secret held by both the initiator
+  and the receiver (optional; default value `zero(Nh)`).
+* `pskID` - An identifier for the PSK (optional; default
+  value `"" = zero(0)`
+* `pkI` - The initiator's public key (optional; default
+  value `zero(Npk)`)
 
-If any of the optional values is not present (e.g., set to `None`
-in a Python implementation), then it is treated in the same way as
-an empty octet string.
+The `psk` and `pskID` fields MUST appear together or not at all.
+That is, if a non-default value is provided for one of them, then
+the other MUST be set to a non-default value.
 
-The key and nonce produced by this algorithm have the property that
+The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the receipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
@@ -329,12 +332,12 @@ generated using the AuthEncap / AuthDecap methods; see below).
 
 ~~~~~
 default_pkIm = zero(Npk)
-default_salt = zero(Nh)
+default_psk = zero(Nh)
 default_pskId = zero(0)
 
-def VerifyMode(mode, salt, pskID, pkIm):
-  got_psk = (salt != default_salt and pskID != default_pskID)
-  no_psk = (salt == default_salt and pskID == default_pskID)
+def VerifyMode(mode, psk, pskID, pkIm):
+  got_psk = (psk != default_psk and pskID != default_pskID)
+  no_psk = (psk == default_psk and pskID == default_pskID)
   got_pkIm = (pkIm != default_pkIm)
   no_pkIm = (pkIm == default_pkIm)
 
@@ -347,15 +350,14 @@ def VerifyMode(mode, salt, pskID, pkIm):
   if mode == mode_psk_auth and (no_psk or no_pkIm):
     raise Exception("Invalid configuration for mode_psk_auth")
 
-def KeySchedule(mode, pkRm, zz, enc, info, salt, pskID, pkIm):
+def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
   VerifyMode(mode, psk, pskID, pkI)
 
   pkRm = Marshal(pkR)
-  context = concat(mode, ciphersuite,
-                   len(enc), enc, len(pkRm), pkRm, pkIm,
-                   len(pskIDm), pskIDm, len(info), info)
+  context = concat(mode, ciphersuite, enc, pkRm, pkIm,
+                   len(pskID), pskID, len(info), info)
 
-  secret = Extract(salt, zz)
+  secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
   nonce = Expand(secret, concat("hpke nonce", context), Nn)
   return Context(key, nonce)
@@ -397,12 +399,12 @@ explicit `info` parameter provided by the caller.
 def SetupBaseI(pkR, info):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(mode_base, pkR, zz, enc, info,
-                          default_salt, default_pskID, default_pkIm)
+                          default_psk, default_pskID, default_pkIm)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
   return KeySchedule(mode_base, pk(skR), zz, enc, info,
-                     default_salt, default_pskID, default_pkIm)
+                     default_psk, default_pskID, default_pkIm)
 ~~~~~
 
 ## Authentication using a Pre-Shared Key
@@ -468,13 +470,13 @@ def SetupAuthI(pkR, skI, info):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
   return enc, KeySchedule(pkR, zz, enc, info,
-                          default_salt, default_pskID, pkIm)
+                          default_psk, default_pskID, pkIm)
 
 def SetupAuthR(enc, skR, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
   return KeySchedule(pk(skR), zz, enc, info,
-                     default_salt, default_pskID, pkIm)
+                     default_psk, default_pskID, pkIm)
 ~~~~~
 
 ## Authentication using both a PSK and an Asymmetric Key
