@@ -154,15 +154,14 @@ operations, roles, and behaviors of HPKE:
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
-- `pk(skX)`: The public key corresponding to a private key
+- `pk(skX)`: The public key corresponding to private key `skX`
 - `len(x)`: The length of the octet string `x`, expressed as a
   two-octet unsigned integer in network (big-endian) byte order
 - `encode_big_endian(x, n)`: An octet string encoding the integer
   value `x` as an n-byte big-endian value
-- `concat(x0, ..., xN)`: Concatenation of octet strings.  An empty
-  value is treated as equivalent to an empty octet string.
-  `concat(0x01, None, 0x0203) = 0x010203`
-- `zero(n)`: An all-zero octet string of length `n`; `zero(4) =
+- `concat(x0, ..., xN)`: Concatenation of octet strings.
+  `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
+- `zero(n)`: An all-zero octet string of length `n`. `zero(4) =
   0x00000000`
 - `xor(a,b)`: XOR of octet strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
@@ -304,27 +303,29 @@ plaintexts.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use is left implicit.
 
-## Key Schedule
+## Creating an Encryption Context
 
 The variants of HPKE defined in this document share a common
-mechanism for translating the inputs to the protocol into an
-encryption context.  The inputs to the key schedule are as follows:
+mechanism for translating the protocol inputs into an encryption
+context.  The key schedule inputs are as follows:
 
 * `pkR` - The receiver's public key
-* `zz` and `enc` - The outputs from a KEM transaction
-* `kem_id`, `kdf_id`, `aead_id` - Identifiers for the algorithms
-  used in this transaction
-* `info` (optional) - Application-supplied information
-* `psk` (optional) - A pre-shared secret held by both the initiator
-  and the receiver.
-* `pskID` (optional) - An identifier for the PSK
-* `pkI` (optional) - The initiator's public key
+* `zz` - A shared secret generated via the KEM for this transaction
+* `enc` - An encapsulated key produced by the KEM for the receiver
+* `info` - Application-supplied information (optional; default value
+  "")
+* `psk` - A pre-shared secret held by both the initiator
+  and the receiver (optional; default value `zero(Nh)`).
+* `pskID` - An identifier for the PSK (optional; default
+  value `"" = zero(0)`
+* `pkI` - The initiator's public key (optional; default
+  value `zero(Npk)`)
 
-If any of the optional values is not present (e.g., set to `None`
-in a Python implementation), then it is treated in the same way as
-an empty octet string.
+The `psk` and `pskID` fields MUST appear together or not at all.
+That is, if a non-default value is provided for one of them, then
+the other MUST be set to a non-default value.
 
-The key and nonce produced by this algorithm have the property that
+The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the receipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
@@ -334,36 +335,33 @@ corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
 ~~~~~
-def SelectMode(psk, pskID, pkI):
-  if not psk and not pskID and not pkI:
-    return mode_base
-  elif psk and pskID and not pkI:
-    return mode_psk
-  elif not psk and not pskID and pkI:
-    return mode_auth
-  elif psk and pskID and pkI:
-    return mode_psk_auth
+default_pkIm = zero(Npk)
+default_psk = zero(Nh)
+default_pskId = zero(0)
 
-  raise Exception("Invalid configuration")
+def VerifyMode(mode, psk, pskID, pkIm):
+  got_psk = (psk != default_psk and pskID != default_pskID)
+  no_psk = (psk == default_psk and pskID == default_pskID)
+  got_pkIm = (pkIm != default_pkIm)
+  no_pkIm = (pkIm == default_pkIm)
 
-def KeySchedule(pkR, zz, enc, info, psk, pskID, pkI):
-  salt = zero(Nh)
-  if psk:
-    salt = psk
-    pskIDm = pskID
+  if mode == mode_base and (got_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_base")
+  if mode == mode_psk and (no_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_psk")
+  if mode == mode_auth and (got_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_auth")
+  if mode == mode_psk_auth and (no_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_psk_auth")
+
+def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
+  VerifyMode(mode, psk, pskID, pkI)
 
   pkRm = Marshal(pkR)
-  pkIm = ""
-  if pkI:
-    pkIm = Marshal(pkI)
+  context = concat(mode, ciphersuite, enc, pkRm, pkIm,
+                   len(pskID), pskID, len(info), info)
 
-  mode = SelectMode(psk, pskID, pkI)
-  context = concat(mode, kem_id, kdf_id, aead_id,
-                   len(enc), enc, len(pkRm), pkRm,
-                   len(pskIDm), pskIDm, len(pkIm), pkIm
-                   len(info), info)
-
-  secret = Extract(salt, zz)
+  secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
   nonce = Expand(secret, concat("hpke nonce", context), Nn)
   return Context(key, nonce)
@@ -382,8 +380,8 @@ struct {
     // Public inputs to this key exchange
     opaque enc[Nenc];
     opaque pkR[Npk];
+    opaque pkI[Npk];
     opaque pskID<0..2^16-1>;
-    opaque pkI<0..2^16-1>;
 
     // Application-supplied info
     opaque info<0..2^16-1>;
@@ -404,11 +402,13 @@ explicit `info` parameter provided by the caller.
 ~~~~~
 def SetupBaseI(pkR, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(pkR, zz, enc, info, None, None, None)
+  return enc, KeySchedule(mode_base, pkR, zz, enc, info,
+                          default_psk, default_pskID, default_pkIm)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
-  return KeySchedule(pk(skR), zz, enc, info, None, None, None)
+  return KeySchedule(mode_base, pk(skR), zz, enc, info,
+                     default_psk, default_pskID, default_pkIm)
 ~~~~~
 
 ## Authentication using a Pre-Shared Key
@@ -433,11 +433,13 @@ dictionary attacks.
 ~~~~~
 def SetupPSKI(pkR, psk, pskID, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, None)
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          psk, pskId, default_pkIm)
 
 def SetupPSKR(enc, skR, psk, pskID, info):
   zz = Decap(enc, skR)
-  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, None)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     psk, pskId, default_pkIm)
 ~~~~~
 
 ## Authentication using an Asymmetric Key
@@ -470,11 +472,15 @@ to avoid unknown key share attacks.
 ~~~~~
 def SetupAuthI(pkR, skI, info):
   zz, enc = AuthEncap(pkR, skI)
-  return enc, KeySchedule(pkR, zz, enc, info, None, None, pk(skI))
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          default_psk, default_pskID, pkIm)
 
 def SetupAuthR(enc, skR, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
-  return KeySchedule(pk(skR), zz, enc, info, None, None, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     default_psk, default_pskID, pkIm)
 ~~~~~
 
 ## Authentication using both a PSK and an Asymmetric Key
@@ -487,11 +493,13 @@ variants.
 ~~~~~
 def SetupAuthI(pkR, psk, pskID, skI, info):
   zz, enc = AuthEncap(pkR, skI)
-  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pk(skI))
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
 
 def SetupAuthR(enc, skR, psk, pskID, pkI, info):
   zz = AuthDecap(enc, skR, pkI)
-  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
 ~~~~~
 
 ## Encryption and Decryption
