@@ -82,7 +82,6 @@ informative:
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
     year: 2019
 
-
 --- abstract
 
 This document describes a scheme for hybrid public-key encryption
@@ -301,7 +300,7 @@ the nonces used so that the same nonce is not used with multiple
 plaintexts.
 
 The procedures described in this session are laid out in a
-Python-like pseudocode.  The algorithms in use is left implicit.
+Python-like pseudocode.  The algorithms in use are left implicit.
 
 ## Creating an Encryption Context
 
