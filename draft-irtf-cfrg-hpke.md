@@ -198,6 +198,8 @@ HPKE variants rely on the following primitives:
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
   - Nh: The output size of the Extract function
+  - Hash(message): Compute the cryptographic hash of input message using
+    the same hash function as the KDF. 
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -333,6 +335,10 @@ provided, then the recipient is assued that the initator held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
+The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and 
+AEAD `aead_id` 2-octet code points, are assumed implicit from the 
+implementation and not passed as parameters. 
+
 ~~~~~
 default_pkIm = zero(Npk)
 default_psk = zero(Nh)
@@ -357,8 +363,10 @@ def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
   VerifyMode(mode, psk, pskID, pkI)
 
   pkRm = Marshal(pkR)
+  ciphersuite = concat(kem_id, kdf_id, aead_id)
+  info_hash = Hash(info)
   context = concat(mode, ciphersuite, enc, pkRm, pkIm,
-                   len(pskID), pskID, len(info), info)
+                   len(pskID), pskID, len(info), info_hash)
 
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
@@ -374,7 +382,9 @@ TLS presentation syntax:
 struct {
     // Mode and algorithms
     uint8 mode;
-    uint16 ciphersuite;
+    uint16 kem_id;
+    uint16 kdf_id;
+    uint16 aead_id;
 
     // Public inputs to this key exchange
     opaque enc[Nenc];
@@ -382,8 +392,8 @@ struct {
     opaque pkI[Npk];
     opaque pskID<0..2^16-1>;
 
-    // Application-supplied info
-    opaque info<0..2^16-1>;
+    // Cryptographic hash of application-supplied info
+    opaque info_hash<0..512>;
 } HPKEContext;
 ~~~~~
 
@@ -394,7 +404,7 @@ for the holder of a given KEM private key.  The `SetupBaseI()` and
 `SetupBaseR()` procedures establish contexts that can be used to
 encrypt and decrypt, respectively, for a given private key.
 
-The the shared secret produced by the KEM is combined via the KDF
+The shared secret produced by the KEM is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
@@ -585,7 +595,7 @@ octet strings for public keys.
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
 | 0x0002 | HKDF-SHA512 | 64  | {{?RFC5869}} |
 
-## Authentication Encryption with Associated Data (AEAD) Functions
+## Authenticated Encryption with Associated Data (AEAD) Functions
 
 | Value  | AEAD             | Nk  | Nn  | Reference    |
 |:-------|:-----------------|:----|:----|:-------------|
@@ -597,6 +607,11 @@ octet strings for public keys.
 # Security Considerations
 
 [[ TODO ]]
+
+# Message Encoding
+
+This document does not specify a wire format encoding for HPKE messages. Applications
+which adopt HPKE must therefore specify an unambiguous encoding mechanism. 
 
 # IANA Considerations
 
