@@ -192,14 +192,13 @@ HPKE variants rely on the following primitives:
   - Npk: The length in octets of a public key for this KEM
 
 * A Key Derivation Function:
+  - Hash(m): Compute the cryptographic hash of input message `m`
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
     from input keying material `IKM` and an optional octet string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Extract function
-  - Hash(message): Compute the cryptographic hash of input message using
-    the same hash function as the KDF. 
+  - Nh: The output size of the Hash and Extract functions
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -364,9 +363,9 @@ def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
+  pskID_hash = Hash(pskID)
   info_hash = Hash(info)
-  context = concat(mode, ciphersuite, enc, pkRm, pkIm,
-                   len(pskID), pskID, len(info), info_hash)
+  context = concat(mode, ciphersuite, enc, pkRm, pkIm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
@@ -390,10 +389,12 @@ struct {
     opaque enc[Nenc];
     opaque pkR[Npk];
     opaque pkI[Npk];
-    opaque pskID<0..2^16-1>;
+
+    // Cryptographic hash of application-supplied pskID
+    opaque pskID_hash[Nh];
 
     // Cryptographic hash of application-supplied info
-    opaque info_hash<0..512>;
+    opaque info_hash[Nh];
 } HPKEContext;
 ~~~~~
 
@@ -611,7 +612,9 @@ octet strings for public keys.
 # Message Encoding
 
 This document does not specify a wire format encoding for HPKE messages. Applications
-which adopt HPKE must therefore specify an unambiguous encoding mechanism. 
+that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
+minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are 
+multiple), and any info values that are not implicit.
 
 # IANA Considerations
 
