@@ -557,38 +557,48 @@ def Context.Open(aad, ct):
 # Single-Shot APIs
 
 In many cases, applications encrypt only a single message to a recipient's public key. 
-This section provides HPKE APIs for "single-shot" encryption and decryption. These APIs
-build on the HPKE APIs specified in {{hpke-kem}} and {{hpke-dem}}. Each of them is built 
-on the following utility functions.
+This section provides templates for HPKE APIs that implement "single-shot" encryption 
+and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}. Without loss
+of generality, assume the following function templates exist for single-shot encryption
+and decryption, respectively:
 
 ~~~~~
-def ContextSeal(aad, pt, (enc, context)):
-  ct = context.Seal(aad, pt)
+def Seal<MODE>(pkR, info, aad, pt, ...):
+  enc, ctx = SetupI<MODE>(pkR, info, ...)
+  ct = ctx.Seal(aad, pt)
   return enc, ct
 
-def ContextOpen(aad, ct, context):
-  return context.Open(aad, ct)
+def Open<MODE>(skR, info, enc, aad, ct, ...):
+  ctx = SetupR<MODE>(enc, skR, info, ...)
+  return ctx.Open(aad, ct)
 ~~~~~
 
-Base Mode:
+The `MODE` template parameter is one of BASE, PSK, Auth, or AuthPSK. Using such a 
+template, SetupBase and OpenBase might be implemented as follows:
 
-- HPKESealBase(aad, pt, pkR, info) = ContextSeal(aad, pt, SetupBaseI(pkR, info))
-- HPKEOpenBase(aad, ct, enc, skR, info) = ContextOpen(aad, ct, SetupBaseR(enc, skR, info))
+~~~~~
+def SealBase(pkR, info, aad, pt):
+  enc, ctx = SetupIBase(pkR, info)
+  ct = ctx.Seal(aad, pt)
+  return enc, ct
 
-Pre-Shared Key Authentication Mode:
+def OpenBase(skR, info, enc, aad, ct):
+  ctx = SetupRBase(enc, skR, info)
+  return ctx.Open(aad, ct)
+~~~~~
 
-- HPKESealPSK(aad, pt, pkR, psk, pskID, info) = ContextSeal(aad, pt, SetupPSKI(pkR, psk, pskID, info))
-- HPKEOpenPSK(aad, ct, enc, skR, psk, pskID, info) = ContextOpen(aad, ct, SetupPSKR(enc, skR, psk, pskID, info))
+Similarly, SetupAuthPSK and OpenAuthPSK might be implemented as follows:
 
-Asymmetric Key Authentication Mode:
+~~~
+def SetupAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
+  enc, ctx = SetupAuthPSKI(pkR, psk, pskID, skI, info)
+  ct = ctx.Seal(aad, pt)
+  return enc, ct
 
-- HPKESealAuth(aad, pt, pkR, skI, info) = ContextSeal(aad, pt, SetupAuthI(pkR, skI, info))
-- HPKEOpenAuth(aad, ct, enc, skR, pkI, info) = ContextOpen(aad, ct, SetupAuthR(enc, skR, pkI, info))
-
-Pre-Shared and Asymmetric Key Authentication Mode:
-
-- HPKESealAuthPSK(aad, pt, pkR, psk, pskID, skI, info) = ContextSeal(aad, pt, SetupAuthPSKI(pkR, psk, pskID, skI, info))
-- HPKEOpenAuthPSK(aad, ct, enc, skR, psk, pskID, pkI, info) = ContextOpen(aad, ct, SetupAuthPSKR(enc, skR, psk, pskID, pkI, info))
+def OpenAuthPSK(skR, info, enc, aad, ct):
+  ctx = SetupAuthPSKR(enc, skR, psk, pskID, skI, info)
+  return ctx.Open(aad, ct)
+~~~
 
 # Algorithm Identifiers {#ciphersuites}
 
