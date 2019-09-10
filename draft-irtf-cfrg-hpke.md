@@ -573,21 +573,11 @@ def Open<MODE>(skR, info, enc, aad, ct, ...):
   return ctx.Open(aad, ct)
 ~~~~~
 
-The `MODE` template parameter is one of BASE, PSK, Auth, or AuthPSK. Using such a 
-template, SetupBase and OpenBase might be implemented as follows:
+The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. Optional parameters
+to SetupI<MODE> and SetupR<MODE> depend on the `MODE` and may be empty. SetupBase, for example, 
+has no additional parameters. 
 
-~~~~~
-def SealBase(pkR, info, aad, pt):
-  enc, ctx = SetupIBase(pkR, info)
-  ct = ctx.Seal(aad, pt)
-  return enc, ct
-
-def OpenBase(skR, info, enc, aad, ct):
-  ctx = SetupRBase(enc, skR, info)
-  return ctx.Open(aad, ct)
-~~~~~
-
-Similarly, SetupAuthPSK and OpenAuthPSK might be implemented as follows:
+Using such a template, SetupAuthPSK and OpenAuthPSK might be implemented as follows:
 
 ~~~
 def SetupAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
