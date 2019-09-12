@@ -558,9 +558,7 @@ def Context.Open(aad, ct):
 
 In many cases, applications encrypt only a single message to a recipient's public key. 
 This section provides templates for HPKE APIs that implement "single-shot" encryption 
-and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}. Without loss
-of generality, assume the following function templates exist for single-shot encryption
-and decryption, respectively:
+and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
 def Seal<MODE>(pkR, info, aad, pt, ...):
@@ -573,14 +571,12 @@ def Open<MODE>(skR, info, enc, aad, ct, ...):
   return ctx.Open(aad, ct)
 ~~~~~
 
-The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. Optional parameters
-to SetupI<MODE> and SetupR<MODE> depend on the `MODE` and may be empty. SetupBase, for example, 
-has no additional parameters. 
-
-Using such a template, SetupAuthPSK and OpenAuthPSK might be implemented as follows:
+The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. The optional parameters
+indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no 
+additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as follows:
 
 ~~~
-def SetupAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
+def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
   enc, ctx = SetupAuthPSKI(pkR, psk, pskID, skI, info)
   ct = ctx.Seal(aad, pt)
   return enc, ct
