@@ -430,12 +430,12 @@ use decryption of a plaintext as an oracle for performing offline
 dictionary attacks.
 
 ~~~~~
-def SetupPSKI(pkR, psk, pskID, info):
+def SetupPSKI(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(pkR, zz, enc, info,
                           psk, pskId, default_pkIm)
 
-def SetupPSKR(enc, skR, psk, pskID, info):
+def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
   return KeySchedule(pk(skR), zz, enc, info,
                      psk, pskId, default_pkIm)
@@ -469,13 +469,13 @@ name), then this identity should be included in the `info` parameter
 to avoid unknown key share attacks.
 
 ~~~~~
-def SetupAuthI(pkR, skI, info):
+def SetupAuthI(pkR, info, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
   return enc, KeySchedule(pkR, zz, enc, info,
                           default_psk, default_pskID, pkIm)
 
-def SetupAuthR(enc, skR, pkI, info):
+def SetupAuthR(enc, skR, info, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
   return KeySchedule(pk(skR), zz, enc, info,
@@ -490,12 +490,12 @@ as in the former, and as in the latter, we use the authenticated KEM
 variants.
 
 ~~~~~
-def SetupAuthPSKI(pkR, psk, pskID, skI, info):
+def SetupAuthPSKI(pkR, info, psk, pskID, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
   return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
 
-def SetupAuthPSKR(enc, skR, psk, pskID, pkI, info):
+def SetupAuthPSKR(enc, skR, info, psk, pskID, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
   return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
@@ -562,12 +562,12 @@ and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
 def Seal<MODE>(pkR, info, aad, pt, ...):
-  enc, ctx = SetupI<MODE>(pkR, info, ...)
+  enc, ctx = Setup<MODE>I(pkR, info, ...)
   ct = ctx.Seal(aad, pt)
   return enc, ct
 
-def Open<MODE>(skR, info, enc, aad, ct, ...):
-  ctx = SetupR<MODE>(enc, skR, info, ...)
+def Open<MODE>(enc, skR, info, aad, ct, ...):
+  ctx = Setup<MODE>R(enc, skR, info, ...)
   return ctx.Open(aad, ct)
 ~~~~~
 
@@ -577,12 +577,12 @@ additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as
 
 ~~~
 def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
-  enc, ctx = SetupAuthPSKI(pkR, psk, pskID, skI, info)
+  enc, ctx = SetupAuthPSKI(pkR, info, psk, pskID, skI)
   ct = ctx.Seal(aad, pt)
   return enc, ct
 
-def OpenAuthPSK(skR, info, enc, aad, ct):
-  ctx = SetupAuthPSKR(enc, skR, psk, pskID, skI, info)
+def OpenAuthPSK(enc, skR, info, aad, ct):
+  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, skI)
   return ctx.Open(aad, ct)
 ~~~
 
