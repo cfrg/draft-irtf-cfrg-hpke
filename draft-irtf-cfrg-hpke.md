@@ -398,7 +398,7 @@ struct {
 } HPKEContext;
 ~~~~~
 
-## Encryption to a Public Key
+## Encryption to a Public Key {#hpke-kem}
 
 The most basic function of an HPKE scheme is to enable encryption
 for the holder of a given KEM private key.  The `SetupBaseI()` and
@@ -441,12 +441,12 @@ use decryption of a plaintext as an oracle for performing offline
 dictionary attacks.
 
 ~~~~~
-def SetupPSKI(pkR, psk, pskID, info):
+def SetupPSKI(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(pkR, zz, enc, info,
                           psk, pskId, default_pkIm)
 
-def SetupPSKR(enc, skR, psk, pskID, info):
+def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
   return KeySchedule(pk(skR), zz, enc, info,
                      psk, pskId, default_pkIm)
@@ -480,13 +480,13 @@ name), then this identity should be included in the `info` parameter
 to avoid unknown key share attacks.
 
 ~~~~~
-def SetupAuthI(pkR, skI, info):
+def SetupAuthI(pkR, info, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
   return enc, KeySchedule(pkR, zz, enc, info,
                           default_psk, default_pskID, pkIm)
 
-def SetupAuthR(enc, skR, pkI, info):
+def SetupAuthR(enc, skR, info, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
   return KeySchedule(pk(skR), zz, enc, info,
@@ -501,18 +501,18 @@ as in the former, and as in the latter, we use the authenticated KEM
 variants.
 
 ~~~~~
-def SetupAuthI(pkR, psk, pskID, skI, info):
+def SetupAuthPSKI(pkR, info, psk, pskID, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
   return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
 
-def SetupAuthR(enc, skR, psk, pskID, pkI, info):
+def SetupAuthPSKR(enc, skR, info, psk, pskID, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
   return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
 ~~~~~
 
-## Encryption and Decryption
+## Encryption and Decryption {#hpke-dem}
 
 HPKE allows multiple encryption operations to be done based on a
 given setup transaction.  Since the public-key operations involved
@@ -564,6 +564,38 @@ def Context.Open(aad, ct):
   self.seq += 1
   return pt
 ~~~~~
+
+# Single-Shot APIs
+
+In many cases, applications encrypt only a single message to a recipient's public key. 
+This section provides templates for HPKE APIs that implement "single-shot" encryption 
+and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
+
+~~~~~
+def Seal<MODE>(pkR, info, aad, pt, ...):
+  enc, ctx = Setup<MODE>I(pkR, info, ...)
+  ct = ctx.Seal(aad, pt)
+  return enc, ct
+
+def Open<MODE>(enc, skR, info, aad, ct, ...):
+  ctx = Setup<MODE>R(enc, skR, info, ...)
+  return ctx.Open(aad, ct)
+~~~~~
+
+The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. The optional parameters
+indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no 
+additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as follows:
+
+~~~
+def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
+  enc, ctx = SetupAuthPSKI(pkR, info, psk, pskID, skI)
+  ct = ctx.Seal(aad, pt)
+  return enc, ct
+
+def OpenAuthPSK(enc, skR, info, aad, ct):
+  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, skI)
+  return ctx.Open(aad, ct)
+~~~
 
 # Algorithm Identifiers {#ciphersuites}
 
