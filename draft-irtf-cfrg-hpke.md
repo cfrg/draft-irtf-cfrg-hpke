@@ -176,8 +176,8 @@ HPKE variants rely on the following primitives:
     public key `pk`
   - Unmarshal(enc): Parse a fixed-length octet string to recover a
     public key
-  - Encap(pk): Generate an ephemeral symmetric key and a
-    fixed-length encapsulation of that key that can be decapsulated
+  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and 
+    a fixed-length encapsulation of that key that can be decapsulated 
     by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key from its encapsulated representation `enc`
@@ -341,7 +341,7 @@ implementation and not passed as parameters.
 ~~~~~
 default_pkIm = zero(Npk)
 default_psk = zero(Nh)
-default_pskId = zero(0)
+default_pskID = zero(0)
 
 def VerifyMode(mode, psk, pskID, pkIm):
   got_psk = (psk != default_psk and pskID != default_pskID)
@@ -358,7 +358,7 @@ def VerifyMode(mode, psk, pskID, pkIm):
   if mode == mode_psk_auth and (no_psk or no_pkIm):
     raise Exception("Invalid configuration for mode_psk_auth")
 
-def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
+def KeySchedule(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
   VerifyMode(mode, psk, pskID, pkI)
 
   pkRm = Marshal(pkR)
