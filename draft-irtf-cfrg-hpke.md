@@ -310,6 +310,7 @@ mechanism for translating the protocol inputs into an encryption
 context.  The key schedule inputs are as follows:
 
 * `pkR` - The receiver's public key
+* `pkRm` - A marshalled representation of `pkR`
 * `zz` - A shared secret generated via the KEM for this transaction
 * `enc` - An encapsulated key produced by the KEM for the receiver
 * `info` - Application-supplied information (optional; default value
@@ -318,7 +319,7 @@ context.  The key schedule inputs are as follows:
   and the receiver (optional; default value `zero(Nh)`).
 * `pskID` - An identifier for the PSK (optional; default
   value `"" = zero(0)`
-* `pkI` - The initiator's public key (optional; default
+* `pkIm` - The initiator's marshalled public key (optional; default
   value `zero(Npk)`)
 
 The `psk` and `pskID` fields MUST appear together or not at all.
@@ -358,8 +359,8 @@ def VerifyMode(mode, psk, pskID, pkIm):
   if mode == mode_psk_auth and (no_psk or no_pkIm):
     raise Exception("Invalid configuration for mode_psk_auth")
 
-def KeySchedule(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
-  VerifyMode(mode, psk, pskID, pkI)
+def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
+  VerifyMode(mode, psk, pskID, pkIm)
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
