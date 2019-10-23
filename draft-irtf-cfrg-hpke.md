@@ -74,7 +74,7 @@ informative:
         org: Polytechnic University, Madrid, Spain
   TestVectors:
     title: HPKE Test Vectors
-    target: https://github.com/cfrg/draft-irtf-cfrg-hpke/vectors.json
+    target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/1e98830311b27f9af00787c16e2c5ac43abeadfb/test-vectors.json
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
   NISTCurves: DOI.10.6028/NIST.FIPS.186-4
