@@ -446,12 +446,12 @@ dictionary attacks.
 ~~~~~
 def SetupPSKI(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(pkR, zz, enc, info,
+  return enc, KeySchedule(mode_psk, pkR, zz, enc, info,
                           psk, pskId, default_pkIm)
 
 def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
-  return KeySchedule(pk(skR), zz, enc, info,
+  return KeySchedule(mode_psk, pk(skR), zz, enc, info,
                      psk, pskId, default_pkIm)
 ~~~~~
 
@@ -486,13 +486,13 @@ to avoid unknown key share attacks.
 def SetupAuthI(pkR, info, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
-  return enc, KeySchedule(pkR, zz, enc, info,
+  return enc, KeySchedule(mode_auth, pkR, zz, enc, info,
                           default_psk, default_pskID, pkIm)
 
 def SetupAuthR(enc, skR, info, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
-  return KeySchedule(pk(skR), zz, enc, info,
+  return KeySchedule(mode_auth, pk(skR), zz, enc, info,
                      default_psk, default_pskID, pkIm)
 ~~~~~
 
@@ -507,12 +507,14 @@ variants.
 def SetupAuthPSKI(pkR, info, psk, pskID, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
-  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
+  return enc, KeySchedule(mode_psk_auth, pkR, zz, enc, info,
+                          psk, pskID, pkIm)
 
 def SetupAuthPSKR(enc, skR, info, psk, pskID, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
-  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
+  return KeySchedule(mode_psk_auth, pk(skR), zz, enc, info,
+                     psk, pskID, pkIm)
 ~~~~~
 
 ## Encryption and Decryption {#hpke-dem}
