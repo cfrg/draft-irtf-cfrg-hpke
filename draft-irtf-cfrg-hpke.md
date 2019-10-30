@@ -592,8 +592,8 @@ def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
   ct = ctx.Seal(aad, pt)
   return enc, ct
 
-def OpenAuthPSK(enc, skR, info, aad, ct):
-  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, skI)
+def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkI):
+  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, pkI)
   return ctx.Open(aad, ct)
 ~~~
 
