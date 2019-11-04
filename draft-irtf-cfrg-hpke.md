@@ -295,7 +295,7 @@ will be used to distinguish between modes:
 
 All of these cases follow the same basic two-step pattern:
 
-1. Set up an encryption context that is shared between the sender
+1. Set up a key schedule that is shared between the sender
    and the recipient
 2. Use that context to encrypt or decrypt content
 
@@ -306,11 +306,12 @@ plaintexts.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
-## Creating an Encryption Context
+## Creating the Key Schedule
 
 The variants of HPKE defined in this document share a common
-mechanism for translating the protocol inputs into an encryption
-context.  The key schedule inputs are as follows:
+mechanism for translating the protocol inputs into a key schedule
+from which shared secrets are derived. The key schedule inputs are 
+as follows:
 
 * `pkR` - The receiver's public key
 * `zz` - A shared secret generated via the KEM for this transaction
