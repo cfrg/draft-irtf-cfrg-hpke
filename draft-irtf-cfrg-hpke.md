@@ -604,7 +604,7 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkI):
 
 # Algorithm Identifiers {#ciphersuites}
 
-## Key Encapsulation Mechanisms (KEMs)
+## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
 | Value  | KEM               | Nenc | Npk | Reference      |
 |:-------|:------------------|:-----|:----|:---------------|
@@ -625,7 +625,7 @@ For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
 octet strings for public keys.
 
-## Key Derivation Functions (KDFs)
+## Key Derivation Functions (KDFs) {#kdf-ids}
 
 | Value  | KDF         | Nh  | Reference    |
 |:-------|:------------|-----|:-------------|
@@ -633,7 +633,7 @@ octet strings for public keys.
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
 | 0x0002 | HKDF-SHA512 | 64  | {{?RFC5869}} |
 
-## Authenticated Encryption with Associated Data (AEAD) Functions
+## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
 | Value  | AEAD             | Nk  | Nn  | Reference    |
 |:-------|:-----------------|:----|:----|:-------------|
@@ -655,7 +655,61 @@ multiple), and any info values that are not implicit.
 
 # IANA Considerations
 
-[[ TODO: Make IANA registries for the above ]]
+This document requests the creation of three new IANA registries:
+
+* HPKE KEM Identifiers
+* HPKE KDF Identifiers
+* HPKE AEAD Identifiers
+
+All of these registries should be under a heading of "Hybrid Public Key
+Encryption", and administered under a Specification Required policy {{!RFC8126}}
+
+## KEM Identifiers
+
+The "HPKE KEM Identifiers" registry lists identifiers for key encapsulation
+algorithms defined for use with HPKE.  These are two-byte values, so the
+maximum possible value is 0xFFFF = 65535.
+
+Template:
+
+* Value: The two-byte identifier for the algorithm
+* KEM: The name of the algorithm
+* Nenc: The length in bytes of an encapsulated key produced by the algorithm
+* Npk: The length in bytes of a public key for the algorithm
+* Reference: Where this algorithm is defined
+
+Initial contents: Provided in {{kem-ids}}
+
+## KDF Identifiers
+
+The "HPKE KDF Identifiers" registry lists identifiers for key derivation
+functions defined for use with HPKE.  These are two-byte values, so the maximum
+possible value is 0xFFFF = 65535.
+
+Template:
+
+* Value: The two-byte identifier for the algorithm
+* KDF: The name of the algorithm
+* Nh: The length in bytes of the output of the KDF
+* Reference: Where this algorithm is defined
+
+Initial contents: Provided in {{kdf-ids}}
+
+## AEAD Identifiers
+
+The "HPKE AEAD Identifiers" registry lists identifiers for authenticated
+encryption with associated data (AEAD) algorithms defined for use with HPKE.
+These are two-byte values, so the maximum possible value is 0xFFFF = 65535.
+
+Template:
+
+* Value: The two-byte identifier for the algorithm
+* AEAD: The name of the algorithm
+* Nk: The length in bytes of a key for this algorithm
+* Nn: The length in bytes of a nonce for this algorithm
+* Reference: Where this algorithm is defined
+
+Initial contents: Provided in {{aead-ids}}
 
 --- back
 
