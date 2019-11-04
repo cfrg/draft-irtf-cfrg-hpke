@@ -725,8 +725,7 @@ then the signature is valid.
 
 This scheme is really just a re-use of the authentication scheme underlying the
 AEAD algorithm in use, but using the KEM to establish a one-time authentication
-key from a pair of KEM public keys.  The security of the scheme follows from the
-authentication security of Auth and AuthPSK modes.
+key from a pair of KEM public keys.
 
 # Message Encoding
 
