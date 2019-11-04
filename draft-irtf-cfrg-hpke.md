@@ -72,6 +72,35 @@ informative:
       -
         ins: C. Sanchez Avila
         org: Polytechnic University, Madrid, Spain
+
+  BNT19:
+    title: "Nonces Are Noticed: AEAD Revisited"
+    target: http://dx.doi.org/10.1007/978-3-030-26948-7_9
+    authors:
+      -
+        ins: M. Bellare
+        org: University of California, San Diego
+      -
+        ins: R. Ng
+        org: University of California, San Diego
+      -
+        ins: B. Tackmann
+        org: IBM Research
+
+  JKR96:
+    title: Designated Verifier Proofs and Their Applications
+    target: https://doi.org/10.1007%2F3-540-49677-7_30
+    authors:
+      -
+        ins: M. Jakobsson
+        org: University of California, San Diego
+      -
+        ins: K. Sako
+        org: NEC Corporation
+      -
+        ins: R. Impagliazzo
+        org: University of California, San Diego
+
   TestVectors:
     title: HPKE Test Vectors
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/1e98830311b27f9af00787c16e2c5ac43abeadfb/test-vectors.json
@@ -179,8 +208,8 @@ HPKE variants rely on the following primitives:
     public key `pk`
   - Unmarshal(enc): Parse a fixed-length octet string to recover a
     public key
-  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and 
-    a fixed-length encapsulation of that key that can be decapsulated 
+  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
+    a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key from its encapsulated representation `enc`
@@ -337,9 +366,9 @@ provided, then the recipient is assued that the initator held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
-The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and 
-AEAD `aead_id` 2-octet code points, are assumed implicit from the 
-implementation and not passed as parameters. 
+The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
+AEAD `aead_id` 2-octet code points, are assumed implicit from the
+implementation and not passed as parameters.
 
 ~~~~~
 default_pkIm = zero(Npk)
@@ -549,31 +578,37 @@ only for encryption or only for decryption.
 
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that the nonce
-values used for encryption and decryption line up.
+values used for encryption and decryption line up.  If a Seal or Open operation
+would cause the `seq` field to wrap, then the implementation MUST return an
+error.
 
 ~~~~~
-[[ TODO: Check for overflow, a la TLS ]]
 def Context.Nonce(seq):
   encSeq = encode_big_endian(seq, len(self.nonce))
   return xor(self.nonce, encSeq)
 
+def Context.IncrementSeq():
+  if self.seq >= (1 << Nn) - 1:
+    return NonceOverflowError
+  self.seq += 1
+
 def Context.Seal(aad, pt):
   ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
-  self.seq += 1
+  self.IncrementSeq()
   return ct
 
 def Context.Open(aad, ct):
   pt = Open(self.key, self.Nonce(self.seq), aad, ct)
   if pt == OpenError:
     return OpenError
-  self.seq += 1
+  self.IncrementSeq()
   return pt
 ~~~~~
 
 # Single-Shot APIs
 
-In many cases, applications encrypt only a single message to a recipient's public key. 
-This section provides templates for HPKE APIs that implement "single-shot" encryption 
+In many cases, applications encrypt only a single message to a recipient's public key.
+This section provides templates for HPKE APIs that implement "single-shot" encryption
 and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
@@ -588,7 +623,7 @@ def Open<MODE>(enc, skR, info, aad, ct, ...):
 ~~~~~
 
 The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. The optional parameters
-indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no 
+indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no
 additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as follows:
 
 ~~~
@@ -644,13 +679,60 @@ octet strings for public keys.
 
 # Security Considerations
 
-[[ TODO ]]
+The general security properties of HPKE are described in
+{{security-properties}}.  In this section, we consider a security issue that may
+arise in practice and an advanced use case.
+
+## Metadata Protection
+
+The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the receiver
+know what key material to use for the initiator.  This can be signaled in
+applications by sending the PSK ID (`pskID` above) and/or the initiator's public
+key (`pkI`).  However, these values themselves might be considered sensitive,
+since in a given application context, they might identify the initiator.
+
+An application that wishes to protect these metadata values without requiring
+further provisioning of keys can use an additional instance of HPKE, using the
+unauthenticated base mode.  Where the application might have sent `(pskID, pkI,
+enc, ciphertext)` before, it would now send (enc2, ciphertext2, enc, ciphertext),
+where `(enc2, ciphertext2)` represent the encryption of the `pskID` and `pkI`
+values.
+
+The cost of this approach is an additional KEM operation each for the sender and
+the receiver.  A potential lower-cost approach (involving only symmetric
+operations) would be available if the nonce-protection schemes in {{BNT19}}
+could be extended to cover other metadata.  However, this construction would
+require further analysis.
+
+## Designated-Verifier Signature
+
+The Auth and AuthPSK modes HPKE can be used to construct a lightweight
+"designated-verifier signature" scheme {{JKR96}}, in the sense that the message
+is authenticated as coming from the initiator, but the only party who can verify
+the authentication is the receiver (the holder of `skR`).
+
+To create such a signature, the initator simply performs a normal HPKE setup in
+the proper mode, and calls the Seal method on the resulting context with an
+empty plaintext value and the content to be signed as AAD.  This produces an
+encoded key `enc` and a ciphertext value that contains only the AAD tag.
+
+For example, using DHKEM-X25519 and AES-128-GCM, this would produce a 48-byte
+signature comprising a 32-byte ephemeral X25519 key and a 16-byte GCM tag.
+
+To verify such a signature, the receiver performs the corresponding HPKE setup
+and calls Open with the provided ciphertext.  If the AEAD authentication passes,
+then the signature is valid.
+
+This scheme is really just a re-use of the authentication scheme underlying the
+AEAD algorithm in use, but using the KEM to establish a one-time authentication
+key from a pair of KEM public keys.  The security of the scheme follows from the
+authentication security of Auth and AuthPSK modes.
 
 # Message Encoding
 
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
-minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are 
+minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
 multiple), and any info values that are not implicit.
 
 # IANA Considerations
