@@ -53,7 +53,7 @@ informative:
 
   SECG:
     title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
-    target: http://www.secg.org/download/aid-780/sec1-v2.pdf
+    target: https://secg.org/sec1-v2.pdf
     year: 2009
 
   MAEA10:
@@ -179,8 +179,8 @@ HPKE variants rely on the following primitives:
     public key `pk`
   - Unmarshal(enc): Parse a fixed-length octet string to recover a
     public key
-  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and 
-    a fixed-length encapsulation of that key that can be decapsulated 
+  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
+    a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key from its encapsulated representation `enc`
@@ -337,9 +337,9 @@ provided, then the recipient is assued that the initator held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
-The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and 
-AEAD `aead_id` 2-octet code points, are assumed implicit from the 
-implementation and not passed as parameters. 
+The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
+AEAD `aead_id` 2-octet code points, are assumed implicit from the
+implementation and not passed as parameters.
 
 ~~~~~
 default_pkIm = zero(Npk)
@@ -572,8 +572,8 @@ def Context.Open(aad, ct):
 
 # Single-Shot APIs
 
-In many cases, applications encrypt only a single message to a recipient's public key. 
-This section provides templates for HPKE APIs that implement "single-shot" encryption 
+In many cases, applications encrypt only a single message to a recipient's public key.
+This section provides templates for HPKE APIs that implement "single-shot" encryption
 and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
@@ -588,7 +588,7 @@ def Open<MODE>(enc, skR, info, aad, ct, ...):
 ~~~~~
 
 The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. The optional parameters
-indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no 
+indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, has no
 additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as follows:
 
 ~~~
@@ -650,7 +650,7 @@ octet strings for public keys.
 
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
-minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are 
+minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
 multiple), and any info values that are not implicit.
 
 # IANA Considerations
