@@ -335,11 +335,11 @@ plaintexts.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
-## Creating an Encryption Context
+## Creating the Encryption Context
 
 The variants of HPKE defined in this document share a common
-mechanism for translating the protocol inputs into an encryption
-context.  The key schedule inputs are as follows:
+key schedule that translates the protocol inputs into an encryption
+context. The key schedule inputs are as follows:
 
 * `pkR` - The receiver's public key
 * `zz` - A shared secret generated via the KEM for this transaction
