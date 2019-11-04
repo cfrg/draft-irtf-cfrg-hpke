@@ -723,9 +723,9 @@ To verify such a signature, the receiver performs the corresponding HPKE setup
 and calls Open with the provided ciphertext.  If the AEAD authentication passes,
 then the signature is valid.
 
-This scheme is really just a re-use of the authentication scheme underlying the
-AEAD algorithm in use, but using the KEM to establish a one-time authentication
-key from a pair of KEM public keys.
+This scheme re-uses the authentication scheme underlying the AEAD algorithm in
+use, while using the KEM to establish a one-time authentication key from a pair
+of KEM public keys.
 
 # Message Encoding
 
