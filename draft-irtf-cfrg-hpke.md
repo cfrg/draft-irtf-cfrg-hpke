@@ -393,7 +393,6 @@ def VerifyMode(mode, psk, pskID, pkIm):
 def KeySchedule(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
   VerifyMode(mode, psk, pskID, pkI)
 
-  pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
   pskID_hash = Hash(pskID)
   info_hash = Hash(info)
