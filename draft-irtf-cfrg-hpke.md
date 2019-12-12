@@ -402,7 +402,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
   nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  return Context(key, nonce)
+  exporter_secret = Expand(secret, concat("hpke exp", context), Nk)
+
+  return Context(key, nonce, exporter_secret)
 ~~~~~
 
 Note that the context construction in the KeySchedule procedure is
@@ -603,6 +605,19 @@ def Context.Open(aad, ct):
     return OpenError
   self.IncrementSeq()
   return pt
+~~~~~
+
+## Secret Export {#kpke-export}
+
+HPKE provides a interface for exporting secrets from the encryption Context, similar
+to the TLS 1.3 exporter interface (See {{8446}}, Section 7.5). This interface takes as
+input a context string `exporter_context` and desired length `L` (in octets), and produces
+a secret derived from the internal exporter secret using the corresponding KDF Expand
+function.
+
+~~~~~
+def Context.Export(exporter_context, L):
+  return Expand(self.exporter_secret, exporter_context, L)
 ~~~~~
 
 # Single-Shot APIs
