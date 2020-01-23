@@ -322,7 +322,7 @@ will be used to distinguish between modes:
 | mode_base     | 0x00  |
 | mode_psk      | 0x01  |
 | mode_auth     | 0x02  |
-| mode_psk_auth | 0x03  |
+| mode_auth_psk | 0x03  |
 
 All of these cases follow the same basic two-step pattern:
 
@@ -393,8 +393,8 @@ def VerifyMode(mode, psk, pskID, pkIm):
     raise Exception("Invalid configuration for mode_psk")
   if mode == mode_auth and (got_psk or no_pkIm):
     raise Exception("Invalid configuration for mode_auth")
-  if mode == mode_psk_auth and (no_psk or no_pkIm):
-    raise Exception("Invalid configuration for mode_psk_auth")
+  if mode == mode_auth_psk and (no_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_auth_psk")
 
 def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
   VerifyMode(mode, psk, pskID, pkI)
@@ -544,13 +544,13 @@ variants.
 def SetupAuthPSKI(pkR, info, psk, pskID, skI):
   zz, enc = AuthEncap(pkR, skI)
   pkIm = Marshal(pk(skI))
-  return enc, KeySchedule(mode_psk_auth, pkR, zz, enc, info,
+  return enc, KeySchedule(mode_auth_psk, pkR, zz, enc, info,
                           psk, pskID, pkIm)
 
 def SetupAuthPSKR(enc, skR, info, psk, pskID, pkI):
   zz = AuthDecap(enc, skR, pkI)
   pkIm = Marshal(pkI)
-  return KeySchedule(mode_psk_auth, pk(skR), zz, enc, info,
+  return KeySchedule(mode_auth_psk, pk(skR), zz, enc, info,
                      psk, pskID, pkIm)
 ~~~~~
 
@@ -616,7 +616,7 @@ def Context.Open(aad, ct):
 ## Secret Export {#kpke-export}
 
 HPKE provides a interface for exporting secrets from the encryption Context, similar
-to the TLS 1.3 exporter interface (See {{8446}}, Section 7.5). This interface takes as
+to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in octets), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
 function.
