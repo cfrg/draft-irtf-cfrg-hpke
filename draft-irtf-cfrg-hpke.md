@@ -25,27 +25,28 @@ informative:
   S01:
     title: A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)
     target: http://www.shoup.net/papers/iso-2_1.pdf
+    date: 2001
     authors:
       -
         ins: Victor Shoup
         org: IBM Zurich Research Lab, Saumerstr. 4, 8803 Ruschlikon, Switzerland
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
-    year: 2001
+    date: 2001
     authors:
       -
         ins:
         org: American National Standards Institute
   IEEE:
     title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
-    year: 2004
+    date: 2004
     authors:
       -
         ins:
         org: Institute of Electrical and Electronics Engineers
   ISO:
     title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
-    year: 2006
+    date: 2006
     authors:
       -
         ins:
@@ -54,11 +55,12 @@ informative:
   SECG:
     title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
     target: https://secg.org/sec1-v2.pdf
-    year: 2009
+    date: 2009
 
   MAEA10:
     title: A Comparison of the Standardized Versions of ECIES
     target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
+    date: 2010
     authors:
       -
         ins: V. Gayoso Martinez
@@ -76,6 +78,7 @@ informative:
   BNT19:
     title: "Nonces Are Noticed: AEAD Revisited"
     target: http://dx.doi.org/10.1007/978-3-030-26948-7_9
+    date: 2019
     authors:
       -
         ins: M. Bellare
@@ -90,6 +93,7 @@ informative:
   JKR96:
     title: Designated Verifier Proofs and Their Applications
     target: https://doi.org/10.1007%2F3-540-49677-7_30
+    date: 1996
     authors:
       -
         ins: M. Jakobsson
@@ -104,6 +108,7 @@ informative:
   TestVectors:
     title: HPKE Test Vectors
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/1e98830311b27f9af00787c16e2c5ac43abeadfb/test-vectors.json
+    date: 2019
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
   NISTCurves: DOI.10.6028/NIST.FIPS.186-4
@@ -112,7 +117,7 @@ informative:
   fiveG:
     title: Security architecture and procedures for 5G System
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
-    year: 2019
+    date: 2019
 
 --- abstract
 
