@@ -557,8 +557,8 @@ decryption, this allows applications to "amortize" the cost of the
 public-key operations, reducing the overall overhead.
 
 In order to avoid nonce reuse, however, this decryption must be
-stateful.  Each of the setup procedures above produces a context
-object that stores the required state:
+stateful. Each of the setup procedures above produces a context object
+that stores the required state:
 
 * The AEAD algorithm in use
 * The key to be used with the AEAD algorithm
@@ -575,14 +575,20 @@ the left with zero), but MUST return an error if the sequence number
 overflows.
 
 Each encryption or decryption operation increments the sequence
-number for the context in use.  A given context SHOULD be used either
-only for encryption or only for decryption.
+number for the context in use.  A given context MUST be used either
+only for encryption or only for decryption. For example, initiators
+in a higher-level protocol may encrypt messages that are then
+decrypted by corresponding responders. In this example, responders
+MUST NOT encrypt messages back to initiators using their context, as doing
+so may result in key and nonce reuse. Higher-level protocols built on HPKE
+may use the Export interface to derive separate read and write keys and
+nonces for bidirectional encryption if needed. See {{hpke-export}} for
+more details.
 
 It is up to the application to ensure that encryptions and
-decryptions are done in the proper sequence, so that the nonce
-values used for encryption and decryption line up.  If a Seal or Open operation
-would cause the `seq` field to wrap, then the implementation MUST return an
-error.
+decryptions are done in the proper sequence, so that encryption
+and decryption nonces align. If a Seal or Open operation would cause the `seq`
+field to wrap, then the implementation MUST return an error.
 
 ~~~~~
 def Context.Nonce(seq):
@@ -607,10 +613,10 @@ def Context.Open(aad, ct):
   return pt
 ~~~~~
 
-## Secret Export {#kpke-export}
+## Secret Export {#hpke-export}
 
 HPKE provides a interface for exporting secrets from the encryption Context, similar
-to the TLS 1.3 exporter interface (See {{8446}}, Section 7.5). This interface takes as
+to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in octets), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
 function.
