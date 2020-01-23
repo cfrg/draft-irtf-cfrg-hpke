@@ -25,27 +25,28 @@ informative:
   S01:
     title: A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)
     target: http://www.shoup.net/papers/iso-2_1.pdf
+    date: 2001
     authors:
       -
         ins: Victor Shoup
         org: IBM Zurich Research Lab, Saumerstr. 4, 8803 Ruschlikon, Switzerland
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
-    year: 2001
+    date: 2001
     authors:
       -
         ins:
         org: American National Standards Institute
   IEEE:
     title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
-    year: 2004
+    date: 2004
     authors:
       -
         ins:
         org: Institute of Electrical and Electronics Engineers
   ISO:
     title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
-    year: 2006
+    date: 2006
     authors:
       -
         ins:
@@ -54,11 +55,12 @@ informative:
   SECG:
     title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
     target: https://secg.org/sec1-v2.pdf
-    year: 2009
+    date: 2009
 
   MAEA10:
     title: A Comparison of the Standardized Versions of ECIES
     target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
+    date: 2010
     authors:
       -
         ins: V. Gayoso Martinez
@@ -76,6 +78,7 @@ informative:
   BNT19:
     title: "Nonces Are Noticed: AEAD Revisited"
     target: http://dx.doi.org/10.1007/978-3-030-26948-7_9
+    date: 2019
     authors:
       -
         ins: M. Bellare
@@ -90,6 +93,7 @@ informative:
   JKR96:
     title: Designated Verifier Proofs and Their Applications
     target: https://doi.org/10.1007%2F3-540-49677-7_30
+    date: 1996
     authors:
       -
         ins: M. Jakobsson
@@ -104,6 +108,7 @@ informative:
   TestVectors:
     title: HPKE Test Vectors
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/1e98830311b27f9af00787c16e2c5ac43abeadfb/test-vectors.json
+    date: 2019
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
   NISTCurves: DOI.10.6028/NIST.FIPS.186-4
@@ -112,7 +117,7 @@ informative:
   fiveG:
     title: Security architecture and procedures for 5G System
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
-    year: 2019
+    date: 2019
 
 --- abstract
 
@@ -132,12 +137,9 @@ primitives.
 "Hybrid" public-key encryption schemes (HPKE) that combine
 asymmetric and symmetric algorithms are a substantially more
 efficient solution than traditional public key encryption techniques
-such as those based on RSA or ElGamal.  Encrypted messages convey a
-single ciphertext and authentication tag alongside a short public
-key, which may be further compressed. The key size and computational
-complexity of elliptic curve cryptographic primitives for
-authenticated encryption therefore make it compelling for a variety
-of use cases. This type of public key encryption has many
+such as those based on RSA or ElGamal.  Encrypted messages convey an encryption
+key encapsulated with a public-key scheme, along with one or more ciphertexts
+encrypted using that key.  This type of public key encryption has many
 applications in practice, for example:
 
 * PGP {{?RFC6637}}
@@ -145,12 +147,12 @@ applications in practice, for example:
 * Encrypted Server Name Indication {{?I-D.ietf-tls-esni}}
 * Protection of 5G subscriber identities {{fiveG}}
 
-Currently, there are numerous competing and non-interoperable
-standards and variants for hybrid encryption, including ANSI X9.63
-{{ANSI}}, IEEE 1363a {{IEEE}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC
-1 {{SECG}}.  All of these existing schemes have problems, e.g.,
-because they rely on outdated primitives, lack proofs of IND-CCA2
-security, or fail to provide test vectors.
+Currently, there are numerous competing and non-interoperable standards and
+variants for hybrid encryption, mostly based on ECIES, including ANSI X9.63
+(ECIES) {{ANSI}}, IEEE 1363a {{IEEE}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
+{{SECG}}.  See {{MAEA10}} for a thorough comparison.  All of these existing
+schemes have problems, e.g., because they rely on outdated primitives, lack
+proofs of IND-CCA2 security, or fail to provide test vectors.
 
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
@@ -332,6 +334,10 @@ A "context" encodes the AEAD algorithm and key in use, and manages
 the nonces used so that the same nonce is not used with multiple
 plaintexts.
 
+The constructions described here presume that the relevant non-private
+parameters (`enc`, `pskID`, etc.) are transported between the initiator and the
+receiver by some application making use of HPKE.
+
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
@@ -358,11 +364,11 @@ That is, if a non-default value is provided for one of them, then
 the other MUST be set to a non-default value.
 
 The key and nonce computed by this algorithm have the property that
-they are only known to the holder of the receipient private key, and
+they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
 that the initiator held the PSK.  If the `pkIm` argument is
-provided, then the recipient is assued that the initator held the
+provided, then the recipient is assumed that the initiator held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
@@ -432,7 +438,7 @@ struct {
 } HPKEContext;
 ~~~~~
 
-## Encryption to a Public Key {#hpke-kem}
+### Encryption to a Public Key {#hpke-kem}
 
 The most basic function of an HPKE scheme is to enable encryption
 for the holder of a given KEM private key.  The `SetupBaseI()` and
@@ -455,9 +461,9 @@ def SetupBaseR(enc, skR, info):
                      default_psk, default_pskID, default_pkIm)
 ~~~~~
 
-## Authentication using a Pre-Shared Key
+### Authentication using a Pre-Shared Key
 
-This variant extends the base mechansism by allowing the recipient
+This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given pre-shared key
 (PSK).  We assume that both parties have been provisioned with both
 the PSK value `psk` and another octet string `pskID` that is used to
@@ -486,9 +492,9 @@ def SetupPSKR(enc, skR, info, psk, pskID):
                      psk, pskId, default_pkIm)
 ~~~~~
 
-## Authentication using an Asymmetric Key
+### Authentication using an Asymmetric Key
 
-This variant extends the base mechansism by allowing the recipient
+This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
 This assurance is based on the assumption that
 `AuthDecap(enc, skR, pkI)` produces the correct shared secret
@@ -505,7 +511,7 @@ The primary differences from the base case are:
 * The initiator public key is added to the context string
 
 Obviously, this variant can only be used with a KEM that provides
-`AuthEncap()` and `AuthDecap()` procuedures.
+`AuthEncap()` and `AuthDecap()` procedures.
 
 This mechanism authenticates only the key pair of the initiator, not
 any other identity.  If an application wishes to authenticate some
@@ -527,7 +533,7 @@ def SetupAuthR(enc, skR, info, pkI):
                      default_psk, default_pskID, pkIm)
 ~~~~~
 
-## Authentication using both a PSK and an Asymmetric Key
+### Authentication using both a PSK and an Asymmetric Key
 
 This mode is a straightforward combination of the PSK and
 authenticated modes.  The PSK is passed through to the key schedule
@@ -623,7 +629,7 @@ def Context.Export(exporter_context, L):
 # Single-Shot APIs
 
 In many cases, applications encrypt only a single message to a recipient's public key.
-This section provides templates for HPKE APIs that implement "single-shot" encryption
+This section provides templates for HPKE APIs that implement stateless "single-shot" encryption
 and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
@@ -659,10 +665,11 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkI):
 | Value  | KEM               | Nenc | Npk | Reference      |
 |:-------|:------------------|:-----|:----|:---------------|
 | 0x0000 | (reserved)        | N/A  | N/A | N/A            |
-| 0x0001 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
-| 0x0002 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
-| 0x0003 | DHKEM(P-521)      | 65   | 65  | {{NISTCurves}} |
-| 0x0004 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
+| 0x0010 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
+| 0x0011 | DHKEM(P-384)      | 48   | 48  | {{NISTCurves}} |
+| 0x0012 | DHKEM(P-521)      | 65   | 65  | {{NISTCurves}} |
+| 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
+| 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
 For the NIST curves P-256 and P-521, the Marshal function of the DH
 scheme produces the normal (non-compressed) representation of the
@@ -681,7 +688,8 @@ octet strings for public keys.
 |:-------|:------------|-----|:-------------|
 | 0x0000 | (reserved)  | N/A | N/A          |
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
-| 0x0002 | HKDF-SHA512 | 64  | {{?RFC5869}} |
+| 0x0002 | HKDF-SHA384 | 48  | {{?RFC5869}} |
+| 0x0003 | HKDF-SHA512 | 64  | {{?RFC5869}} |
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
@@ -697,6 +705,27 @@ octet strings for public keys.
 The general security properties of HPKE are described in
 {{security-properties}}.  In this section, we consider a security issue that may
 arise in practice and an advanced use case.
+
+## External Requirements / Non-Goals
+
+HPKE is designed to be a fairly low-level primitive, and thus does not provide
+several features that a more high-level protocol might provide, for example:
+
+* Downgrade prevention - HPKE assumes that the initiator and receiver agree on
+  what algorithms to use.  Depending on how these algorithms are negotiated, it
+  may be possible for an intermediary to force the two parties to use
+  suboptimal algorithms.
+
+* Replay protection - The requirement that ciphertexts be presented to the
+  Context.Open function in the same order they were generated by Context.Seal
+  provides a degree of replay protection within a stream of ciphertexts
+  resulting from a given Context.  HPKE provides no other replay protection.
+
+* Forward secrecy - HPKE ciphertexts are not forward-secure. In mode_base
+  and mode_auth, a given ciphertext can be decrypted if the recipient's public
+  encryption key is compromised. In mode_psk and mode_auth_psk, a given
+  ciphertext can be decrypted if the recipient's public encryption key and the
+  PSK are compromised.
 
 ## Metadata Protection
 
@@ -726,7 +755,7 @@ The Auth and AuthPSK modes HPKE can be used to construct a lightweight
 is authenticated as coming from the initiator, but the only party who can verify
 the authentication is the receiver (the holder of `skR`).
 
-To create such a signature, the initator simply performs a normal HPKE setup in
+To create such a signature, the initiator simply performs a normal HPKE setup in
 the proper mode, and calls the Seal method on the resulting context with an
 empty plaintext value and the content to be signed as AAD.  This produces an
 encoded key `enc` and a ciphertext value that contains only the AAD tag.
