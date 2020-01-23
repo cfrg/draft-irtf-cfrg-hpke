@@ -397,7 +397,7 @@ def VerifyMode(mode, psk, pskID, pkIm):
     raise Exception("Invalid configuration for mode_auth_psk")
 
 def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
-  VerifyMode(mode, psk, pskID, pkI)
+  VerifyMode(mode, psk, pskID, pkIm)
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
