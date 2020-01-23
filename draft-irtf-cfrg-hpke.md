@@ -391,7 +391,7 @@ def VerifyMode(mode, psk, pskID, pkIm):
     raise Exception("Invalid configuration for mode_psk_auth")
 
 def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
-  VerifyMode(mode, psk, pskID, pkI)
+  VerifyMode(mode, psk, pskID, pkIm)
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
@@ -610,7 +610,7 @@ def Context.Open(aad, ct):
 ## Secret Export {#kpke-export}
 
 HPKE provides a interface for exporting secrets from the encryption Context, similar
-to the TLS 1.3 exporter interface (See {{8446}}, Section 7.5). This interface takes as
+to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in octets), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
 function.
