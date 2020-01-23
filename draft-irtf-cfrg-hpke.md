@@ -710,7 +710,7 @@ several features that a more high-level protocol might provide, for example:
   and mode_auth, a given ciphertext can be decrypted if the recipient's public
   encryption key is compromised. In mode_psk and mode_auth_psk, a given
   ciphertext can be decrypted if the recipient's public encryption key and the
-  psk are compromised.
+  PSK are compromised.
 
 ## Metadata Protection
 
