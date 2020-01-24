@@ -580,16 +580,13 @@ MAY use a sequence number that is shorter than the nonce (padding on
 the left with zero), but MUST return an error if the sequence number
 overflows.
 
-Each encryption or decryption operation increments the sequence
-number for the context in use.  A given context MUST be used either
-only for encryption or only for decryption. For example, initiators
-in a higher-level protocol may encrypt messages that are then
-decrypted by corresponding responders. In this example, responders
-MUST NOT encrypt messages back to initiators using their context, as doing
-so may result in key and nonce reuse. Higher-level protocols built on HPKE
-may use the Export interface to derive separate read and write keys and
-nonces for bidirectional encryption if needed. See {{hpke-export}} for
-more details.
+Encryption is unidirectional from Initiator to Responder. Each encryption
+or decryption operation increments the sequence number for the context
+in use.  The Initiator's context MUST be used for encryption only. Similarly,
+the Responder's context MUST be used for decryption only. Higher-level
+protocols built on HPKE which require bidirectional encryption can use the
+Export interface to derive separate read and write keys and nonces.
+See {{hpke-export}} for more details.
 
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
