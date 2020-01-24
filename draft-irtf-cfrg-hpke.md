@@ -584,9 +584,9 @@ Encryption is unidirectional from Initiator to Responder. Each encryption
 or decryption operation increments the sequence number for the context
 in use.  The Initiator's context MUST be used for encryption only. Similarly,
 the Responder's context MUST be used for decryption only. Higher-level
-protocols built on HPKE which require bidirectional encryption can use the
-Export interface to derive separate read and write keys and nonces.
-See {{hpke-export}} for more details.
+protocols re-using the HPKE key exchange for more general purposes can
+derive separate keying material as needed using use the Export interface;
+see {{hpke-export}} for more details.
 
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
