@@ -563,8 +563,8 @@ decryption, this allows applications to "amortize" the cost of the
 public-key operations, reducing the overall overhead.
 
 In order to avoid nonce reuse, however, this decryption must be
-stateful.  Each of the setup procedures above produces a context
-object that stores the required state:
+stateful. Each of the setup procedures above produces a context object
+that stores the required state:
 
 * The AEAD algorithm in use
 * The key to be used with the AEAD algorithm
@@ -580,15 +580,18 @@ MAY use a sequence number that is shorter than the nonce (padding on
 the left with zero), but MUST return an error if the sequence number
 overflows.
 
-Each encryption or decryption operation increments the sequence
-number for the context in use.  A given context SHOULD be used either
-only for encryption or only for decryption.
+Encryption is unidirectional from Initiator to Responder. Each encryption
+or decryption operation increments the sequence number for the context
+in use.  The Initiator's context MUST be used for encryption only. Similarly,
+the Responder's context MUST be used for decryption only. Higher-level
+protocols re-using the HPKE key exchange for more general purposes can
+derive separate keying material as needed using use the Export interface;
+see {{hpke-export}} for more details.
 
 It is up to the application to ensure that encryptions and
-decryptions are done in the proper sequence, so that the nonce
-values used for encryption and decryption line up.  If a Seal or Open operation
-would cause the `seq` field to wrap, then the implementation MUST return an
-error.
+decryptions are done in the proper sequence, so that encryption
+and decryption nonces align. If a Seal or Open operation would cause the `seq`
+field to wrap, then the implementation MUST return an error.
 
 ~~~~~
 def Context.Nonce(seq):
@@ -613,7 +616,7 @@ def Context.Open(aad, ct):
   return pt
 ~~~~~
 
-## Secret Export {#kpke-export}
+## Secret Export {#hpke-export}
 
 HPKE provides a interface for exporting secrets from the encryption Context, similar
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
