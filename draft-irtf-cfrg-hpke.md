@@ -359,6 +359,11 @@ context. The key schedule inputs are as follows:
 * `pkI` - The initiator's public key (optional; default
   value `zero(Npk)`)
 
+Responders SHOULD validate the initiator-provided encapsulated key for
+correctness. For example, when using a DH-based KEM, the responder should
+check that the resulting key share share is valid, i.e., a point on the
+corresponding curve and part of the correct prime-order subgroup.
+
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
 the other MUST be set to a non-default value.
