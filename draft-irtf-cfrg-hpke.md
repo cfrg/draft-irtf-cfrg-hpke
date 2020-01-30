@@ -123,7 +123,7 @@ informative:
 
 This document describes a scheme for hybrid public-key encryption
 (HPKE).  This scheme provides authenticated public key encryption of
-arbitrary-sized plaintexts for a responder public key. HPKE works
+arbitrary-sized plaintexts for a recipient public key. HPKE works
 for any combination of an asymmetric key encapsulation mechanism
 (KEM), key derivation function (KDF), and authenticated encryption
 with additional data (AEAD) encryption function. We provide
@@ -183,7 +183,7 @@ The following terms are used throughout this document to describe the
 operations, roles, and behaviors of HPKE:
 
 - Initiator (I): Sender of an encrypted message.
-- Responder (R): Receiver of an encrypted message.
+- Responder (R): Recipient of an encrypted message.
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
@@ -302,7 +302,7 @@ curves referenced in {#ciphersuites} are as follows:
 # Hybrid Public Key Encryption
 
 In this section, we define a few HPKE variants.  All variants take a
-responder public key and a sequence of plaintexts `pt`, and produce an
+recipient public key and a sequence of plaintexts `pt`, and produce an
 encapsulated key `enc` and a sequence of ciphertexts `ct`.  These outputs are
 constructed so that only the holder of the private key corresponding
 to `pkR` can decapsulate the key from `enc` and decrypt the
@@ -326,8 +326,8 @@ will be used to distinguish between modes:
 
 All of these cases follow the same basic two-step pattern:
 
-1. Set up an encryption context that is shared between the initiator
-   and the responder
+1. Set up an encryption context that is shared between the sender
+   and the recipient
 2. Use that context to encrypt or decrypt content
 
 A "context" encodes the AEAD algorithm and key in use, and manages
@@ -335,8 +335,8 @@ the nonces used so that the same nonce is not used with multiple
 plaintexts.
 
 The constructions described here presume that the relevant non-private
-parameters (`enc`, `pskID`, etc.) are transported between the initiator and the
-responder by some application making use of HPKE.
+parameters (`enc`, `pskID`, etc.) are transported between the sender and the
+recipient by some application making use of HPKE.
 
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
@@ -347,16 +347,16 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
-* `pkR` - The responder's public key
+* `pkR` - The recipient's public key
 * `zz` - A shared secret generated via the KEM for this transaction
-* `enc` - An encapsulated key produced by the KEM for the responder
+* `enc` - An encapsulated key produced by the KEM for the recipient
 * `info` - Application-supplied information (optional; default value
   "")
-* `psk` - A pre-shared secret held by both the initiator
-  and the responder (optional; default value `zero(Nh)`).
+* `psk` - A pre-shared secret held by both the sender
+  and the recipient (optional; default value `zero(Nh)`).
 * `pskID` - An identifier for the PSK (optional; default
   value `"" = zero(0)`
-* `pkI` - The initiator's public key (optional; default
+* `pkI` - The sender's public key (optional; default
   value `zero(Npk)`)
 
 
@@ -366,11 +366,11 @@ That is, if a non-default value is provided for one of them, then
 the other MUST be set to a non-default value.
 
 The key and nonce computed by this algorithm have the property that
-they are only known to the holder of the responder private key, and
+they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
-and `pskID` arguments are provided, then the responder is assured
-that the initiator held the PSK.  If the `pkIm` argument is
-provided, then the responder is assumed that the initiator held the
+and `pskID` arguments are provided, then the recipient is assured
+that the sender held the PSK.  If the `pkIm` argument is
+provided, then the recipient is assumed that the sender held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
@@ -465,8 +465,8 @@ def SetupBaseR(enc, skR, info):
 
 ### Authentication using a Pre-Shared Key
 
-This variant extends the base mechanism by allowing the responder
-to authenticate that the initiator possessed a given pre-shared key
+This variant extends the base mechanism by allowing the recipient
+to authenticate that the sender possessed a given pre-shared key
 (PSK).  We assume that both parties have been provisioned with both
 the PSK value `psk` and another octet string `pskID` that is used to
 identify which PSK should be used.
@@ -478,7 +478,7 @@ The primary differences from the base case are:
   to the KDF
 
 This mechanism is not suitable for use with a low-entropy password
-as the PSK.  A malicious responder that does not possess the PSK can
+as the PSK.  A malicious recipient that does not possess the PSK can
 use decryption of a plaintext as an oracle for performing offline
 dictionary attacks.
 
@@ -496,28 +496,28 @@ def SetupPSKR(enc, skR, info, psk, pskID):
 
 ### Authentication using an Asymmetric Key
 
-This variant extends the base mechanism by allowing the responder
-to authenticate that the initiator possessed a given KEM private key.
+This variant extends the base mechanism by allowing the recipient
+to authenticate that the sender possessed a given KEM private key.
 This assurance is based on the assumption that
 `AuthDecap(enc, skR, pkI)` produces the correct shared secret
 only if the encapsulated value `enc` was produced by
 `AuthEncap(pkR, skI)`, where `skI` is the private key corresponding
 to `pkI`.  In other words, only two people could have produced this
-secret, so if the responder is one, then the initiator must be the
+secret, so if the recipient is one, then the sender must be the
 other.
 
 The primary differences from the base case are:
 
 * The calls to `Encap` and `Decap` are replaced with calls to
   `AuthEncap` and `AuthDecap`.
-* The initiator public key is added to the context string
+* The sender public key is added to the context string
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
 
-This mechanism authenticates only the key pair of the initiator, not
+This mechanism authenticates only the key pair of the sender, not
 any other identity.  If an application wishes to authenticate some
-other identity for the initiator (e.g., an email address or domain
+other identity for the sender (e.g., an email address or domain
 name), then this identity should be included in the `info` parameter
 to avoid unknown key share attacks.
 
@@ -582,10 +582,10 @@ MAY use a sequence number that is shorter than the nonce (padding on
 the left with zero), but MUST return an error if the sequence number
 overflows.
 
-Encryption is unidirectional from initiator to responder. Each encryption
+Encryption is unidirectional from sender to recipient. Each encryption
 or decryption operation increments the sequence number for the context
-in use.  The initiator's context MUST be used for encryption only. Similarly,
-the responder's context MUST be used for decryption only. Higher-level
+in use.  The sender's context MUST be used for encryption only. Similarly,
+the recipient's context MUST be used for decryption only. Higher-level
 protocols re-using the HPKE key exchange for more general purposes can
 derive separate keying material as needed using use the Export interface;
 see {{hpke-export}} for more details.
@@ -633,7 +633,7 @@ def Context.Export(exporter_context, L):
 
 # Single-Shot APIs
 
-In many cases, applications encrypt only a single message to a responder's public key.
+In many cases, applications encrypt only a single message to a recipient's public key.
 This section provides templates for HPKE APIs that implement stateless "single-shot" encryption
 and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
@@ -679,7 +679,7 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkI):
 For the NIST curves P-256 and P-521, the Marshal function of the DH
 scheme produces the normal (non-compressed) representation of the
 public key, according to {{SECG}}.  When these curves are used, the
-responder of an HPKE ciphertext MUST validate that the ephemeral public
+recipient of an HPKE ciphertext MUST validate that the ephemeral public
 key `pkE` is on the curve.  The relevant validation procedures are
 defined in {{keyagreement}}
 
@@ -716,7 +716,7 @@ arise in practice and an advanced use case.
 HPKE is designed to be a fairly low-level primitive, and thus does not provide
 several features that a more high-level protocol might provide, for example:
 
-* Downgrade prevention - HPKE assumes that the initiator and responder agree on
+* Downgrade prevention - HPKE assumes that the sender and recipient agree on
   what algorithms to use.  Depending on how these algorithms are negotiated, it
   may be possible for an intermediary to force the two parties to use
   suboptimal algorithms.
@@ -727,18 +727,18 @@ several features that a more high-level protocol might provide, for example:
   resulting from a given Context.  HPKE provides no other replay protection.
 
 * Forward secrecy - HPKE ciphertexts are not forward-secure. In mode_base
-  and mode_auth, a given ciphertext can be decrypted if the responder's public
+  and mode_auth, a given ciphertext can be decrypted if the recipient's public
   encryption key is compromised. In mode_psk and mode_auth_psk, a given
-  ciphertext can be decrypted if the responder's public encryption key and the
+  ciphertext can be decrypted if the recipient's public encryption key and the
   PSK are compromised.
 
 ## Metadata Protection
 
-The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the responder
-know what key material to use for the initiator.  This can be signaled in
-applications by sending the PSK ID (`pskID` above) and/or the initiator's public
+The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the recipient
+know what key material to use for the sender.  This can be signaled in
+applications by sending the PSK ID (`pskID` above) and/or the sender's public
 key (`pkI`).  However, these values themselves might be considered sensitive,
-since in a given application context, they might identify the initiator.
+since in a given application context, they might identify the sender.
 
 An application that wishes to protect these metadata values without requiring
 further provisioning of keys can use an additional instance of HPKE, using the
@@ -747,8 +747,8 @@ enc, ciphertext)` before, it would now send (enc2, ciphertext2, enc, ciphertext)
 where `(enc2, ciphertext2)` represent the encryption of the `pskID` and `pkI`
 values.
 
-The cost of this approach is an additional KEM operation each for the initiator and
-the responder.  A potential lower-cost approach (involving only symmetric
+The cost of this approach is an additional KEM operation each for the sender and
+the recipient.  A potential lower-cost approach (involving only symmetric
 operations) would be available if the nonce-protection schemes in {{BNT19}}
 could be extended to cover other metadata.  However, this construction would
 require further analysis.
@@ -757,10 +757,10 @@ require further analysis.
 
 The Auth and AuthPSK modes HPKE can be used to construct a lightweight
 "designated-verifier signature" scheme {{JKR96}}, in the sense that the message
-is authenticated as coming from the initiator, but the only party who can verify
-the authentication is the responder (the holder of `skR`).
+is authenticated as coming from the sender, but the only party who can verify
+the authentication is the recipient (the holder of `skR`).
 
-To create such a signature, the initiator simply performs a normal HPKE setup in
+To create such a signature, the sender simply performs a normal HPKE setup in
 the proper mode, and calls the Seal method on the resulting context with an
 empty plaintext value and the content to be signed as AAD.  This produces an
 encoded key `enc` and a ciphertext value that contains only the AAD tag.
@@ -768,7 +768,7 @@ encoded key `enc` and a ciphertext value that contains only the AAD tag.
 For example, using DHKEM-X25519 and AES-128-GCM, this would produce a 48-byte
 signature comprising a 32-byte ephemeral X25519 key and a 16-byte GCM tag.
 
-To verify such a signature, the responder performs the corresponding HPKE setup
+To verify such a signature, the recipient performs the corresponding HPKE setup
 and calls Open with the provided ciphertext.  If the AEAD authentication passes,
 then the signature is valid.
 
