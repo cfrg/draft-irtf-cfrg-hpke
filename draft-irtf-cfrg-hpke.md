@@ -182,8 +182,8 @@ Hellman (CDH) problem is hard {{S01}}.
 The following terms are used throughout this document to describe the
 operations, roles, and behaviors of HPKE:
 
-- Initiator (I): Sender of an encrypted message.
-- Responder (R): Recipient of an encrypted message.
+- Sender (S): Entity which sends an encrypted message.
+- Recipient (R): Entity which receives an encrypted message.
 - Ephemeral (E): A fresh random value meant for one-time use.
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
@@ -215,13 +215,13 @@ HPKE variants rely on the following primitives:
     by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key from its encapsulated representation `enc`
-  - AuthEncap(pkR, skI) (optional): Same as Encap(), but the outputs
+  - AuthEncap(pkR, skS) (optional): Same as Encap(), but the outputs
     encode an assurance that the ephemeral shared key is known only
-    to the holder of the private key `skI`
-  - AuthDecap(skR, pkI) (optional): Same as Decap(), but the holder
+    to the holder of the private key `skS`
+  - AuthDecap(skR, pkS) (optional): Same as Decap(), but the holder
     of the private key `skR` is assured that the ephemeral shared
     key is known only to the holder of the private key corresponding
-    to `pkI`
+    to `pkS`
   - Nenc: The length in octets of an encapsulated key from this KEM
   - Npk: The length in octets of a public key for this KEM
 
@@ -277,15 +277,15 @@ def Decap(enc, skR):
   pkE = Unmarshal(enc)
   return DH(skR, pkE)
 
-def AuthEncap(pkR, skI):
+def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
-  zz = concat(DH(skE, pkR), DH(skI, pkR))
+  zz = concat(DH(skE, pkR), DH(skS, pkR))
   enc = Marshal(pkE)
   return zz, enc
 
-def AuthDecap(enc, skR, pkI):
+def AuthDecap(enc, skR, pkS):
   pkE = Unmarshal(enc)
-  return concat(DH(skR, pkE), DH(skR, pkI))
+  return concat(DH(skR, pkE), DH(skR, pkS))
 ~~~
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
@@ -356,10 +356,8 @@ context. The key schedule inputs are as follows:
   and the recipient (optional; default value `zero(Nh)`).
 * `pskID` - An identifier for the PSK (optional; default
   value `"" = zero(0)`
-* `pkI` - The sender's public key (optional; default
+* `pkS` - The sender's public key (optional; default
   value `zero(Npk)`)
-
-
 
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
@@ -369,7 +367,7 @@ The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
-that the sender held the PSK.  If the `pkIm` argument is
+that the sender held the PSK.  If the `pkSm` argument is
 provided, then the recipient is assumed that the sender held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
@@ -379,33 +377,33 @@ AEAD `aead_id` 2-octet code points, are assumed implicit from the
 implementation and not passed as parameters.
 
 ~~~~~
-default_pkIm = zero(Npk)
+default_pkSm = zero(Npk)
 default_psk = zero(Nh)
 default_pskID = zero(0)
 
-def VerifyMode(mode, psk, pskID, pkIm):
+def VerifyMode(mode, psk, pskID, pkSm):
   got_psk = (psk != default_psk and pskID != default_pskID)
   no_psk = (psk == default_psk and pskID == default_pskID)
-  got_pkIm = (pkIm != default_pkIm)
-  no_pkIm = (pkIm == default_pkIm)
+  got_pkSm = (pkSm != default_pkSm)
+  no_pkSm = (pkSm == default_pkSm)
 
-  if mode == mode_base and (got_psk or got_pkIm):
+  if mode == mode_base and (got_psk or got_pkSm):
     raise Exception("Invalid configuration for mode_base")
-  if mode == mode_psk and (no_psk or got_pkIm):
+  if mode == mode_psk and (no_psk or got_pkSm):
     raise Exception("Invalid configuration for mode_psk")
-  if mode == mode_auth and (got_psk or no_pkIm):
+  if mode == mode_auth and (got_psk or no_pkSm):
     raise Exception("Invalid configuration for mode_auth")
-  if mode == mode_auth_psk and (no_psk or no_pkIm):
+  if mode == mode_auth_psk and (no_psk or no_pkSm):
     raise Exception("Invalid configuration for mode_auth_psk")
 
-def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkIm):
-  VerifyMode(mode, psk, pskID, pkIm)
+def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
+  VerifyMode(mode, psk, pskID, pkSm)
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
   pskID_hash = Hash(pskID)
   info_hash = Hash(info)
-  context = concat(mode, ciphersuite, enc, pkRm, pkIm, pskID_hash, info_hash)
+  context = concat(mode, ciphersuite, enc, pkRm, pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
@@ -430,7 +428,7 @@ struct {
     // Public inputs to this key exchange
     opaque enc[Nenc];
     opaque pkR[Npk];
-    opaque pkI[Npk];
+    opaque pkS[Npk];
 
     // Cryptographic hash of application-supplied pskID
     opaque pskID_hash[Nh];
@@ -443,7 +441,7 @@ struct {
 ### Encryption to a Public Key {#hpke-kem}
 
 The most basic function of an HPKE scheme is to enable encryption
-for the holder of a given KEM private key.  The `SetupBaseI()` and
+for the holder of a given KEM private key.  The `SetupBaseS()` and
 `SetupBaseR()` procedures establish contexts that can be used to
 encrypt and decrypt, respectively, for a given private key.
 
@@ -452,15 +450,15 @@ with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
 ~~~~~
-def SetupBaseI(pkR, info):
+def SetupBaseS(pkR, info):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(mode_base, pkR, zz, enc, info,
-                          default_psk, default_pskID, default_pkIm)
+                          default_psk, default_pskID, default_pkSm)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
   return KeySchedule(mode_base, pk(skR), zz, enc, info,
-                     default_psk, default_pskID, default_pkIm)
+                     default_psk, default_pskID, default_pkSm)
 ~~~~~
 
 ### Authentication using a Pre-Shared Key
@@ -483,15 +481,15 @@ use decryption of a plaintext as an oracle for performing offline
 dictionary attacks.
 
 ~~~~~
-def SetupPSKI(pkR, info, psk, pskID):
+def SetupPSKS(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(mode_psk, pkR, zz, enc, info,
-                          psk, pskId, default_pkIm)
+                          psk, pskSd, default_pkSm)
 
 def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
   return KeySchedule(mode_psk, pk(skR), zz, enc, info,
-                     psk, pskId, default_pkIm)
+                     psk, pskSd, default_pkSm)
 ~~~~~
 
 ### Authentication using an Asymmetric Key
@@ -499,10 +497,10 @@ def SetupPSKR(enc, skR, info, psk, pskID):
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
 This assurance is based on the assumption that
-`AuthDecap(enc, skR, pkI)` produces the correct shared secret
+`AuthDecap(enc, skR, pkS)` produces the correct shared secret
 only if the encapsulated value `enc` was produced by
-`AuthEncap(pkR, skI)`, where `skI` is the private key corresponding
-to `pkI`.  In other words, only two people could have produced this
+`AuthEncap(pkR, skS)`, where `skS` is the private key corresponding
+to `pkS`.  In other words, only two people could have produced this
 secret, so if the recipient is one, then the sender must be the
 other.
 
@@ -522,17 +520,17 @@ name), then this identity should be included in the `info` parameter
 to avoid unknown key share attacks.
 
 ~~~~~
-def SetupAuthI(pkR, info, skI):
-  zz, enc = AuthEncap(pkR, skI)
-  pkIm = Marshal(pk(skI))
+def SetupAuthS(pkR, info, skS):
+  zz, enc = AuthEncap(pkR, skS)
+  pkSm = Marshal(pk(skS))
   return enc, KeySchedule(mode_auth, pkR, zz, enc, info,
-                          default_psk, default_pskID, pkIm)
+                          default_psk, default_pskID, pkSm)
 
-def SetupAuthR(enc, skR, info, pkI):
-  zz = AuthDecap(enc, skR, pkI)
-  pkIm = Marshal(pkI)
+def SetupAuthR(enc, skR, info, pkS):
+  zz = AuthDecap(enc, skR, pkS)
+  pkSm = Marshal(pkS)
   return KeySchedule(mode_auth, pk(skR), zz, enc, info,
-                     default_psk, default_pskID, pkIm)
+                     default_psk, default_pskID, pkSm)
 ~~~~~
 
 ### Authentication using both a PSK and an Asymmetric Key
@@ -543,17 +541,17 @@ as in the former, and as in the latter, we use the authenticated KEM
 variants.
 
 ~~~~~
-def SetupAuthPSKI(pkR, info, psk, pskID, skI):
-  zz, enc = AuthEncap(pkR, skI)
-  pkIm = Marshal(pk(skI))
+def SetupAuthPSKS(pkR, info, psk, pskID, skS):
+  zz, enc = AuthEncap(pkR, skS)
+  pkSm = Marshal(pk(skS))
   return enc, KeySchedule(mode_auth_psk, pkR, zz, enc, info,
-                          psk, pskID, pkIm)
+                          psk, pskID, pkSm)
 
-def SetupAuthPSKR(enc, skR, info, psk, pskID, pkI):
-  zz = AuthDecap(enc, skR, pkI)
-  pkIm = Marshal(pkI)
+def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
+  zz = AuthDecap(enc, skR, pkS)
+  pkSm = Marshal(pkS)
   return KeySchedule(mode_auth_psk, pk(skR), zz, enc, info,
-                     psk, pskID, pkIm)
+                     psk, pskID, pkSm)
 ~~~~~
 
 ## Encryption and Decryption {#hpke-dem}
@@ -653,13 +651,13 @@ indicated by "..."" depend on `MODE` and may be empty. SetupBase, for example, h
 additional parameters. Thus, SealAuthPSK and OpenAuthPSK would be implemented as follows:
 
 ~~~
-def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skI):
-  enc, ctx = SetupAuthPSKI(pkR, info, psk, pskID, skI)
+def SealAuthPSK(pkR, info, aad, pt, psk, pskID, skS):
+  enc, ctx = SetupAuthPSKS(pkR, info, psk, pskID, skS)
   ct = ctx.Seal(aad, pt)
   return enc, ct
 
-def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkI):
-  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, pkI)
+def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
+  ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, pkS)
   return ctx.Open(aad, ct)
 ~~~
 
@@ -737,14 +735,14 @@ several features that a more high-level protocol might provide, for example:
 The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the recipient
 know what key material to use for the sender.  This can be signaled in
 applications by sending the PSK ID (`pskID` above) and/or the sender's public
-key (`pkI`).  However, these values themselves might be considered sensitive,
+key (`pkS`).  However, these values themselves might be considered sensitive,
 since in a given application context, they might identify the sender.
 
 An application that wishes to protect these metadata values without requiring
 further provisioning of keys can use an additional instance of HPKE, using the
-unauthenticated base mode.  Where the application might have sent `(pskID, pkI,
+unauthenticated base mode.  Where the application might have sent `(pskID, pkS,
 enc, ciphertext)` before, it would now send (enc2, ciphertext2, enc, ciphertext),
-where `(enc2, ciphertext2)` represent the encryption of the `pskID` and `pkI`
+where `(enc2, ciphertext2)` represent the encryption of the `pskID` and `pkS`
 values.
 
 The cost of this approach is an additional KEM operation each for the sender and
@@ -857,12 +855,12 @@ kdfID: 1
 aeadID: 1
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 2d7c739195ba102216de162f9435991aa3ad42aeefdb7e22391ae34bae7e5a13
-skI: 59c77f5734aef369f30d83c7e30c6bf372e120391cdaf13f34c915030284b75d
+skS: 59c77f5734aef369f30d83c7e30c6bf372e120391cdaf13f34c915030284b75d
 skE: 6827bbf4f7ebd0182a8ebc0ea364c7ddae1d1c8a4f58a903fa9f9f9d4228b126
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: cc980df06e532bdb6b957f9f5a5caf55c55f46822cdfbd97e76f6ad4c62b322b
-pkI: db6ee4a53276b7bc90657cdde514f948af83c140540797ec717881490afed921
+pkS: db6ee4a53276b7bc90657cdde514f948af83c140540797ec717881490afed921
 pkE: bc09d66a6e8a77ce2fe3bf6603f227d5c673f5329a3c9ad031bbdfadbc9b1d28
 enc: bc09d66a6e8a77ce2fe3bf6603f227d5c673f5329a3c9ad031bbdfadbc9b1d28
 zz: fb907aabc5e9e03f9665c937606c46d8da4932380d297a35e0c6aa3ff641ff349695
@@ -915,12 +913,12 @@ kdfID: 1
 aeadID: 1
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 139c8d38df6d8dfa2c8de98af621667c76c3f63f65c7c3966c4258c316f05033
-skI: dd5f9525b2fa94f21b7237ade72006a76f612dabf020a02527fcb75db6bebe6f
+skS: dd5f9525b2fa94f21b7237ade72006a76f612dabf020a02527fcb75db6bebe6f
 skE: 7227b3fee6b8e01b293b826ec8671b69894a1142981bb1513afa42819f2a22ef
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 186c394e175b7b161760b1bd5b822a0804bd066b170c695c0df123176fa7df6f
-pkI: 55f618acd854b99bc5167b72c6fbaa70056b6b30d709768658468e830c62dd5d
+pkS: 55f618acd854b99bc5167b72c6fbaa70056b6b30d709768658468e830c62dd5d
 pkE: ef0bf7ee58713568663204cf720cff64a852c77ace25f478cfe7dc0721508e03
 enc: ef0bf7ee58713568663204cf720cff64a852c77ace25f478cfe7dc0721508e03
 zz: e57ee01e09664418fcb3dba12ad3d1fae7a28f733e5979d6e9e7a8b11ced503d
@@ -972,12 +970,12 @@ kdfID: 1
 aeadID: 1
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: fdf4507c4507ececd2b2232a761ce2cdb50d993b6216e6cb9538a1fc53baed02
-skI: 01f60c92806f04327cee19d1822f78a8e88fc0e6d1cada7cd94f902511bb2457
+skS: 01f60c92806f04327cee19d1822f78a8e88fc0e6d1cada7cd94f902511bb2457
 skE: 0dc7bf88c1849fd7800f8bd52eed75f26160a3cb9d634190c48ced1daa4c341a
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 696977f50e929c99287852ded3fc9b2709f8cd51c0d270c45c338dece959f437
-pkI: 5bbcd7531308ffc2653b89ad79d6c9df64bd0c981536c08e887f147b8f92d16a
+pkS: 5bbcd7531308ffc2653b89ad79d6c9df64bd0c981536c08e887f147b8f92d16a
 pkE: ff8ad2005cae6857bf12f1a3e34b1e43dcd6b34c4685f2473d09d6595c11634f
 enc: ff8ad2005cae6857bf12f1a3e34b1e43dcd6b34c4685f2473d09d6595c11634f
 zz: 9839c5431904c86ff5b6f24ed3f78c10fe89ddaa4f8a45d87f80cba69c3e6c6f
@@ -1029,12 +1027,12 @@ kdfID: 1
 aeadID: 1
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: a3f26ded71d69e6b7c4924e5756388efce4c8857b89cd00e492cd5a5778c40d7
-skI: 42962c361fe2e92343113407b95abe4eebef311e315726c579fc6fb7f22e16c5
+skS: 42962c361fe2e92343113407b95abe4eebef311e315726c579fc6fb7f22e16c5
 skE: 372c79a960e1c33c6b6f69c7f4c63567f743a018d5d04fc4a243e0af2aeb3708
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 39c07ff4a258dfe61a1e9e23ef1d9d39efce89c5326da949a9dfa3b11b9f2f2e
-pkI: 9888840b794623840275e594ec76a526e690b9111d21cdec3fe2faf18227f676
+pkS: 9888840b794623840275e594ec76a526e690b9111d21cdec3fe2faf18227f676
 pkE: 617c577bb03e3b6423efae1e4da7e9b82f690ef4d312af6c68a6b78a0977a550
 enc: 617c577bb03e3b6423efae1e4da7e9b82f690ef4d312af6c68a6b78a0977a550
 zz: 47bdf821a19dfff3f1c868fcaccef934541076ef3cb90a215f4aa9c55512ff738d50
@@ -1087,13 +1085,13 @@ kdfID: 1
 aeadID: 3
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 0bfbc9b95d6bb528019f8852c67dd2b1e449796cd5ea9d0a4d875ba105c0998b
-skI: 03ca6aa924d700e2ae2e4347e658e05e1543c8cb580683c155ac30bfbe56cb07
+skS: 03ca6aa924d700e2ae2e4347e658e05e1543c8cb580683c155ac30bfbe56cb07
 skE: 4a0fe976e4ef4f3c835739775549689bac1d9e815a84706bc648c02a8ea475e8
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 04b09c11d56c7ce347cb9d45c8b0d8e7cfeed5792e2dd52430bf79908b98641ec91
 b5b4468376c6e797a0b5d9ff440de0b03d4ab03d69e4a5ab46623b92b7a45d8
-pkI: 0465df804f772b75d8349296932f59a17215ab58cb5d1fb3f530840bd2a3a946181
+pkS: 0465df804f772b75d8349296932f59a17215ab58cb5d1fb3f530840bd2a3a946181
 2706edcdada222a42288ca90e8b9c04560c5acc3f89120f7291bfe5d010e0c1
 pkE: 04b619b60048a5cdd14aa8e5299e2439259f87b92ad890105cd1c5cf191ecb5520b
 de19ced20f4e2bced384351ee4128e3e7147775cf44f33d8623f7b40dee58d6
@@ -1152,13 +1150,13 @@ kdfID: 1
 aeadID: 3
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 9f7b84c3e08b21dfb811b1809d53d4154456e6b1dc893bcc8e169ea32134af04
-skI: e6ee38aad52ea20c46f987264011ee5f822fde3f0382ca98638c8b08dc4661f1
+skS: e6ee38aad52ea20c46f987264011ee5f822fde3f0382ca98638c8b08dc4661f1
 skE: 498b7e5c0bb0679ec27868accb89135c14f392189de6242d4170fdb640173292
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 04277f8aa3debfbbfb0ee02a6a3e121cd4946ce33d86a67fce3fe5d5cb556ca0626
 0f6dee4211aa005cfac2c764e7cb2ee7d92a68d98ced6d92ab4ba9516d04434
-pkI: 0468bc33b8751319c315e73a2e3b0929177ffebe3e6725a65b951c21b30fa0ca7fe
+pkS: 0468bc33b8751319c315e73a2e3b0929177ffebe3e6725a65b951c21b30fa0ca7fe
 2e9da68b2a817c489879872f84aeb116149f10a5c0a24b8db2b7cb9b7e9051a
 pkE: 04340d95e86854286d59cc28f2adce3b67888a9c0f770e53a12bd8a2632558a0fed
 6b3d41fd6dfa3cbdf813e3663c5f53f63816b2346139be8acc1f38228a2d30f
@@ -1217,13 +1215,13 @@ kdfID: 1
 aeadID: 3
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: f0bcfbd0971219e2babcf8bf46f9b45afb170fdfe93a9218fb5eeb18592e6f7a
-skI: 8d8dbf4b6b8d118b1ffe5708b754b4e1d148daa1a2e16647ef7c0facfb4888ad
+skS: 8d8dbf4b6b8d118b1ffe5708b754b4e1d148daa1a2e16647ef7c0facfb4888ad
 skE: 68d9ec029f23625ef2d5ac9cc5f22f8325369ace5eef51f191baecba755bfbaf
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 045e8a58b5816749e863f570ab5a321fb6b6564d8aae2d9d6677131cabc534cc35c
 2d8f0747fa83ca5928b49dff4a211c16766ee38333d032dbdb4993cf175fc1b
-pkI: 04fc797f3f266ca4f552b38adfbf40acee82bdf1b26dc3309cbedee696d07c78da2
+pkS: 04fc797f3f266ca4f552b38adfbf40acee82bdf1b26dc3309cbedee696d07c78da2
 b611090af50273826c67502e6d502052e772bef4d62c60978e2b4cedb21ecf2
 pkE: 04ce353132868f8e171c4094c962916be7e15abe88d508c53a771ee274d3d275b39
 43682116d07fe93b1566f9fe862dfd7c3d18e5237924cf7884789400d308056
@@ -1281,13 +1279,13 @@ kdfID: 1
 aeadID: 3
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: e121dd61c164efe26be222b4c0409ae56099d65690ea98036f3bd6591036e5d4
-skI: eafe161c698c549fc4f1ac49aa43e9a4683dda0ecdf4f10480a43e0d4643377f
+skS: eafe161c698c549fc4f1ac49aa43e9a4683dda0ecdf4f10480a43e0d4643377f
 skE: fed0929f409b0c4e94215ce0a0709d78b16bd3437fd094b663e9593e27867de6
 psk: 6d656c6c6f6e
 pskID: 456e6e796e20447572696e206172616e204d6f726961
 pkR: 043b950975425f0eb96360e99704e558a3fccbe983930a262dcf0d84bcedb4a70a6
 073ef769fdc9e9a2a13e39d25bc0d5152813c002e93114c4f0d0a31cedf50e0
-pkI: 047542daee27355cf4e2667f7df7a95e6e759a044a214d9a1c79909f4b67614b920
+pkS: 047542daee27355cf4e2667f7df7a95e6e759a044a214d9a1c79909f4b67614b920
 3386ca9b03c64ec19a5ff5db5d42983c12ce690c7151a83513a8518119a5091
 pkE: 04f266eac3045b039ac6aaa51b0deae083e5eb8e2d7e6c720d2cb572f1c2496aca9
 9d74f7e722fd9d20ed61f44ad6f83d6aceaf51b40b8bd6c04035fd0fe87941b
@@ -1346,7 +1344,7 @@ aeadID: 2
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 011d0d02be6fe4eb49654d5641f0ebb40b594aca84a7c1e76faa1fa0f5f3582502d
 29fd140d07e71f538c75b93c8ca416af95ad79c5e7e2c0889adce490367492aee
-skI: 01f6343e4068d73fc49b7d1701612b264b2ce45c035ac197ad11e3e057333c6b752
+skS: 01f6343e4068d73fc49b7d1701612b264b2ce45c035ac197ad11e3e057333c6b752
 0a7a76936c69f04315d2a4e9497dceee45ed96e392ebe2f571e2beb8d6b465a8f
 skE: 0099f6326effd78a5c54eeba93e911f35bdd418f2e1de3281ba2172aebf251ff736
 14598c81686775c20618721c8c84466f2f6ca7b33636a3edbc69697087f8b414a
@@ -1356,7 +1354,7 @@ pkR: 04015c0e75e50b266e5fb8e3a3f317608bbf64843c47cca29faa3b894a4f9b95ba5
 33bd40d343e5747f9e85d9ffee5b4ed803a20a23ff0a246ca4d9d59eae9c38291d000c39
 6eade14ed2d42fafe7c4be26da6f07af8b6902af5fbb39f8b0b15c7120d7f57f46ed24e7
 11dda2469f418377d8cc8de7ec8b0594e155b8d6d6ca699f99a4189
-pkI: 0400430b1dbd3c329055a1e76b57abf0e9c0e28f01c6daf8cdddee13c0d0668789e
+pkS: 0400430b1dbd3c329055a1e76b57abf0e9c0e28f01c6daf8cdddee13c0d0668789e
 dcf4bbf7157e75b12b5f91294aaac807060bc8270b5d590fdb5c7e4d6d5b5c8cb5d01c01
 e9ea663d2a487ea671ea08939e88a300bb8a14c3e439cfcd58266e0124cf02f86dc32dab
 2aefea0f5485fa85540e2577a0b0e4d3936f03a20a6da341c59546c
@@ -1430,7 +1428,7 @@ aeadID: 2
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 00953f712b5c288be50460d0372612f88c3da171196a4cd958b0f658e988aa56ce5
 edc018e5899acda38649fc51049610bc8d1423189a9b5ff5f7e4fe1081df3c7b3
-skI: 00c1842b428c23730b0d4eb3859b20bbbe8fef23068e4a6431647379e4a2b92e9c1
+skS: 00c1842b428c23730b0d4eb3859b20bbbe8fef23068e4a6431647379e4a2b92e9c1
 ab58682e0043b9df9c48df14863a6ded7a3a283258fe534aada53b68082eaa7a9
 skE: 00416c4a6236475f01a0cd0a9a7a0d7229be88a63281fca350ea98d4438de57a23b
 d5053572bf0f7bed8bc84aba6f7322cabc6b2540e789eb5823660eaad8e206fd9
@@ -1440,7 +1438,7 @@ pkR: 040108f48ce8fcd71e7e07270fa566cfd66d9b7ab124df141d700b82141264a0130
 6b94265afc3c361c0c0dc514864d4b12e687697d24ddce2f0c77f9c257b8a2f5a380109c
 b328c87f9833f729967a74675acc31bccdccf5016d442e7b33d2ecaf6f79d8a0e79d8259
 b07cd173e320ca25c68acf5aa4f3793e7fc6d076baa953060847a02
-pkI: 04016c7b375e83c3e9252a4768986fff255917ca307345b4a953031a0314b8209b5
+pkS: 04016c7b375e83c3e9252a4768986fff255917ca307345b4a953031a0314b8209b5
 b4d55521fb576db505c9afda9fdfe00ce6f0ad64f6547223179bf851a7cb7b9a71201b9b
 5b3de83c31691ff10d41e3c38aca4ebf0a858a19d5dd01d247425e6697ef10ad9da8e946
 7104c32d7ec5605b5835c074da5ce9000edaa8fbc4623d53431815b
@@ -1514,7 +1512,7 @@ aeadID: 2
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 006ae74c6d37982c4a6087500b66948a715ca971e7aa43260bae4683d78818cfc72
 8b0d72d6834f4d401f35db13f932e414b44d03071805fcbd513a57130e18e8323
-skI: 01d9581f65c8cf1a90f1711fe377c15e68f534be11ea5e0158a8adebaa04f0be9c8
+skS: 01d9581f65c8cf1a90f1711fe377c15e68f534be11ea5e0158a8adebaa04f0be9c8
 0d0f2517abf0cd117d9ca2073b604743076cee2405f4db2825ace05e0eae83354
 skE: 0195e8805187cf89fc17007d90a75dff2dc9ae824aea70adf001ef539832932f0d8
 cd7d3bbc94e712fb64d0e5f0acbb7cb79e5bde9d24304c8b4ed0091c8905da986
@@ -1524,7 +1522,7 @@ pkR: 040054116ccfb36d9cd99e59b100ef9dbc70a6992b38632ee7650659275cdcab37b
 ce7e74f2381cc7292ba418051432c3a8aeb706b3c05fcb886b3a95a306ae9863f5900e9b
 6db3150e7241fec23c607db539e1a2b2c1898b5d2b78ec1a3254bf022dee6e8c2f6265f7
 1ac8e6003614accb8532dd58d5a07a959bde06b763f2f41a9c3ac32
-pkI: 0400fdb5f8a16b80e8a61c967f4f4f6b83740fc3521cd1654ee7e1cc42f4f645a57
+pkS: 0400fdb5f8a16b80e8a61c967f4f4f6b83740fc3521cd1654ee7e1cc42f4f645a57
 e68942303a48d37e09b7cf2be067f03ed0b7076fe0eda129bc65209c83bafbc0b5d012ba
 9db99b61236f645076e7f8b10c8763517dfcefd07241e90aa6a595209fc6aafc227fd9d8
 70c8c6b8d037dd5386513608f7779887e47db733fe97f74169d21c7
@@ -1600,7 +1598,7 @@ aeadID: 2
 info: 4f6465206f6e2061204772656369616e2055726e
 skR: 010bf0c9af1d5dda4c97151d6a9425c8f590aa7c0adff53c06d23380ae82bbd32f6
 4ddf0c344d221d2f7657711d73de7fa25a75bd8fa75662029e118087276a5ef0b
-skI: 01800af579dbd0c91a09fa0ff3ddf21d9a1447649528d777e00962c748159e6de03
+skS: 01800af579dbd0c91a09fa0ff3ddf21d9a1447649528d777e00962c748159e6de03
 880a70331fdab67761e25f78977128f81c7fee9897eea74b5ee80e94414b6aed6
 skE: 013e65c19df676b1d7da923475c72c359fbdd91f224d68785bdf5891bbadfd136a3
 3cc8c31408b9652be389f52e8a19d9401aedaf549a0654f246c277af48f59b2ba
@@ -1610,7 +1608,7 @@ pkR: 0400a1735a659c6b281e603f170b5e886ccfff35d274b042d43a815447fc80208f5
 99704d63a67355b4d04bfdc367f60961f1b36b1e11bf3ed7599f58948f364a1023501ec6
 b5acd7ce1cc2c3ec6dba8d72b08e472809623ac2df65dcb658dbd7d5f599c9ac624517d7
 80b49b3d7619f5647be76a56a73fe2c3fc2ae620159cb1b7a437a94
-pkI: 0400f0fe8e86b8d86d02a4dc5db6988f6343067174caff2e2700834b98d25045013
+pkS: 0400f0fe8e86b8d86d02a4dc5db6988f6343067174caff2e2700834b98d25045013
 eb24cf00c03dd506d562625d0fe5c576910d176705cd4ba1fcd10f5a98f466a0a2200a62
 9f9f62f6053b554bf09b2a547b844f3e040c2b92c548babbc73cf05e77f23d0cffa9e5df
 d0a57f9be64bf453ec48cbd00f2e47349572fead07dc73658256331
