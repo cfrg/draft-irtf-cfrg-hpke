@@ -359,11 +359,12 @@ context. The key schedule inputs are as follows:
 * `pkI` - The initiator's public key (optional; default
   value `zero(Npk)`)
 
-Receivers SHOULD validate the sender-provided encapsulated key for
-correctness. For example, when using a DH-based KEM, the responder
-should check that the ephemeral key `pkE` is valid, i.e., a point on the
+Senders and receivers SHOULD validate public keys for correctness.
+For example, when using a DH-based KEM, the sender should check
+that the receiver's key `pkR` is valid, i.e., a point on the
 corresponding curve and part of the correct prime-order subgroup.
-See {{kem-ids}} for discussion related to other KEMs.
+Similarly, the receiver should check that the sender's ephemeral
+key `pkE` is valid. See {{kem-ids}} for discussion related to other KEMs.
 
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
