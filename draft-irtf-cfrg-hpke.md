@@ -359,6 +359,13 @@ context. The key schedule inputs are as follows:
 * `pkI` - The initiator's public key (optional; default
   value `zero(Npk)`)
 
+Senders and receivers MUST validate public keys for correctness.
+For example, when using a DH-based KEM, the sender should check
+that the receiver's key `pkR` is valid, i.e., a point on the
+corresponding curve and part of the correct prime-order subgroup.
+Similarly, the receiver should check that the sender's ephemeral
+key `pkE` is valid. See {{kem-ids}} for discussion related to other KEMs.
+
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
 the other MUST be set to a non-default value.
@@ -679,7 +686,7 @@ scheme produces the normal (non-compressed) representation of the
 public key, according to {{SECG}}.  When these curves are used, the
 recipient of an HPKE ciphertext MUST validate that the ephemeral public
 key `pkE` is on the curve.  The relevant validation procedures are
-defined in {{keyagreement}}
+defined in {{keyagreement}}.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
