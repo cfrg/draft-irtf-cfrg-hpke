@@ -359,7 +359,7 @@ context. The key schedule inputs are as follows:
 * `pkI` - The initiator's public key (optional; default
   value `zero(Npk)`)
 
-Senders and receivers SHOULD validate public keys for correctness.
+Senders and receivers MUST validate public keys for correctness.
 For example, when using a DH-based KEM, the sender should check
 that the receiver's key `pkR` is valid, i.e., a point on the
 corresponding curve and part of the correct prime-order subgroup.
