@@ -232,7 +232,7 @@ HPKE variants rely on the following primitives:
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Hash and Extract functions
+  - Nh: The output size of the Hash and Extract functions in octets
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
