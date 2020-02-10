@@ -232,7 +232,7 @@ HPKE variants rely on the following primitives:
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Hash and Extract functions
+  - Nh: The output size of the Hash and Extract functions in octets
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -415,7 +415,7 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
   nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("hpke exp", context), Nk)
+  exporter_secret = Expand(secret, concat("hpke exp", context), Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
