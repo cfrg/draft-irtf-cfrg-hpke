@@ -188,15 +188,15 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
 - `pk(skX)`: The public key corresponding to private key `skX`
-- `len(x)`: The length of the octet string `x`, expressed as a
-  two-octet unsigned integer in network (big-endian) byte order
-- `encode_big_endian(x, n)`: An octet string encoding the integer
+- `len(x)`: The length of the byte string `x`, expressed as a
+  two-byte unsigned integer in network (big-endian) byte order
+- `encode_big_endian(x, n)`: An byte string encoding the integer
   value `x` as an n-byte big-endian value
-- `concat(x0, ..., xN)`: Concatenation of octet strings.
+- `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
-- `zero(n)`: An all-zero octet string of length `n`. `zero(4) =
+- `zero(n)`: An all-zero byte string of length `n`. `zero(4) =
   0x00000000`
-- `xor(a,b)`: XOR of octet strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
+- `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
   length.
 
@@ -206,9 +206,9 @@ HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
   - GenerateKeyPair(): Generate a key pair (sk, pk)
-  - Marshal(pk): Produce a fixed-length octet string encoding the
+  - Marshal(pk): Produce a fixed-length byte string encoding the
     public key `pk`
-  - Unmarshal(enc): Parse a fixed-length octet string to recover a
+  - Unmarshal(enc): Parse a fixed-length byte string to recover a
     public key
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
     a fixed-length encapsulation of that key that can be decapsulated
@@ -222,13 +222,13 @@ HPKE variants rely on the following primitives:
     of the private key `skR` is assured that the ephemeral shared
     key is known only to the holder of the private key corresponding
     to `pkS`
-  - Nenc: The length in octets of an encapsulated key from this KEM
-  - Npk: The length in octets of a public key for this KEM
+  - Nenc: The length in bytes of an encapsulated key from this KEM
+  - Npk: The length in bytes of a public key for this KEM
 
 * A Key Derivation Function:
   - Hash(m): Compute the cryptographic hash of input message `m`
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
-    from input keying material `IKM` and an optional octet string
+    from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
@@ -241,12 +241,12 @@ HPKE variants rely on the following primitives:
   - Open(key, nonce, aad, ct): Decrypt ciphertext `ct` using
     associated data `aad` with secret key `key` and nonce `nonce`,
     returning plaintext message `pt` or the error value `OpenError`
-  - Nk: The length in octets of a key for this algorithm
-  - Nn: The length in octets of a nonce for this algorithm
+  - Nk: The length in bytes of a key for this algorithm
+  - Nn: The length in bytes of a nonce for this algorithm
 
 A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
-values are two octets long.
+values are two bytes long.
 
 ## DH-Based KEM
 
@@ -258,9 +258,9 @@ following operations:
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a fixed-length shared
   secret
-- Marshal(pk): Produce a fixed-length octet string encoding the
+- Marshal(pk): Produce a fixed-length byte string encoding the
   public key `pk`
-- Unmarshal(enc): Parse a fixed-length octet string to recover a
+- Unmarshal(enc): Parse a fixed-length byte string to recover a
   public key
 
 Then we can construct a KEM (which we'll call "DHKEM") in the
@@ -292,12 +292,12 @@ The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
 curves referenced in {#ciphersuites} are as follows:
 
-* P-256: The X-coordinate of the point, encoded as a 32-octet
+* P-256: The X-coordinate of the point, encoded as a 32-byte
   big-endian integer
-* P-521: The X-coordinate of the point, encoded as a 66-octet
+* P-521: The X-coordinate of the point, encoded as a 66-byte
   big-endian integer
-* Curve25519: The standard 32-octet representation of the public key
-* Curve448: The standard 56-octet representation of the public key
+* Curve25519: The standard 32-byte representation of the public key
+* Curve448: The standard 56-byte representation of the public key
 
 # Hybrid Public Key Encryption
 
@@ -314,7 +314,7 @@ Additional Authenticated Data to the AEAD algorithm in use.
 In addition to the base case of encrypting to a public key, we
 include two authenticated variants, one of which authenticates
 possession of a pre-shared key, and one of which authenticates
-possession of a KEM private key.  The following one-octet values
+possession of a KEM private key.  The following one-byte values
 will be used to distinguish between modes:
 
 | Mode          | Value |
@@ -380,7 +380,7 @@ corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
-AEAD `aead_id` 2-octet code points, are assumed implicit from the
+AEAD `aead_id` 2-byte code points, are assumed implicit from the
 implementation and not passed as parameters.
 
 ~~~~~
@@ -473,7 +473,7 @@ def SetupBaseR(enc, skR, info):
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given pre-shared key
 (PSK).  We assume that both parties have been provisioned with both
-the PSK value `psk` and another octet string `pskID` that is used to
+the PSK value `psk` and another byte string `pskID` that is used to
 identify which PSK should be used.
 
 The primary differences from the base case are:
@@ -627,7 +627,7 @@ def Context.Open(aad, ct):
 
 HPKE provides a interface for exporting secrets from the encryption Context, similar
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
-input a context string `exporter_context` and desired length `L` (in octets), and produces
+input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
 function.
 
@@ -690,7 +690,7 @@ defined in {{keyagreement}}.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
-octet strings for public keys.
+byte strings for public keys.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
