@@ -491,12 +491,12 @@ dictionary attacks.
 def SetupPSKS(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
   return enc, KeySchedule(mode_psk, pkR, zz, enc, info,
-                          psk, pskSd, default_pkSm)
+                          psk, pskID, default_pkSm)
 
 def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
   return KeySchedule(mode_psk, pk(skR), zz, enc, info,
-                     psk, pskSd, default_pkSm)
+                     psk, pskID, default_pkSm)
 ~~~~~
 
 ### Authentication using an Asymmetric Key
