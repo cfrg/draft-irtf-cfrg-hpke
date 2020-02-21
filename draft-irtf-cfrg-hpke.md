@@ -223,7 +223,7 @@ HPKE variants rely on the following primitives:
     key is known only to the holder of the private key corresponding
     to `pkS`
   - Nenc: The length in octets of an encapsulated key from this KEM
-  - Npk: The length in octets of a public key for this KEM
+  - Npk: The length in octets of an encoded public key for this KEM
 
 * A Key Derivation Function:
   - Hash(m): Compute the cryptographic hash of input message `m`
@@ -256,10 +256,10 @@ following operations:
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a fixed-length shared
-  secret
-- Marshal(pk): Produce a fixed-length octet string encoding the
-  public key `pk`
+  private key sk and public key pk to produce a shared secret
+  of length Npk
+- Marshal(pk): Produce a fixed-length octet string
+  encoding the public key `pk`
 - Unmarshal(enc): Parse a fixed-length octet string to recover a
   public key
 
@@ -810,7 +810,7 @@ Template:
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
-* Npk: The length in bytes of a public key for the algorithm
+* Npk: The length in bytes of an encoded public key for the algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kem-ids}}
