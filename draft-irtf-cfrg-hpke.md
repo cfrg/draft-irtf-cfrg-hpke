@@ -223,7 +223,7 @@ HPKE variants rely on the following primitives:
     key is known only to the holder of the private key corresponding
     to `pkS`
   - Nenc: The length in bytes of an encapsulated key from this KEM
-  - Npk: The length in bytes of a public key for this KEM
+  - Npk: The length in bytes of an encoded public key for this KEM
 
 * A Key Derivation Function:
   - Hash(m): Compute the cryptographic hash of input message `m`
@@ -232,7 +232,7 @@ HPKE variants rely on the following primitives:
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Hash and Extract functions
+  - Nh: The output size of the Hash and Extract functions in octets
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -256,10 +256,10 @@ following operations:
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a fixed-length shared
-  secret
-- Marshal(pk): Produce a fixed-length byte string encoding the
-  public key `pk`
+  private key sk and public key pk to produce a shared secret
+  of length Npk
+- Marshal(pk): Produce a fixed-length byte string
+  encoding the public key `pk`
 - Unmarshal(enc): Parse a fixed-length byte string to recover a
   public key
 
@@ -415,7 +415,7 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
   nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("hpke exp", context), Nk)
+  exporter_secret = Expand(secret, concat("hpke exp", context), Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
@@ -810,7 +810,7 @@ Template:
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
-* Npk: The length in bytes of a public key for the algorithm
+* Npk: The length in bytes of an encoded public key for the algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kem-ids}}
