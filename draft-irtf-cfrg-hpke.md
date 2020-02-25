@@ -57,6 +57,15 @@ informative:
     target: https://secg.org/sec1-v2.pdf
     date: 2009
 
+  HPKEAnalysis:
+    title: An Analysis of Hybrid Public Key Encryption
+    target: https://eprint.iacr.org/2020/243.pdf
+    date: 2020
+    authors:
+      -
+        ins: Benjamin Lipp
+        org: INRIA Paris
+
   MAEA10:
     title: A Comparison of the Standardized Versions of ECIES
     target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
@@ -157,7 +166,9 @@ proofs of IND-CCA2 security, or fail to provide test vectors.
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
-implemented and formally verified.
+implemented and formally verified. A security analysis of this
+specification is available in {{HPKEAnalysis}}. A summary of
+this analysis is in {{sec-considerations}}.
 
 # Requirements Notation
 
@@ -166,16 +177,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "OPTIONAL" in this document are to be interpreted as described in
 BCP14 {{!RFC2119}} {{!RFC8174}}  when, and only when, they appear in
 all capitals, as shown here.
-
-# Security Properties
-
-As a hybrid authentication encryption algorithm, we desire security
-against (adaptive) chosen ciphertext attacks (IND-CCA2 secure). The
-HPKE variants described in this document achieve this property under
-the Random Oracle model assuming the gap Computational Diffie
-Hellman (CDH) problem is hard {{S01}}.
-
-[[ TODO - Provide citations to these proofs once they exist ]]
 
 # Notation
 
@@ -677,7 +678,7 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0000 | (reserved)        | N/A  | N/A | N/A            |
 | 0x0010 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
 | 0x0011 | DHKEM(P-384)      | 48   | 48  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 65   | 65  | {{NISTCurves}} |
+| 0x0012 | DHKEM(P-521)      | 66   | 66  | {{NISTCurves}} |
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
@@ -710,11 +711,43 @@ byte strings for public keys.
 | 0x0002 | AES-GCM-256      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
 
-# Security Considerations
+# Security Considerations {#sec-considerations}
 
-The general security properties of HPKE are described in
-{{security-properties}}.  In this section, we consider a security issue that may
-arise in practice and an advanced use case.
+HPKE has several security goals, depending on the mode of operation,
+against active and adaptive attackers that can compromise partial secrets
+of senders and recipients. The desired security goals are detailed below:
+
+- Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
+security.
+- Export key secrecy: Indistinguishability of the export secret from
+a uniformly random bitstring of equal length.
+- Sender authentication: Proof of sender origin for Auth and AuthPSK modes.
+
+The analysis considers two variants of HPKE usage: single-shot message
+encryption and secret key export. In the single-shot variant, S uses the
+single-shot API to use the key once to encrypt a plaintext. The export variant
+is the same as single-shot variant, except that the sender additionally exports
+two independent secrets using the secret export interface. We distinguish
+these two variants as the single-shot API does not lend itself to use
+the Export interface.s
+
+The table below summarizes the main results from {{HPKEAnalysis}}. N/A
+means that a property does not apply for the given mode, whereas X means
+the given mode satisfies the property.
+
+| Variant | Message Secrecy  | Export Key Secrecy | Sender Auth. |
+|:-------|:------------|:-----|:-------------|
+| Base, single-shot | X | N/A | N/A |
+| Base, export | X | X | N/A |
+| PSK, single-shot | X | N/A | X |
+| PSK, export | X | X | X |
+| Auth, single-shot | X | N/A | X |
+| Auth, export | X | X | X |
+| AuthPSK, single-shot | X | N/A | X |
+| AuthPSK, export | X | X | X |
+
+In this section, we consider a security issue that may arise in practice
+and an advanced use case.
 
 ## External Requirements / Non-Goals
 
