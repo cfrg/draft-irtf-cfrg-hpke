@@ -713,6 +713,17 @@ byte strings for public keys.
 
 # Security Considerations {#sec-considerations}
 
+HPKE makes the following assumptions about its cryptographic
+dependencies.
+
+- Hash: Collision resistance.
+- Extract: Indifferentiable from a Random Oracle.
+- Expand: Behaves as a Pseudorandom Function wherein the first
+argument is the key.
+
+For the DH-based KEM, HPKE also assumes the gap Computational
+Diffie-Hellman (CDH) problem is hard {{S01}}.
+
 HPKE has several security goals, depending on the mode of operation,
 against active and adaptive attackers that can compromise partial secrets
 of senders and recipients. The desired security goals are detailed below:
