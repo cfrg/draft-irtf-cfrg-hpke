@@ -726,10 +726,14 @@ HPKE makes the following cryptographic assumptions about KDF interfaces:
 - Expand: Behaves as a pseudorandom function wherein the first
 argument is the key.
 
-The functions specified in {{kdf-ids}} achieve these properties.
-Moreover, for DH-based KEMs, HPKE assumes the gap Computational Diffie-Hellman
-(CDH) problem is hard {{GAP}}. The DH-based KEMs specified in {{kem-ids}}
-also achieve these properties.
+All AEAD algorithms are assumed to have IND-CPA (indistinguishable
+under chosen plaintext attacks) and INT-CTXT (ciphertext integrity)
+security. For DH-based KEMs, HPKE assumes the gap Computational Diffie-Hellman
+(CDH) problem is hard {{GAP}}. (Security analysis for general KEMs has
+not yet been completed.)
+
+The functions specified in {{kem-ids}}, {{kdf-ids}}, and {{aead-ids}} achieve
+these properties.
 
 HPKE has several security goals, depending on the mode of operation,
 against active and adaptive attackers that can compromise partial secrets
