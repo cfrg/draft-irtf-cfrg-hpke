@@ -179,7 +179,7 @@ This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
 implemented and formally verified. It is secure against (adaptive)
-chosen ciphertext attacks (IND-CCA2 secure) under standard assumptions
+chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions
 about the underlying primitives {{HPKEAnalysis}}. A summary of this
 analysis is in {{sec-properties}}.
 
@@ -753,8 +753,7 @@ This work has been done for the case where the KEM is DHKEM, the AEAD is
 any IND-CCA2 scheme, and the DH group and KDF satisfy the following
 conditions:
 
-- DH group: The gap Computational Diffie-Hellman (CDH) problem is hard
-{{GAP}}.
+- DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
 - Hash: Collision resistance.
 - Extract: Indifferentiable from a random oracle.
 - Expand: Behaves as a pseudorandom function wherein the first argument
@@ -793,6 +792,11 @@ If non-DH-based KEM schemes are to be used with HPKE, further analysis
 will be necessary to prove their security.  The results from {{CS01}}
 provide some indication that any IND-CCA2 KEM will suffice here, but are
 not conclusive given the difference in schemes.
+
+In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
+security models and assumptions, and do not consider attackers capable of quantum
+computation. A full proof of post-quantum security would need to take this
+difference into account, in addition to simply using a post-quantum KEM.
 
 ## External Requirements / Non-Goals
 
