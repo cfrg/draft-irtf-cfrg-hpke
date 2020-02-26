@@ -22,14 +22,17 @@ author:
     email: karthikeyan.bhargavan@inria.fr
 
 informative:
-  S01:
-    title: A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)
-    target: http://www.shoup.net/papers/iso-2_1.pdf
+  GAP:
+    title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
+    target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
     date: 2001
     authors:
       -
-        ins: Victor Shoup
-        org: IBM Zurich Research Lab, Saumerstr. 4, 8803 Ruschlikon, Switzerland
+        ins: Tatsuaki Okamoto
+      -
+        ins: David Pointcheval
+    seriesinfo:
+      ISBN: 978-3-540-44586-9
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
     date: 2001
@@ -717,12 +720,12 @@ HPKE makes the following assumptions about its cryptographic
 dependencies.
 
 - Hash: Collision resistance.
-- Extract: Indifferentiable from a Random Oracle.
-- Expand: Behaves as a Pseudorandom Function wherein the first
+- Extract: Indifferentiable from a random oracle.
+- Expand: Behaves as a pseudorandom function wherein the first
 argument is the key.
 
 For the DH-based KEM, HPKE also assumes the gap Computational
-Diffie-Hellman (CDH) problem is hard {{S01}}.
+Diffie-Hellman (CDH) problem is hard {{GAP}}.
 
 HPKE has several security goals, depending on the mode of operation,
 against active and adaptive attackers that can compromise partial secrets
@@ -730,8 +733,8 @@ of senders and recipients. The desired security goals are detailed below:
 
 - Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
 security.
-- Export key secrecy: Indistinguishability of the export secret from
-a uniformly random bitstring of equal length.
+- Export key secrecy: Indistinguishability of each export secret from a
+uniformly random bitstring of equal length.
 - Sender authentication: Proof of sender origin for Auth and AuthPSK modes.
 
 The analysis considers two variants of HPKE usage: single-shot message
@@ -740,7 +743,7 @@ single-shot API to use the key once to encrypt a plaintext. The export variant
 is the same as single-shot variant, except that the sender additionally exports
 two independent secrets using the secret export interface. We distinguish
 these two variants as the single-shot API does not lend itself to use
-the Export interface.s
+the Export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
 means that a property does not apply for the given mode, whereas X means
