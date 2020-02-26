@@ -22,14 +22,26 @@ author:
     email: karthikeyan.bhargavan@inria.fr
 
 informative:
-  S01:
-    title: A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)
-    target: http://www.shoup.net/papers/iso-2_1.pdf
+  CS01:
+    title: Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive Chosen Ciphertext Attack
+    target: https://eprint.iacr.org/2001/108
     date: 2001
     authors:
       -
+        ins: Ronald Cramer
+      -
         ins: Victor Shoup
-        org: IBM Zurich Research Lab, Saumerstr. 4, 8803 Ruschlikon, Switzerland
+  GAP:
+    title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
+    target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
+    date: 2001
+    authors:
+      -
+        ins: Tatsuaki Okamoto
+      -
+        ins: David Pointcheval
+    seriesinfo:
+      ISBN: 978-3-540-44586-9
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
     date: 2001
@@ -56,6 +68,15 @@ informative:
     title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
     target: https://secg.org/sec1-v2.pdf
     date: 2009
+
+  HPKEAnalysis:
+    title: An Analysis of Hybrid Public Key Encryption
+    target: https://eprint.iacr.org/2020/243.pdf
+    date: 2020
+    authors:
+      -
+        ins: Benjamin Lipp
+        org: INRIA Paris
 
   MAEA10:
     title: A Comparison of the Standardized Versions of ECIES
@@ -157,7 +178,10 @@ proofs of IND-CCA2 security, or fail to provide test vectors.
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
-implemented and formally verified.
+implemented and formally verified. It is secure against (adaptive)
+chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions
+about the underlying primitives {{HPKEAnalysis}}. A summary of this
+analysis is in {{sec-properties}}.
 
 # Requirements Notation
 
@@ -166,16 +190,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "OPTIONAL" in this document are to be interpreted as described in
 BCP14 {{!RFC2119}} {{!RFC8174}}  when, and only when, they appear in
 all capitals, as shown here.
-
-# Security Properties
-
-As a hybrid authentication encryption algorithm, we desire security
-against (adaptive) chosen ciphertext attacks (IND-CCA2 secure). The
-HPKE variants described in this document achieve this property under
-the Random Oracle model assuming the gap Computational Diffie
-Hellman (CDH) problem is hard {{S01}}.
-
-[[ TODO - Provide citations to these proofs once they exist ]]
 
 # Notation
 
@@ -677,7 +691,7 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0000 | (reserved)        | N/A  | N/A | N/A            |
 | 0x0010 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
 | 0x0011 | DHKEM(P-384)      | 48   | 48  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 65   | 65  | {{NISTCurves}} |
+| 0x0012 | DHKEM(P-521)      | 66   | 66  | {{NISTCurves}} |
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
@@ -710,11 +724,79 @@ byte strings for public keys.
 | 0x0002 | AES-GCM-256      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
 
-# Security Considerations
+# Security Considerations {#sec-considerations}
 
-The general security properties of HPKE are described in
-{{security-properties}}.  In this section, we consider a security issue that may
-arise in practice and an advanced use case.
+## Security Properties {#sec-properties}
+
+HPKE has several security goals, depending on the mode of operation,
+against active and adaptive attackers that can compromise partial
+secrets of senders and recipients. The desired security goals are
+detailed below:
+
+- Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
+security
+- Export key secrecy: Indistinguishability of each export
+secret from a uniformly random bitstring of equal length
+- Sender authentication: Proof of sender origin for Auth and AuthPSK
+modes
+
+It is shown in {{CS01}} that a hybrid scheme of essentially the same
+form described here is IND-CCA2-secure as long as the the underlying KEM
+and AEAD schemes are IND-CCA2-secure.  The main difference between the
+scheme proposed there and the scheme in this document (both named HPKE)
+is that we interpose some KDF calls between the KEM and
+the AEAD.  So further analysis is needed on two fronts, first to verify
+that the additional KDF calls do not cause the IND-CCA2 property to
+fail, and second to verify the two additional properties noted above.
+
+This work has been done for the case where the KEM is DHKEM, the AEAD is
+any IND-CCA2 scheme, and the DH group and KDF satisfy the following
+conditions:
+
+- DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
+- Hash: Collision resistance.
+- Extract: Indifferentiable from a random oracle.
+- Expand: Behaves as a pseudorandom function wherein the first argument
+is the key.
+
+In particular, the KDFs and DH groups defined in this document (see
+{{kdf-ids}} and {{kem-ids}}) satisfy these properties.
+
+The analysis in {{HPKEAnalysis}} demonstrates that under these
+constraints, HPKE continues to provide IND-CCA2 security, and provides
+the additional properties noted above.  The analysis considers two
+variants of HPKE usage: single-shot message encryption and secret key
+export. In the single-shot variant, S uses the single-shot API to use
+the key once to encrypt a plaintext. The export variant is the same as
+single-shot variant, except that the sender additionally exports two
+independent secrets using the secret export interface. We distinguish
+these two variants because the single-shot API does not lend itself to
+use the Export interface.
+
+The table below summarizes the main results from {{HPKEAnalysis}}. N/A
+means that a property does not apply for the given mode, whereas X means
+the given mode satisfies the property.
+
+| Variant              | Message Sec. | Export Sec. | Sender Auth. |
+|:---------------------|:------------:|:-----------:|:------------:|
+| Base, single-shot    | X            | N/A         | N/A          |
+| PSK, single-shot     | X            | N/A         | X            |
+| Auth, single-shot    | X            | N/A         | X            |
+| AuthPSK, single-shot | X            | N/A         | X            |
+| Base, export         | X            | X           | N/A          |
+| PSK, export          | X            | X           | X            |
+| Auth, export         | X            | X           | X            |
+| AuthPSK, export      | X            | X           | X            |
+
+If non-DH-based KEM schemes are to be used with HPKE, further analysis
+will be necessary to prove their security.  The results from {{CS01}}
+provide some indication that any IND-CCA2 KEM will suffice here, but are
+not conclusive given the difference in schemes.
+
+In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
+security models and assumptions, and do not consider attackers capable of quantum
+computation. A full proof of post-quantum security would need to take this
+difference into account, in addition to simply using a post-quantum KEM.
 
 ## External Requirements / Non-Goals
 
