@@ -22,6 +22,15 @@ author:
     email: karthikeyan.bhargavan@inria.fr
 
 informative:
+  CS01:
+    title: Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive Chosen Ciphertext Attack
+    target: https://eprint.iacr.org/2001/108
+    date: 2001
+    authors:
+      -
+        ins: Ronald Cramer
+      -
+        ins: Victor Shoup
   GAP:
     title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
     target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
@@ -719,39 +728,51 @@ byte strings for public keys.
 
 ## Security Properties {#sec-properties}
 
-HPKE makes the following cryptographic assumptions about KDF interfaces:
-
-- Hash: Collision resistance.
-- Extract: Indifferentiable from a random oracle.
-- Expand: Behaves as a pseudorandom function wherein the first
-argument is the key.
-
-All AEAD algorithms are assumed to have IND-CPA (indistinguishable
-under chosen plaintext attacks) and INT-CTXT (ciphertext integrity)
-security. For DH-based KEMs, HPKE assumes the gap Computational Diffie-Hellman
-(CDH) problem is hard {{GAP}}. (Security analysis for general KEMs has
-not yet been completed.)
-
-The functions specified in {{kem-ids}}, {{kdf-ids}}, and {{aead-ids}} achieve
-these properties.
-
 HPKE has several security goals, depending on the mode of operation,
-against active and adaptive attackers that can compromise partial secrets
-of senders and recipients. The desired security goals are detailed below:
+against active and adaptive attackers that can compromise partial
+secrets of senders and recipients. The desired security goals are
+detailed below:
 
 - Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
-security.
-- Export key secrecy: Indistinguishability of each export secret from a
-uniformly random bitstring of equal length.
-- Sender authentication: Proof of sender origin for Auth and AuthPSK modes.
+security
+- Export key secrecy: Indistinguishability of each export
+secret from a uniformly random bitstring of equal length
+- Sender authentication: Proof of sender origin for Auth and AuthPSK
+modes
 
-The analysis considers two variants of HPKE usage: single-shot message
-encryption and secret key export. In the single-shot variant, S uses the
-single-shot API to use the key once to encrypt a plaintext. The export variant
-is the same as single-shot variant, except that the sender additionally exports
-two independent secrets using the secret export interface. We distinguish
-these two variants because the single-shot API does not lend itself to use
-the Export interface.
+It is shown in {{CS01}} that a hybrid scheme of essentially the same
+form described here is IND-CCA2-secure as long as the the underlying KEM
+and AEAD schemes are IND-CCA2-secure.  The main difference between the
+scheme proposed there and the scheme in this document (both named HPKE)
+is that we interpose some KDF calls between the KEM and
+the AEAD.  So further analysis is needed on two fronts, first to verify
+that the additional KDF calls do not cause the IND-CCA2 property to
+fail, and second to verify the two additional properties noted above.
+
+This work has been done for the case where the KEM is DHKEM, the AEAD is
+any IND-CCA2 scheme, and the DH group and KDF satisfy the following
+conditions:
+
+- DH group: The gap Computational Diffie-Hellman (CDH) problem is hard
+{{GAP}}.
+- Hash: Collision resistance.
+- Extract: Indifferentiable from a random oracle.
+- Expand: Behaves as a pseudorandom function wherein the first argument
+is the key.
+
+In particular, the KDFs and DH groups defined in this document (see
+{{kdf-ids}} and {{kem-ids}}) satisfy these properties.
+
+The analysis in {{HPKEAnalysis}} demonstrates that under these
+constraints, HPKE continues to provide IND-CCA2 security, and provides
+the additional properties noted above.  The analysis considers two
+variants of HPKE usage: single-shot message encryption and secret key
+export. In the single-shot variant, S uses the single-shot API to use
+the key once to encrypt a plaintext. The export variant is the same as
+single-shot variant, except that the sender additionally exports two
+independent secrets using the secret export interface. We distinguish
+these two variants because the single-shot API does not lend itself to
+use the Export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
 means that a property does not apply for the given mode, whereas X means
@@ -767,6 +788,11 @@ the given mode satisfies the property.
 | PSK, export          | X            | X           | X            |
 | Auth, export         | X            | X           | X            |
 | AuthPSK, export      | X            | X           | X            |
+
+If non-DH-based KEM schemes are to be used with HPKE, further analysis
+will be necessary to prove their security.  The results from {{CS01}}
+provide some indication that any IND-CCA2 KEM will suffice here, but are
+not conclusive given the difference in schemes.
 
 ## External Requirements / Non-Goals
 
