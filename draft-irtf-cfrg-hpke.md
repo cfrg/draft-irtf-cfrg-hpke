@@ -169,9 +169,10 @@ proofs of IND-CCA2 security, or fail to provide test vectors.
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
-implemented and formally verified. A security analysis of this
-specification is available in {{HPKEAnalysis}}. A summary of
-this analysis is in {{sec-considerations}}.
+implemented and formally verified. It is secure against (adaptive)
+chosen ciphertext attacks (IND-CCA2 secure) under standard assumptions
+about the underlying primitives {{HPKEAnalysis}}. A summary of this
+analysis is in {{sec-properties}}.
 
 # Requirements Notation
 
@@ -716,16 +717,19 @@ byte strings for public keys.
 
 # Security Considerations {#sec-considerations}
 
-HPKE makes the following assumptions about its cryptographic
-dependencies.
+## Security Properties {#sec-properties}
+
+HPKE makes the following cryptographic assumptions about KDF interfaces:
 
 - Hash: Collision resistance.
 - Extract: Indifferentiable from a random oracle.
 - Expand: Behaves as a pseudorandom function wherein the first
 argument is the key.
 
-For the DH-based KEM, HPKE also assumes the gap Computational
-Diffie-Hellman (CDH) problem is hard {{GAP}}.
+The functions specified in {{kdf-ids}} achieve these properties.
+Moreover, for DH-based KEMs, HPKE assumes the gap Computational Diffie-Hellman
+(CDH) problem is hard {{GAP}}. The DH-based KEMs specified in {{kem-ids}}
+also achieve these properties.
 
 HPKE has several security goals, depending on the mode of operation,
 against active and adaptive attackers that can compromise partial secrets
@@ -742,26 +746,23 @@ encryption and secret key export. In the single-shot variant, S uses the
 single-shot API to use the key once to encrypt a plaintext. The export variant
 is the same as single-shot variant, except that the sender additionally exports
 two independent secrets using the secret export interface. We distinguish
-these two variants as the single-shot API does not lend itself to use
+these two variants because the single-shot API does not lend itself to use
 the Export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
 means that a property does not apply for the given mode, whereas X means
 the given mode satisfies the property.
 
-| Variant | Message Secrecy  | Export Key Secrecy | Sender Auth. |
-|:-------|:------------|:-----|:-------------|
-| Base, single-shot | X | N/A | N/A |
-| Base, export | X | X | N/A |
-| PSK, single-shot | X | N/A | X |
-| PSK, export | X | X | X |
-| Auth, single-shot | X | N/A | X |
-| Auth, export | X | X | X |
-| AuthPSK, single-shot | X | N/A | X |
-| AuthPSK, export | X | X | X |
-
-In this section, we consider a security issue that may arise in practice
-and an advanced use case.
+| Variant              | Message Sec. | Export Sec. | Sender Auth. |
+|:---------------------|:------------:|:-----------:|:------------:|
+| Base, single-shot    | X            | N/A         | N/A          |
+| PSK, single-shot     | X            | N/A         | X            |
+| Auth, single-shot    | X            | N/A         | X            |
+| AuthPSK, single-shot | X            | N/A         | X            |
+| Base, export         | X            | X           | N/A          |
+| PSK, export          | X            | X           | X            |
+| Auth, export         | X            | X           | X            |
+| AuthPSK, export      | X            | X           | X            |
 
 ## External Requirements / Non-Goals
 
