@@ -22,6 +22,20 @@ author:
     email: karthikeyan.bhargavan@inria.fr
 
 informative:
+  BDG20:
+    title: Separate Your Domains - NIST PQC KEMs, Oracle Cloning and Read-Only Indifferentiability
+    target: https://eprint.iacr.org/2020/241.pdf
+    date: 2020
+    authors:
+      -
+        ins: Mihir Bellare
+        org: Department of Computer Science \& Engineering, University of California San Diego
+      -
+        ins: Hannah Davis
+        org: Department of Computer Science \& Engineering, University of California San Diego
+      -
+        ins: Felix Gunther
+        org: Department of Computer Science, ETH Zurich
   CS01:
     title: Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive Chosen Ciphertext Attack
     target: https://eprint.iacr.org/2001/108
@@ -421,10 +435,12 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   VerifyMode(mode, psk, pskID, pkSm)
 
   pkRm = Marshal(pkR)
+  identifier = "RFCXXXX"
   ciphersuite = concat(kem_id, kdf_id, aead_id)
-  pskID_hash = Hash(pskID)
-  info_hash = Hash(info)
-  context = concat(mode, ciphersuite, enc, pkRm, pkSm, pskID_hash, info_hash)
+  pskID_hash = Hash(concat(0x00, pskID))
+  info_hash = Hash(concat(0x01, info))
+  context = concat(identifier, ciphersuite, mode, enc, pkRm,
+                   pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
   key = Expand(secret, concat("hpke key", context), Nk)
@@ -433,6 +449,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before
+publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -797,6 +816,21 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Domain Separation
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before
+publication.]]
+
+The KeySchedule procedure includes the domain separation string "RFCXXXX" in
+each Expand invocation. This ensures any secrets derived in HPKE are independent
+from those used in other protocols, even when derived from the same IKM (secret).
+This domain separation does not protect the KeySchedule 'secret' from use in other
+protocols.
+
+The KeySchedule procedure also separates each Hash invocation, used when deriving
+pskID and info hashes, with unique one-byte prefixes. This ensures that each Hash
+computation (or oracle query) is independent {{BDG20}}.
 
 ## External Requirements / Non-Goals
 
