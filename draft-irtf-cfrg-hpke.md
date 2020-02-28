@@ -830,7 +830,7 @@ protocols.
 
 The KeySchedule procedure also separates each Hash invocation, used when deriving
 pskID and info hashes, with unique one-byte prefixes. This ensures that each Hash
-computation (or oracle query) is independent {{BDG20}}.
+computation is independent {{BDG20}}.
 
 ## External Requirements / Non-Goals
 
