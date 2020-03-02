@@ -689,9 +689,9 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | Value  | KEM               | Nenc | Npk | Reference      |
 |:-------|:------------------|:-----|:----|:---------------|
 | 0x0000 | (reserved)        | N/A  | N/A | N/A            |
-| 0x0010 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
-| 0x0011 | DHKEM(P-384)      | 48   | 48  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 66   | 66  | {{NISTCurves}} |
+| 0x0010 | DHKEM(P-256)      | 65   | 65  | {{NISTCurves}} |
+| 0x0011 | DHKEM(P-384)      | 97   | 97  | {{NISTCurves}} |
+| 0x0012 | DHKEM(P-521)      | 133  | 133 | {{NISTCurves}} |
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
