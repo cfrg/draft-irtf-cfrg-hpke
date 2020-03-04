@@ -306,10 +306,10 @@ The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
 curves referenced in {#ciphersuites} are as follows:
 
-* P-256: The X-coordinate of the point, encoded as a 32-byte
-  big-endian integer
-* P-521: The X-coordinate of the point, encoded as a 66-byte
-  big-endian integer
+* P-256: A single byte set to 4, followed by the X-coordinate and the
+  Y-coordinate of the point, encoded as 32-byte big-endian integers
+* P-521: A single byte set to 4, followed by the X-coordinate and the
+  Y-coordinate of the point, encoded as 66-byte big-endian integers
 * Curve25519: The standard 32-byte representation of the public key
 * Curve448: The standard 56-byte representation of the public key
 
@@ -689,9 +689,9 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | Value  | KEM               | Nenc | Npk | Reference      |
 |:-------|:------------------|:-----|:----|:---------------|
 | 0x0000 | (reserved)        | N/A  | N/A | N/A            |
-| 0x0010 | DHKEM(P-256)      | 32   | 32  | {{NISTCurves}} |
-| 0x0011 | DHKEM(P-384)      | 48   | 48  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 66   | 66  | {{NISTCurves}} |
+| 0x0010 | DHKEM(P-256)      | 65   | 65  | {{NISTCurves}} |
+| 0x0011 | DHKEM(P-384)      | 97   | 97  | {{NISTCurves}} |
+| 0x0012 | DHKEM(P-521)      | 133  | 133 | {{NISTCurves}} |
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
