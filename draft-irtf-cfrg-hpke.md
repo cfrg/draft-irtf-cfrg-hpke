@@ -825,8 +825,8 @@ publication.]]
 The KeySchedule procedure includes the domain separation string "RFCXXXX" in
 each Expand invocation. This ensures any secrets derived in HPKE are independent
 from those used in other protocols, even when derived from the same IKM (secret).
-This domain separation does not protect the KeySchedule 'secret' from use in other
-protocols.
+Derivation of the KeySchedule 'secret' does not include domain separation as it
+is an intermediate value not exposed by the protocol.
 
 The KeySchedule procedure also separates each Hash invocation, used when deriving
 pskID and info hashes, with unique one-byte prefixes. This ensures that each Hash
