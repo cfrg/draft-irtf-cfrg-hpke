@@ -270,12 +270,17 @@ following operations:
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a shared secret
-  of length Npk
+  private key sk and public key pk to produce a Diffie-Hellman
+  shared secret of length Npk
 - Marshal(pk): Produce a fixed-length byte string
   encoding the public key `pk`
 - Unmarshal(enc): Parse a fixed-length byte string to recover a
   public key
+
+And consider the following additional definition:
+
+- Hash'(m): Compute the cryptographic hash of input message `m`
+  producing the shared secret of length Nzz returned by the algorithm
 
 Then we can construct a KEM (which we'll call "DHKEM") in the
 following way:
@@ -283,23 +288,23 @@ following way:
 ~~~
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
-  zz = DH(skE, pkR)
+  zz = Hash'(DH(skE, pkR))
   enc = Marshal(pkE)
   return zz, enc
 
 def Decap(enc, skR):
   pkE = Unmarshal(enc)
-  return DH(skR, pkE)
+  return Hash'(DH(skR, pkE))
 
 def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
-  zz = concat(DH(skE, pkR), DH(skS, pkR))
+  zz = Hash'(concat(DH(skE, pkR), DH(skS, pkR)))
   enc = Marshal(pkE)
   return zz, enc
 
 def AuthDecap(enc, skR, pkS):
   pkE = Unmarshal(enc)
-  return concat(DH(skR, pkE), DH(skR, pkS))
+  return Hash'(concat(DH(skR, pkE), DH(skR, pkS)))
 ~~~
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
@@ -686,14 +691,14 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM               | Nenc | Npk | Reference      |
-|:-------|:------------------|:-----|:----|:---------------|
-| 0x0000 | (reserved)        | N/A  | N/A | N/A            |
-| 0x0010 | DHKEM(P-256)      | 65   | 65  | {{NISTCurves}} |
-| 0x0011 | DHKEM(P-384)      | 97   | 97  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 133  | 133 | {{NISTCurves}} |
-| 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
-| 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
+| Value  | KEM                       | Nzz  | Nenc | Npk | Reference                    |
+|:-------|:--------------------------|:-----|:-----|:----|:-----------------------------|
+| 0x0000 | (reserved)                | N/A  | N/A  | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC6234}} |
+| 0x0011 | DHKEM(P-384, SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC6234}} |
+| 0x0012 | DHKEM(P-521, SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC6234}} |
+| 0x0020 | DHKEM(Curve25519, SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC6234}}   |
+| 0x0021 | DHKEM(Curve448, SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC6234}}   |
 
 For the NIST curves P-256 and P-521, the Marshal function of the DH
 scheme produces the normal (non-compressed) representation of the
@@ -891,6 +896,7 @@ Template:
 
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
+* Nzz: The length in bytes of a shared secret produced by the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
 * Npk: The length in bytes of an encoded public key for the algorithm
 * Reference: Where this algorithm is defined
