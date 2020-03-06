@@ -429,9 +429,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
                    pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
-  key = Expand(secret, concat("hpke key", context), Nk)
-  nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("hpke exp", context), Nh)
+  key = Expand(secret, concat("key", context), Nk)
+  nonce = Expand(secret, concat("nonce", context), Nn)
+  exporter_secret = Expand(secret, concat("exp", context), Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
