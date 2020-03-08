@@ -820,6 +820,10 @@ separate the input domains of `HashDH` and `Hash`; this justifies
 modeling them as independent functions even when instantiated by the
 same hash function.
 
+At the same time, `label_hash` ensures that any secrets derived in
+HPKE are independent from those used in other protocols, even when
+derived from the same KEM shared secret.
+
 Users of HPKE who want to use a KEM other than DHKEM must make sure
 that any hash function used within this KEM can be modeled as a
 function independent from `Hash`.
