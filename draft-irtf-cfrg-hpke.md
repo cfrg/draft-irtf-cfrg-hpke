@@ -421,18 +421,23 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   VerifyMode(mode, psk, pskID, pkSm)
 
   pkRm = Marshal(pkR)
+  identifier = "RFCXXXX"
   ciphersuite = concat(kem_id, kdf_id, aead_id)
   pskID_hash = Hash(pskID)
   info_hash = Hash(info)
-  context = concat(mode, ciphersuite, enc, pkRm, pkSm, pskID_hash, info_hash)
+  context = concat(identifier, ciphersuite, mode, enc, pkRm,
+                   pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
-  key = Expand(secret, concat("hpke key", context), Nk)
-  nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("hpke exp", context), Nh)
+  key = Expand(secret, concat("key", context), Nk)
+  nonce = Expand(secret, concat("nonce", context), Nn)
+  exporter_secret = Expand(secret, concat("exp", context), Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before
+publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -797,6 +802,17 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Domain Separation
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before
+publication.]]
+
+The KeySchedule procedure includes the domain separation string "RFCXXXX" in
+each Expand invocation. This ensures any secrets derived in HPKE are independent
+from those used in other protocols, even when derived from the same IKM (secret).
+Derivation of the KeySchedule 'secret' does not include domain separation as it
+is an intermediate value not exposed by the protocol.
 
 ## External Requirements / Non-Goals
 
