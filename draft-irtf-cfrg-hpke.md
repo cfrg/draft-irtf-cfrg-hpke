@@ -236,7 +236,8 @@ HPKE variants rely on the following primitives:
     of the private key `skR` is assured that the ephemeral shared
     key is known only to the holder of the private key corresponding
     to `pkS`
-  - Nenc: The length in bytes of an encapsulated key from this KEM
+  - Nzz: The length in bytes of a shared secret produced by this KEM
+  - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
 
 * A Key Derivation Function:
@@ -264,8 +265,8 @@ values are two bytes long.
 
 ## DH-Based KEM
 
-Suppose we are given a Diffie-Hellman group that provides the
-following operations:
+Suppose we are given a Diffie-Hellman group, and a hash function,
+providing the following operations:
 
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
@@ -276,35 +277,40 @@ following operations:
   encoding the public key `pk`
 - Unmarshal(enc): Parse a fixed-length byte string to recover a
   public key
-
-And consider the following additional definition:
-
-- Hash'(m): Compute the cryptographic hash of input message `m`
+- HashDH(m): Compute the cryptographic hash of input message `m`
   producing the shared secret of length Nzz returned by the algorithm
+- label_hashdh: The UTF-8 string literal "RFCXXXX DHKEM" of length
+  13 bytes.
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
-Then we can construct a KEM (which we'll call "DHKEM") in the
-following way:
+Then we can construct a KEM called `DHKEM(Curve, Hash)` in the
+following way, where `Curve` denotes the Diffie-Hellman group and
+`Hash` the hash function:
 
 ~~~
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
-  zz = Hash'(DH(skE, pkR))
+  dh = DH(skE, pkR)
+  zz = HashDH(concat(label_hashdh, dh))
   enc = Marshal(pkE)
   return zz, enc
 
 def Decap(enc, skR):
   pkE = Unmarshal(enc)
-  return Hash'(DH(skR, pkE))
+  dh = DH(skR, pkE)
+  return HashDH(concat(label_hashdh, dh))
 
 def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
-  zz = Hash'(concat(DH(skE, pkR), DH(skS, pkR)))
+  dh = concat(DH(skE, pkR), DH(skS, pkR))
+  zz = HashDH(concat(label_hashdh, dh))
   enc = Marshal(pkE)
   return zz, enc
 
 def AuthDecap(enc, skR, pkS):
   pkE = Unmarshal(enc)
-  return Hash'(concat(DH(skR, pkE), DH(skR, pkS)))
+  dh = concat(DH(skR, pkE), DH(skR, pkS))
+  return HashDH(concat(label_hashdh, dh))
 ~~~
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
@@ -427,17 +433,19 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
 
   pkRm = Marshal(pkR)
   ciphersuite = concat(kem_id, kdf_id, aead_id)
-  pskID_hash = Hash(pskID)
-  info_hash = Hash(info)
+  label_hash = "RFCXXXX HPKE"
+  pskID_hash = Hash(concat(label_hash, pskID))
+  info_hash = Hash(concat(label_hash, info))
   context = concat(mode, ciphersuite, enc, pkRm, pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
-  key = Expand(secret, concat("hpke key", context), Nk)
-  nonce = Expand(secret, concat("hpke nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("hpke exp", context), Nh)
+  key = Expand(secret, concat("key", context), Nk)
+  nonce = Expand(secret, concat("nonce", context), Nn)
+  exporter_secret = Expand(secret, concat("exp", context), Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -802,6 +810,19 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Random Oracle Cloning / Domain Separation
+
+HPKE allows a choice of a DHKEM variant and a KDF such that the hash
+functions `HashDH` and `Hash` are instantiated by the same hash
+function. The prefixes `label_hashdh` and `label_hash` serve to
+separate the input domains of `HashDH` and `Hash`; this justifies
+modeling them as independent functions even when instantiated by the
+same hash function.
+
+Users of HPKE who want to use a KEM other than DHKEM must make sure
+that any hash function used within this KEM can be modeled as a
+function independent from `Hash`.
 
 ## External Requirements / Non-Goals
 
