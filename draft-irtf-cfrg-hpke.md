@@ -368,7 +368,7 @@ context. The key schedule inputs are as follows:
   "")
 * `psk` - A pre-shared secret held by both the sender
   and the recipient (optional; default value `zero(Nh)`).
-* `pskID` - An identifier for the PSK (optional; default value `""`)
+* `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
 * `pkSm` - The sender's encoded public key (optional; default
   value `zero(Npk)`)
 
