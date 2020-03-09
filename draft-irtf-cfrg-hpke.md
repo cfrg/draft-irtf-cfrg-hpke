@@ -767,6 +767,7 @@ any IND-CCA2 scheme, and the DH group and KDF satisfy the following
 conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
+- HashDH: Indifferentiable from a random oracle.
 - Hash: Collision resistance.
 - Extract: Indifferentiable from a random oracle.
 - Expand: Behaves as a pseudorandom function wherein the first argument
