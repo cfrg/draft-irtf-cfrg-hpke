@@ -20,6 +20,9 @@ author:
     name: Karthik Bhargavan
     org: Inria
     email: karthikeyan.bhargavan@inria.fr
+ -  ins: C. A. Wood
+    name: Christopher A. Wood
+    email: caw@heapingbits.net
 
 informative:
   CS01:
