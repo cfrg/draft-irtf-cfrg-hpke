@@ -34,6 +34,7 @@ informative:
         ins: Ronald Cramer
       -
         ins: Victor Shoup
+
   GAP:
     title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
     target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
@@ -45,6 +46,7 @@ informative:
         ins: David Pointcheval
     seriesinfo:
       ISBN: 978-3-540-44586-9
+
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
     date: 2001
@@ -52,6 +54,7 @@ informative:
       -
         ins:
         org: American National Standards Institute
+
   IEEE:
     title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
     date: 2004
@@ -59,6 +62,7 @@ informative:
       -
         ins:
         org: Institute of Electrical and Electronics Engineers
+
   ISO:
     title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
     date: 2006
@@ -135,7 +139,9 @@ informative:
     date: 2019
 
   keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
+
   NISTCurves: DOI.10.6028/NIST.FIPS.186-4
+
   GCM: DOI.10.6028/NIST.SP.800-38D
 
   fiveG:
