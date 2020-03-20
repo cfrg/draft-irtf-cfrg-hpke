@@ -316,8 +316,8 @@ curves referenced in {#ciphersuites} are as follows:
 * Curve25519: The standard 32-byte representation of the public key
 * Curve448: The standard 56-byte representation of the public key
 
-Implementations MUST adhere to the validation processes imposed on
-received values by the employed KEM algorithm, as described
+Senders and recipients MUST implement the validations of KEM inputs
+and outputs imposed by the employed KEM algorithm, as described
 in {{kem-ids}}.
 
 # Hybrid Public Key Encryption
@@ -379,8 +379,8 @@ context. The key schedule inputs are as follows:
 * `pkSm` - The sender's encoded public key (optional; default
   value `zero(Npk)`)
 
-Senders and receivers MUST adhere to the validation processes imposed
-on received values by the employed KEM algorithm, as described
+Senders and recipients MUST implement the validations of KEM inputs
+and outputs imposed by the employed KEM algorithm, as described
 in {{kem-ids}}.
 
 The `psk` and `pskID` fields MUST appear together or not at all.
@@ -703,14 +703,15 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
-For the NIST curves P-256 and P-521, the Marshal function of the DH
-scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.  When these curves are used, the
-recipient of an HPKE ciphertext MUST validate that the ephemeral public
-key `pkE` is on the curve and part of the correct prime-order subgroup.
-For authenticated modes the same validation MUST be done for the static
-public key `pkS`.  The relevant full public-key validation procedure is
-defined in {{keyagreement}}.
+For the NIST curves P-256, P-384 and P-521, the Marshal function of the
+DH scheme produces the normal (non-compressed) representation of the
+public key, according to {{SECG}}.  When these curves are used, senders
+and recipients MUST perform a full public-key validation as defined
+in {{keyagreement}}, which includes validating that a public key is on
+the curve and part of the correct prime-order subgroup.  The sender
+MUST validate the recipient's public key `pkR`.  The recipient MUST
+validate the ephemeral public key `pkE`.  In authenticated modes, the
+recipient MUST validate the sender's static public key `pkS`.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
