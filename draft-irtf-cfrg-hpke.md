@@ -708,7 +708,7 @@ scheme produces the normal (non-compressed) representation of the
 public key, according to {{SECG}}.  When these curves are used, the
 recipient of an HPKE ciphertext MUST validate that the ephemeral public
 key `pkE` is on the curve and part of the correct prime-order subgroup.
-For authenticated modes the same validation MUST be done for  the static
+For authenticated modes the same validation MUST be done for the static
 public key `pkS`.  The relevant full public-key validation procedure is
 defined in {{keyagreement}}.
 
