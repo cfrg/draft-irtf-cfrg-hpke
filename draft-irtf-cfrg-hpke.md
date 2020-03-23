@@ -378,8 +378,7 @@ context. The key schedule inputs are as follows:
 * `pkSm` - The sender's encoded public key (optional; default
   value `zero(Npk)`)
 
-Senders and recipients MUST implement the validations of KEM inputs
-and outputs imposed by the employed KEM algorithm, as described
+Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
 
 The `psk` and `pskID` fields MUST appear together or not at all.
