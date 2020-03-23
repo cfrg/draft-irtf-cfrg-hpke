@@ -316,8 +316,7 @@ curves referenced in {#ciphersuites} are as follows:
 * Curve25519: The standard 32-byte representation of the public key
 * Curve448: The standard 56-byte representation of the public key
 
-Senders and recipients MUST implement the validations of KEM inputs
-and outputs imposed by the employed KEM algorithm, as described
+Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
 
 # Hybrid Public Key Encryption
