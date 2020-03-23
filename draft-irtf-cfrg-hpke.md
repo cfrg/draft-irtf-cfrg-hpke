@@ -715,7 +715,7 @@ public key `pkS`.
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
 byte strings for public keys. When these curves are used, validation of
-public keys is not necessary. Implementations MAY check whether the
+public keys is not necessary. Implementations MUST check whether the
 shared secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
 
