@@ -510,10 +510,8 @@ The primary differences from the base case are:
 * The PSK ID is added to the context string used as the `info` input
   to the KDF
 
-This mechanism is not suitable for use with a low-entropy password
-as the PSK.  A malicious recipient that does not possess the PSK can
-use decryption of a plaintext as an oracle for performing offline
-dictionary attacks.
+The PSK SHOULD be at least Nh-bytes long, and SHOULD be derived from at least
+Nh bytes of entropy. Low-entropy PSKs are subject to active dictionary attacks.
 
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
@@ -573,7 +571,8 @@ def SetupAuthR(enc, skR, info, pkS):
 This mode is a straightforward combination of the PSK and
 authenticated modes.  The PSK is passed through to the key schedule
 as in the former, and as in the latter, we use the authenticated KEM
-variants.
+variants. As before, the PSK SHOULD be at least Nh-bytes long, and
+SHOULD be derived from at least Nh bytes of entropy.
 
 ~~~~~
 def SetupAuthPSKS(pkR, info, psk, pskID, skS):
