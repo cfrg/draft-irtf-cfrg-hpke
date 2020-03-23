@@ -322,6 +322,9 @@ curves referenced in {#ciphersuites} are as follows:
 * Curve25519: The standard 32-byte representation of the public key
 * Curve448: The standard 56-byte representation of the public key
 
+Senders and recipients MUST validate KEM inputs and outputs as described
+in {{kem-ids}}.
+
 # Hybrid Public Key Encryption
 
 In this section, we define a few HPKE variants.  All variants take a
@@ -381,12 +384,8 @@ context. The key schedule inputs are as follows:
 * `pkSm` - The sender's encoded public key (optional; default
   value `zero(Npk)`)
 
-Senders and receivers MUST validate public keys for correctness.
-For example, when using a DH-based KEM, the sender should check
-that the receiver's key `pkR` is valid, i.e., a point on the
-corresponding curve and part of the correct prime-order subgroup.
-Similarly, the receiver should check that the sender's ephemeral
-key `pkE` is valid. See {{kem-ids}} for discussion related to other KEMs.
+Senders and recipients MUST validate KEM inputs and outputs as described
+in {{kem-ids}}.
 
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
@@ -708,16 +707,34 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
-For the NIST curves P-256 and P-521, the Marshal function of the DH
-scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.  When these curves are used, the
-recipient of an HPKE ciphertext MUST validate that the ephemeral public
-key `pkE` is on the curve.  The relevant validation procedures are
-defined in {{keyagreement}}.
+### Marshal
+
+For the NIST curves P-256, P-384 and P-521, the Marshal function of the
+DH scheme produces the normal (non-compressed) representation of the
+public key, according to {{SECG}}.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
 byte strings for public keys.
+
+### Validation of Inputs and Outputs
+
+The following public keys are subject to validation if the curve
+requires public key validation: the sender MUST validate the recipient's
+public key `pkR`; the recipient MUST validate the ephemeral public key
+`pkE`; in authenticated modes, the recipient MUST validate the sender's
+static public key `pkS`.
+
+For the NIST curves P-256, P-384 and P-521, senders and recipients
+MUST perform full public-key validation on all public key inputs as
+defined in {{keyagreement}}, which includes validating that a public
+key is on the curve and part of the correct prime-order subgroup.
+Validation of the computed shared secret is not necessary.
+
+For the CFRG curves Curve25519 and Curve448, validation of public keys
+is required. Senders and recipients MUST check whether the shared
+secret is the all-zero value and abort if so, as described in
+{{?RFC7748}}.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
