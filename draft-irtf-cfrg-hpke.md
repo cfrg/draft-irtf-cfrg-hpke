@@ -704,12 +704,13 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 For the NIST curves P-256, P-384 and P-521, the Marshal function of the
 DH scheme produces the normal (non-compressed) representation of the
 public key, according to {{SECG}}.  When these curves are used, senders
-and recipients MUST perform a full public-key validation as defined
-in {{keyagreement}}, which includes validating that a public key is on
-the curve and part of the correct prime-order subgroup.  The sender
-MUST validate the recipient's public key `pkR`.  The recipient MUST
-validate the ephemeral public key `pkE`.  In authenticated modes, the
-recipient MUST validate the sender's static public key `pkS`.
+and recipients MUST perform full public-key validation on all public
+key inputs as defined in {{keyagreement}}, which includes validating
+that a public key is on the curve and part of the correct prime-order
+subgroup.  The sender MUST validate the recipient's public key `pkR`.
+The recipient MUST validate the ephemeral public key `pkE`. In
+authenticated modes, the recipient MUST validate the sender's static
+public key `pkS`.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
