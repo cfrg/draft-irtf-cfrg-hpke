@@ -701,22 +701,33 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
 | 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
 
+### Marshal
+
 For the NIST curves P-256, P-384 and P-521, the Marshal function of the
 DH scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.  When these curves are used, senders
-and recipients MUST perform full public-key validation on all public
-key inputs as defined in {{keyagreement}}, which includes validating
-that a public key is on the curve and part of the correct prime-order
-subgroup.  The sender MUST validate the recipient's public key `pkR`.
-The recipient MUST validate the ephemeral public key `pkE`. In
-authenticated modes, the recipient MUST validate the sender's static
-public key `pkS`.
+public key, according to {{SECG}}.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
-byte strings for public keys. When these curves are used, validation of
-public keys is not necessary. Implementations MUST check whether the
-shared secret is the all-zero value and abort if so, as described in
+byte strings for public keys.
+
+### Validation of Inputs and Outputs
+
+The following public keys are subject to validation if the curve
+requires public key validation: the sender MUST validate the recipient's
+public key `pkR`; the recipient MUST validate the ephemeral public key
+`pkE`; in authenticated modes, the recipient MUST validate the sender's
+static public key `pkS`.
+
+For the NIST curves P-256, P-384 and P-521, senders and recipients
+MUST perform full public-key validation on all public key inputs as
+defined in {{keyagreement}}, which includes validating that a public
+key is on the curve and part of the correct prime-order subgroup.
+Validation of the computed shared secret is not necessary.
+
+For the CFRG curves Curve25519 and Curve448, validation of public keys
+is required. Senders and recipients MUST check whether the shared
+secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
