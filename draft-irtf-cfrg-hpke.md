@@ -429,7 +429,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
 
   pkRm = Marshal(pkR)
   identifier = "RFCXXXX"
-  ciphersuite = concat(kem_id, kdf_id, aead_id)
+  ciphersuite = concat(encode_big_endian(kem_id, 2),
+                       encode_big_endian(kdf_id, 2),
+                       encode_big_endian(aead_id, 2))
   pskID_hash = Hash(pskID)
   info_hash = Hash(info)
   context = concat(identifier, ciphersuite, mode, enc, pkRm,
