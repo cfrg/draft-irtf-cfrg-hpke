@@ -734,7 +734,7 @@ key is on the curve and part of the correct prime-order subgroup.
 Validation of the computed shared secret is not necessary.
 
 For the CFRG curves Curve25519 and Curve448, validation of public keys
-is required. Senders and recipients MUST check whether the shared
+is not required. Senders and recipients MUST check whether the shared
 secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
 
