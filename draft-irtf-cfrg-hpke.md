@@ -479,6 +479,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   context = concat(ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
+  if length(psk) > Nb then:
+    psk = Extract(0, concat("psk", psk))
+
   secret = Extract(psk, zz)
   key = Expand(secret, concat("key", context), Nk)
   nonce = Expand(secret, concat("nonce", context), Nn)
@@ -553,9 +556,18 @@ The primary differences from the base case are:
 * The PSK ID is added to the context string used as the `info` input
   to the KDF
 
-This mechanism is not suitable for use with a low-entropy password
-as the PSK.  A malicious recipient that does not possess the PSK can
-use decryption of a plaintext as an oracle for performing offline
+The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
+Nh bytes of entropy or more. Using a PSK shorter than Nh bytes
+is permitted. A PSK that is longer than Nh bytes or has more than
+Nh bytes of entropy, respectively, does not increase the security
+level of HPKE, because only Nh bytes are extracted from the PSK and
+the KEM shared secret.
+
+HPKE is specified to use HKDF as key derivation function. HKDF is not
+designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
+HPKE's PSK mechanism is not suitable for use with a low-entropy
+password as the PSK. An adversary that does not possess the PSK can
+use decryption of an HPKE ciphertext as an oracle for performing
 dictionary attacks.
 
 ~~~~~
