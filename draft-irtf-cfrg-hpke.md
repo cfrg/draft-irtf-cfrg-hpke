@@ -473,16 +473,16 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
-  label_hash = "RFCXXXX HPKE"
-  pskID_hash = Hash(concat(label_hash, pskID))
-  info_hash = Hash(concat(label_hash, info))
-  context = concat(ciphersuite, mode, enc, pkRm,
+  pskID_hash = Extract(0, concat("pskID", pskID))
+  info_hash = Extract(0, concat("info", info))
+  identifier = "RFCXXXX HPKE"
+  context = concat(identifier, ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
   if length(psk) > Nb then:
     psk = Extract(0, concat("psk", psk))
 
-  secret = Extract(psk, zz)
+  secret = Extract(psk, concat("zz", zz))
   key = Expand(secret, concat("key", context), Nk)
   nonce = Expand(secret, concat("nonce", context), Nn)
   exporter_secret = Expand(secret, concat("exp", context), Nh)
@@ -491,20 +491,19 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
 ~~~~~
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
-\[\[RFC editor: please change "RFCXXXX" to the correct number before
-publication.]]
-
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
 TLS presentation syntax:
 
 ~~~~~
 struct {
+    uint8 identifier[12];
+
     // Mode and algorithms
-    uint8 mode;
     uint16 kem_id;
     uint16 kdf_id;
     uint16 aead_id;
+    uint8 mode;
 
     // Public inputs to this key exchange
     opaque enc[Nenc];
