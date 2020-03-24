@@ -249,14 +249,15 @@ HPKE variants rely on the following primitives:
   - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
 
-* A Key Derivation Function:
+* A Key Derivation Function (KDF):
   - Hash(m): Compute the cryptographic hash of input message `m`
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
     from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Hash and Extract functions in octets
+  - Nb: The block size of the Hash function in bytes
+  - Nh: The output size of the Hash and Extract functions in bytes
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
