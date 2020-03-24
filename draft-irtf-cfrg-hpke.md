@@ -20,6 +20,9 @@ author:
     name: Karthik Bhargavan
     org: Inria
     email: karthikeyan.bhargavan@inria.fr
+ -  ins: C. A. Wood
+    name: Christopher A. Wood
+    email: caw@heapingbits.net
 
 informative:
   CS01:
@@ -31,6 +34,7 @@ informative:
         ins: Ronald Cramer
       -
         ins: Victor Shoup
+
   GAP:
     title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
     target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
@@ -42,6 +46,7 @@ informative:
         ins: David Pointcheval
     seriesinfo:
       ISBN: 978-3-540-44586-9
+
   ANSI:
     title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
     date: 2001
@@ -49,6 +54,7 @@ informative:
       -
         ins:
         org: American National Standards Institute
+
   IEEE:
     title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
     date: 2004
@@ -56,6 +62,7 @@ informative:
       -
         ins:
         org: Institute of Electrical and Electronics Engineers
+
   ISO:
     title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
     date: 2006
@@ -131,8 +138,10 @@ informative:
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/1e98830311b27f9af00787c16e2c5ac43abeadfb/test-vectors.json
     date: 2019
 
-  keyagreement: DOI.10.6028/NIST.SP.800-56Ar2
+  keyagreement: DOI.10.6028/NIST.SP.800-56Ar3
+
   NISTCurves: DOI.10.6028/NIST.FIPS.186-4
+
   GCM: DOI.10.6028/NIST.SP.800-38D
 
   fiveG:
@@ -324,6 +333,9 @@ curves referenced in {#ciphersuites} are as follows:
 * Curve25519: The standard 32-byte representation of the public key
 * Curve448: The standard 56-byte representation of the public key
 
+Senders and recipients MUST validate KEM inputs and outputs as described
+in {{kem-ids}}.
+
 # Hybrid Public Key Encryption
 
 In this section, we define a few HPKE variants.  All variants take a
@@ -379,17 +391,12 @@ context. The key schedule inputs are as follows:
   "")
 * `psk` - A pre-shared secret held by both the sender
   and the recipient (optional; default value `zero(Nh)`).
-* `pskID` - An identifier for the PSK (optional; default
-  value `"" = zero(0)`
-* `pkS` - The sender's public key (optional; default
+* `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
+* `pkSm` - The sender's encoded public key (optional; default
   value `zero(Npk)`)
 
-Senders and receivers MUST validate public keys for correctness.
-For example, when using a DH-based KEM, the sender should check
-that the receiver's key `pkR` is valid, i.e., a point on the
-corresponding curve and part of the correct prime-order subgroup.
-Similarly, the receiver should check that the sender's ephemeral
-key `pkE` is valid. See {{kem-ids}} for discussion related to other KEMs.
+Senders and recipients MUST validate KEM inputs and outputs as described
+in {{kem-ids}}.
 
 The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
@@ -432,11 +439,14 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   VerifyMode(mode, psk, pskID, pkSm)
 
   pkRm = Marshal(pkR)
-  ciphersuite = concat(kem_id, kdf_id, aead_id)
+  ciphersuite = concat(encode_big_endian(kem_id, 2),
+                       encode_big_endian(kdf_id, 2),
+                       encode_big_endian(aead_id, 2))
   label_hash = "RFCXXXX HPKE"
   pskID_hash = Hash(concat(label_hash, pskID))
   info_hash = Hash(concat(label_hash, info))
-  context = concat(mode, ciphersuite, enc, pkRm, pkSm, pskID_hash, info_hash)
+  context = concat(ciphersuite, mode, enc, pkRm,
+                   pkSm, pskID_hash, info_hash)
 
   secret = Extract(psk, zz)
   key = Expand(secret, concat("key", context), Nk)
@@ -446,6 +456,9 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   return Context(key, nonce, exporter_secret)
 ~~~~~
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before
+publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -708,16 +721,34 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(Curve25519, SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC6234}}   |
 | 0x0021 | DHKEM(Curve448, SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC6234}}   |
 
-For the NIST curves P-256 and P-521, the Marshal function of the DH
-scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.  When these curves are used, the
-recipient of an HPKE ciphertext MUST validate that the ephemeral public
-key `pkE` is on the curve.  The relevant validation procedures are
-defined in {{keyagreement}}.
+### Marshal
+
+For the NIST curves P-256, P-384 and P-521, the Marshal function of the
+DH scheme produces the normal (non-compressed) representation of the
+public key, according to {{SECG}}.
 
 For the CFRG curves Curve25519 and Curve448, the Marshal function is
 the identity function, since these curves already use fixed-length
 byte strings for public keys.
+
+### Validation of Inputs and Outputs
+
+The following public keys are subject to validation if the curve
+requires public key validation: the sender MUST validate the recipient's
+public key `pkR`; the recipient MUST validate the ephemeral public key
+`pkE`; in authenticated modes, the recipient MUST validate the sender's
+static public key `pkS`.
+
+For the NIST curves P-256, P-384 and P-521, senders and recipients
+MUST perform full public-key validation on all public key inputs as
+defined in {{keyagreement}}, which includes validating that a public
+key is on the curve and part of the correct prime-order subgroup.
+Validation of the computed shared secret is not necessary.
+
+For the CFRG curves Curve25519 and Curve448, validation of public keys
+is not required. Senders and recipients MUST check whether the shared
+secret is the all-zero value and abort if so, as described in
+{{?RFC7748}}.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
