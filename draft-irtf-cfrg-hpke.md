@@ -886,18 +886,18 @@ difference into account, in addition to simply using a post-quantum KEM.
 
 ## Random Oracle Cloning / Domain Separation
 
-HPKE allows a choice of a DHKEM variant and a KDF such that the hash
-functions `HashDH` and `Hash` are instantiated by the same hash
-function. The prefixes `label_hashdh` and `label_hash` serve to
-separate the input domains of `HashDH` and `Hash`; this justifies
-modeling them as independent functions even when instantiated by the
-same hash function.
+HPKE allows combining a DHKEM variant DHKEM(Curve, Hash_kem) and a KDF
+such that the hash functions Hash_kem and Hash are instantiated by the
+same hash function. The prefixes used for the second parameter of the
+functions Extract_kem, Expand_kem, Extract, and Expand serve to separate
+their input domains; this justifies modeling them as independent
+functions even if instantiated by the same underlying hash function.
 
 Users of HPKE who want to use a KEM other than DHKEM must make sure
 that any hash function used within this KEM can be modeled as a
 function independent from `Hash`.
 
-At the same time, `label_hash` ensures that any secrets derived in HPKE
+The string literal `identifier` ensures that any secrets derived in HPKE
 are bound to the scheme's name, even when possibly derived from the
 same KEM shared secret as in another scheme.
 
