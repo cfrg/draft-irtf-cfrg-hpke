@@ -275,53 +275,81 @@ values are two bytes long.
 
 ## DH-Based KEM
 
-Suppose we are given a Diffie-Hellman group, and a hash function,
+Suppose we are given an instantiation KDF_kem of KDF with functions
+Hash_kem, Extract_kem, and Expand_kem, and a Diffie-Hellman group
 providing the following operations:
 
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
-  shared secret of length Npk
-- Marshal(pk): Produce a fixed-length byte string
+  shared secret of length Ndh
+- Marshal(pk): Produce a byte string of length Npk
   encoding the public key `pk`
-- Unmarshal(enc): Parse a fixed-length byte string to recover a
+- Unmarshal(enc): Parse a byte string of length Npk to recover a
   public key
-- HashDH(m): Compute the cryptographic hash of input message `m`
-  producing the shared secret of length Nzz returned by the algorithm
-- label_hashdh: The UTF-8 string literal "RFCXXXX DHKEM" of length
-  13 bytes.
-\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+- Nzz: The output size of the Hash_kem and Extract_kem functions
+  in bytes
 
-Then we can construct a KEM called `DHKEM(Curve, Hash)` in the
+Then we can construct a KEM called `DHKEM(Curve, Hash_kem)` in the
 following way, where `Curve` denotes the Diffie-Hellman group and
-`Hash` the hash function:
+`Hash_kem` the hash function underlying KDF_kem:
 
 ~~~
+label_dh = "RFCXXXX DHKEM"
+
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
   dh = DH(skE, pkR)
-  zz = HashDH(concat(label_hashdh, dh))
   enc = Marshal(pkE)
+
+  pkRm = Marshal(pkR)
+  context_kem = concat(enc, pkRm)
+
+  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
+  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
   return zz, enc
 
-def Decap(enc, skR):
+def Decap(enc, skR, pkR):
   pkE = Unmarshal(enc)
   dh = DH(skR, pkE)
-  return HashDH(concat(label_hashdh, dh))
 
-def AuthEncap(pkR, skS):
-  skE, pkE = GenerateKeyPair()
-  dh = concat(DH(skE, pkR), DH(skS, pkR))
-  zz = HashDH(concat(label_hashdh, dh))
-  enc = Marshal(pkE)
+  pkRm = Marshal(pkR)
+  context_kem = concat(enc, pkRm)
+
+  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
+  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
   return zz, enc
 
-def AuthDecap(enc, skR, pkS):
+def AuthEncap(pkR, skS, pkS):
+  skE, pkE = GenerateKeyPair()
+  dh = concat(DH(skE, pkR), DH(skS, pkR))
+  enc = Marshal(pkE)
+
+  pkRm = Marshal(pkR)
+  pkSm = Marshal(pkS)
+  context_kem = concat(enc, pkRm, pkSm)
+
+  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
+  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  return zz, enc
+
+def AuthDecap(enc, skR, pkR, pkS):
   pkE = Unmarshal(enc)
   dh = concat(DH(skR, pkE), DH(skR, pkS))
-  return HashDH(concat(label_hashdh, dh))
+
+  pkRm = Marshal(pkR)
+  pkSm = Marshal(pkS)
+  context_kem = concat(enc, pkRm, pkSm)
+
+  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
+  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  return zz, enc
 ~~~
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
+For the NIST curves P-256, P-384 and P-521, Ndh is equal to Npk.
+For the CFRG curves Curve25519 and Curve448, Ndh is equal to Npk.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
