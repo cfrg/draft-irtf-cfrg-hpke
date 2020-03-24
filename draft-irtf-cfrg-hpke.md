@@ -329,6 +329,8 @@ curves referenced in {#ciphersuites} are as follows:
 
 * P-256: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 32-byte big-endian integers
+* P-384: A single byte set to 4, followed by the X-coordinate and the
+  Y-coordinate of the point, encoded as 48-byte big-endian integers
 * P-521: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 66-byte big-endian integers
 * Curve25519: The standard 32-byte representation of the public key
