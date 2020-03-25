@@ -831,15 +831,17 @@ difference into account, in addition to simply using a post-quantum KEM.
 
 ## Pre-Shared Key Recommendations
 
-As per {{mode-psk-auth}}, PSKs SHOULD be at least Nh bytes long, and SHOULD be
-derived from at least Nh bytes of entropy. Low-entropy PSKs are NOT RECOMMENDED.
-Applications which use low-entropy PSKs are subject to dictionary attack by
-active adversaries. For example, consider an application wherein a sender and
-receiver share a low-entropy PSK k. Moreover, assume the receiver exposes an oracle
-indicating whether or not decryption succeeds. An adversary can exhaustively search
-for the value of k by sending test messages to the receiver, each authenticated
-using a test PSK value, and subsequently querying the decryption oracle to determine
-if the PSK value was correct.
+In the PSK mode (see {{mode-psk-auth}}), PSKs SHOULD be at least Nh bytes long,
+and SHOULD be derived from at least Nh bytes of entropy.  While an HPKE
+ciphertext does not reveal anything about the PSK (as a consequence of the
+IND-CCA2 property), application behaviors may create an oracle that tells an
+attacker whether a given PSK is correct or not.  For example, a receiver
+whose behavior is observably different based on the success or failure of an
+HPKE decryption would provide such an oracle.  Given such an oracle, an
+adversary may be able to recover a low-entropy PSK by brute-force search.
+
+This risk does not arise for the AuthPSK mode, because the attacker cannot
+generate candidate ciphertexts without access to the sender's private key.
 
 ## Domain Separation
 
