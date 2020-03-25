@@ -496,7 +496,7 @@ def SetupBaseR(enc, skR, info):
                      default_psk, default_pskID, default_pkSm)
 ~~~~~
 
-### Authentication using a Pre-Shared Key
+### Authentication using a Pre-Shared Key {#mode-psk-auth}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given pre-shared key
@@ -510,8 +510,8 @@ The primary differences from the base case are:
 * The PSK ID is added to the context string used as the `info` input
   to the KDF
 
-The PSK SHOULD be at least Nh-bytes long, and SHOULD be derived from at least
-Nh bytes of entropy. Low-entropy PSKs are subject to active dictionary attacks.
+The PSK SHOULD be at least Nh bytes long, and SHOULD be derived from at least
+Nh bytes of entropy.
 
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
@@ -571,7 +571,7 @@ def SetupAuthR(enc, skR, info, pkS):
 This mode is a straightforward combination of the PSK and
 authenticated modes.  The PSK is passed through to the key schedule
 as in the former, and as in the latter, we use the authenticated KEM
-variants. As before, the PSK SHOULD be at least Nh-bytes long, and
+variants. As before, the PSK SHOULD be at least Nh bytes long, and
 SHOULD be derived from at least Nh bytes of entropy.
 
 ~~~~~
@@ -828,6 +828,18 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Pre-Shared Key Recommendations
+
+As per {{mode-psk-auth}}, PSKs SHOULD be at least Nh bytes long, and SHOULD be
+derived from at least Nh bytes of entropy. Low-entropy PSKs are NOT RECOMMENDED.
+Applications which use low-entropy PSKs are subject to dictionary attack by
+active adversaries. For example, consider an application wherein a sender and
+receiver share a low-entropy PSK k. Moreover, assume the receiver exposes an oracle
+indicating whether or not decryption succeeds. An adversary can exhaustively search
+for the value of k by sending test messages to the receiver, each authenticated
+using a test PSK value, and subsequently querying the decryption oracle to determine
+if the PSK value was correct.
 
 ## Domain Separation
 
