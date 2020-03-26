@@ -278,7 +278,7 @@ separation of calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeled_IKM = concat("RFCXXXX ", label, IKM)  
+  labeled_IKM = concat("RFCXXXX ", label, IKM)
   return Extract(salt, labeled_IKM)
 
 def LabeledExpand(PRK, label, info, L):
@@ -549,7 +549,7 @@ def SetupBaseR(enc, skR, info):
                      default_psk, default_pskID, default_pkSm)
 ~~~~~
 
-### Authentication using a Pre-Shared Key
+### Authentication using a Pre-Shared Key {#mode-psk}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given pre-shared key
@@ -564,18 +564,8 @@ The primary differences from the base case are:
   to the KDF
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
-Nh bytes of entropy or more. Using a PSK shorter than Nh bytes
-is permitted. A PSK that is longer than Nh bytes or has more than
-Nh bytes of entropy, respectively, does not increase the security
-level of HPKE, because only Nh bytes are extracted from the PSK and
-the KEM shared secret.
-
-HPKE is specified to use HKDF as key derivation function. HKDF is not
-designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
-HPKE's PSK mechanism is not suitable for use with a low-entropy
-password as the PSK. An adversary that does not possess the PSK can
-use decryption of an HPKE ciphertext as an oracle for performing
-dictionary attacks.
+Nh bytes of entropy or more. See {#security-psk} for a more detailed
+discussion.
 
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
@@ -589,7 +579,7 @@ def SetupPSKR(enc, skR, info, psk, pskID):
                      psk, pskID, default_pkSm)
 ~~~~~
 
-### Authentication using an Asymmetric Key
+### Authentication using an Asymmetric Key {#mode-auth}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
@@ -630,7 +620,7 @@ def SetupAuthR(enc, skR, info, pkS):
                      default_psk, default_pskID, pkSm)
 ~~~~~
 
-### Authentication using both a PSK and an Asymmetric Key
+### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
 
 This mode is a straightforward combination of the PSK and
 authenticated modes.  The PSK is passed through to the key schedule
@@ -650,6 +640,10 @@ def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
   return KeySchedule(mode_auth_psk, pk(skR), zz, enc, info,
                      psk, pskID, pkSm)
 ~~~~~
+
+The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
+Nh bytes of entropy or more. See {#security-psk} for a more detailed
+discussion.
 
 ## Encryption and Decryption {#hpke-dem}
 
@@ -891,6 +885,39 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Pre-Shared Key Recommendations {#security-psk}
+
+In mode PSK and mode AuthPSK, the PSK SHOULD be of length Nh bytes or
+longer, and SHOULD have Nh bytes of entropy or more. Using a PSK shorter
+than Nh bytes is permitted. A PSK that is longer than Nh bytes or that
+has more than Nh bytes of entropy, respectively, does not increase the
+security level of HPKE, because the extraction step involving the PSK
+only outputs Nh bytes.
+
+HPKE is specified to use HKDF as key derivation function. HKDF is not
+designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
+HPKE's PSK mechanism is not suitable for use with a low-entropy
+password as the PSK: in scenarios in which the adversary knows the
+KEM shared secret zz, it can perform a dictionary attack on the PSK.
+The adversary can use different oracles to decide if a guess was good,
+depending on the scenario. First, on observation of an HPKE ciphertext,
+it can use decryption of the ciphertext as oracle. HPKE ciphertexts are
+created with an authenticated encryption scheme, which means decryption
+fails when using a wrong key. Second, the adversary can act as sender
+and create candidate HPKE ciphertexts. A recipient's behaviour can serve
+as oracle, e.g. if an error message implies that a wrong PSK was used.
+Third, if an application does not use Seal to create HPKE ciphertexts
+but only the Export interface, the adversary could rely on other
+recipient behavior which is observably different when using a wrong key.
+
+Scenarios in which the adversary can know the KEM shared secret zz
+depend on the KEM. In the case of DHKEM, it is enough if the adversary
+knows all private keys of one participant. In mode PSK, either knowledge
+of skR or skE is sufficient. If the adversary can act as sender, it does
+obviously know skE. In mode AuthPSK, either knowledge of skR or (skS and
+skE) is sufficient. Knowledge of skR is sufficient because
+Diffie-Hellman is subject to key-compromise impersonation.
 
 ## Domain Separation
 
