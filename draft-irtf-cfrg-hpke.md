@@ -900,9 +900,9 @@ designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
 HPKE's PSK mechanism is not suitable for use with a low-entropy
 password as the PSK: in scenarios in which the adversary knows the
 KEM shared secret zz, it can perform a dictionary attack on the PSK.
-The adversary can use different oracles to decide if a guess was good,
+The adversary can use different oracles to decide if a PSK guess was correct,
 depending on the scenario. First, on observation of an HPKE ciphertext,
-it can use decryption of the ciphertext as oracle. HPKE ciphertexts are
+the adversary can use decryption of the ciphertext as oracle. HPKE ciphertexts are
 created with an authenticated encryption scheme, which means decryption
 fails when using a wrong key. Second, the adversary can act as sender
 and create candidate HPKE ciphertexts. A recipient's behaviour can serve
@@ -911,13 +911,9 @@ Third, if an application does not use Seal to create HPKE ciphertexts
 but only the Export interface, the adversary could rely on other
 recipient behavior which is observably different when using a wrong key.
 
-Scenarios in which the adversary can know the KEM shared secret zz
+Scenarios in which the adversary knows the KEM shared secret zz
 depend on the KEM. In the case of DHKEM, it is enough if the adversary
-knows all private keys of one participant. In mode PSK, either knowledge
-of skR or skE is sufficient. If the adversary can act as sender, it does
-obviously know skE. In mode AuthPSK, either knowledge of skR or (skS and
-skE) is sufficient. Knowledge of skR is sufficient because
-Diffie-Hellman is subject to key-compromise impersonation.
+knows all private keys of one participant. 
 
 ## Domain Separation
 
