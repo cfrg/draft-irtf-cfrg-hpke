@@ -296,7 +296,9 @@ following way, where `Group` denotes the Diffie-Hellman group and
 `Hash_kem` the hash function underlying KDF_kem:
 
 ~~~
-label_dh = "RFCXXXX DHKEM"
+def ExtractAndExpand(dh, context_kem):
+  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
+  return Expand_kem(prk, concat("prk", context_kem), Nzz)
 
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
@@ -306,8 +308,7 @@ def Encap(pkR):
   pkRm = Marshal(pkR)
   context_kem = concat(enc, pkRm)
 
-  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
-  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  zz = ExtractAndExpand(dh, context_kem)
   return zz, enc
 
 def Decap(enc, skR, pkR):
@@ -317,8 +318,7 @@ def Decap(enc, skR, pkR):
   pkRm = Marshal(pkR)
   context_kem = concat(enc, pkRm)
 
-  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
-  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  zz = ExtractAndExpand(dh, context_kem)
   return zz, enc
 
 def AuthEncap(pkR, skS, pkS):
@@ -330,8 +330,7 @@ def AuthEncap(pkR, skS, pkS):
   pkSm = Marshal(pkS)
   context_kem = concat(enc, pkRm, pkSm)
 
-  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
-  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  zz = ExtractAndExpand(dh, context_kem)
   return zz, enc
 
 def AuthDecap(enc, skR, pkR, pkS):
@@ -342,8 +341,7 @@ def AuthDecap(enc, skR, pkR, pkS):
   pkSm = Marshal(pkS)
   context_kem = concat(enc, pkRm, pkSm)
 
-  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
-  zz  = Expand_kem(prk, concat("prk", context_kem), Nzz)
+  zz = ExtractAndExpand(dh, context_kem)
   return zz, enc
 ~~~
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
