@@ -884,7 +884,7 @@ security models and assumptions, and do not consider attackers capable of quantu
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
 
-## Random Oracle Cloning / Domain Separation
+## Domain Separation
 
 HPKE allows combining a DHKEM variant DHKEM(Curve, Hash_kem) and a KDF
 such that the hash functions Hash_kem and Hash are instantiated by the
