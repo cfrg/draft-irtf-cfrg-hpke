@@ -278,12 +278,12 @@ separation of calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeled_IKM = concat("RFC XXXX ", label, IKM)  
+  labeled_IKM = concat("RFCXXXX ", label, IKM)  
   return Extract(salt, labeled_IKM)
 
 def LabeledExpand(PRK, label, info, L):
   labeled_info = concat(encode_big_endian(L, 2),
-                        "RFC XXXX ", label, info)
+                        "RFCXXXX ", label, info)
   return Expand(PRK, labeled_info, L)
 ~~~
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
@@ -312,7 +312,7 @@ following way, where `Group` denotes the Diffie-Hellman group and
 
 ~~~
 def ExtractAndExpand(dh, context_kem):
-  prk = LabeledExtract_kem(0, "DHKEM", dh)
+  prk = LabeledExtract_kem(0, "dh", dh)
   return LabeledExpand_kem(prk, "prk", context_kem, Nzz)
 
 def Encap(pkR):
@@ -487,8 +487,7 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
                        encode_big_endian(aead_id, 2))
   pskID_hash = LabeledExtract(0, "pskID", pskID)
   info_hash = LabeledExtract(0, "info", info)
-  identifier = "RFCXXXX HPKE"
-  context = concat(identifier, ciphersuite, mode, enc, pkRm,
+  context = concat(ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
   if length(psk) > Nb then:
@@ -501,7 +500,6 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
-\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -509,8 +507,6 @@ TLS presentation syntax:
 
 ~~~~~
 struct {
-    uint8 identifier[12] = "RFCXXXX HPKE";
-
     // Mode and algorithms
     uint16 kem_id;
     uint16 kdf_id;
