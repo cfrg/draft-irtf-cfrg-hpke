@@ -291,8 +291,8 @@ providing the following operations:
 - Nzz: The output size of the Hash_kem and Extract_kem functions
   in bytes
 
-Then we can construct a KEM called `DHKEM(Curve, Hash_kem)` in the
-following way, where `Curve` denotes the Diffie-Hellman group and
+Then we can construct a KEM called `DHKEM(Group, Hash_kem)` in the
+following way, where `Group` denotes the Diffie-Hellman group and
 `Hash_kem` the hash function underlying KDF_kem:
 
 ~~~
@@ -886,7 +886,7 @@ difference into account, in addition to simply using a post-quantum KEM.
 
 ## Domain Separation
 
-HPKE allows combining a DHKEM variant DHKEM(Curve, Hash_kem) and a KDF
+HPKE allows combining a DHKEM variant DHKEM(Group, Hash_kem) and a KDF
 such that the hash functions Hash_kem and Hash are instantiated by the
 same hash function. The prefixes used for the second parameter of the
 functions Extract_kem, Expand_kem, Extract, and Expand serve to separate
