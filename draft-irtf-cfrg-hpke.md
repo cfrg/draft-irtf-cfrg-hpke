@@ -273,6 +273,21 @@ A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
+The following two functions are defined for a KDF to facilitate domain
+separation of calls as well as context binding:
+
+~~~
+def LabeledExtract(salt, label, IKM):
+  labeled_IKM = concat("RFC XXXX ", label, IKM)  
+  return Extract(salt, labeled_IKM)
+
+def LabeledExpand(PRK, label, info, L):
+  labeled_info = concat(encode_big_endian(L, 2),
+                        "RFC XXXX ", label, info)
+  return Expand(PRK, labeled_info, L)
+~~~
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
 ## DH-Based KEM
 
 Suppose we are given an instantiation KDF_kem of KDF with functions
@@ -297,8 +312,8 @@ following way, where `Group` denotes the Diffie-Hellman group and
 
 ~~~
 def ExtractAndExpand(dh, context_kem):
-  prk = Extract_kem(0, concat("RFCXXXX DHKEM", dh))
-  return Expand_kem(prk, concat("prk", context_kem), Nzz)
+  prk = LabeledExtract_kem(0, "DHKEM", dh)
+  return LabeledExpand_kem(prk, "prk", context_kem, Nzz)
 
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
@@ -344,7 +359,6 @@ def AuthDecap(enc, skR, pkR, pkS):
   zz = ExtractAndExpand(dh, context_kem)
   return zz, enc
 ~~~
-\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
 For the NIST curves P-256, P-384 and P-521, Ndh is equal to Npk.
 For the CFRG curves Curve25519 and Curve448, Ndh is equal to Npk.
@@ -471,19 +485,19 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
-  pskID_hash = Extract(0, concat("pskID", pskID))
-  info_hash = Extract(0, concat("info", info))
+  pskID_hash = LabeledExtract(0, "pskID", pskID)
+  info_hash = LabeledExtract(0, "info", info)
   identifier = "RFCXXXX HPKE"
   context = concat(identifier, ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
   if length(psk) > Nb then:
-    psk = Extract(0, concat("psk", psk))
+    psk = LabeledExtract(0, "psk", psk)
 
-  secret = Extract(psk, concat("zz", zz))
-  key = Expand(secret, concat("key", context), Nk)
-  nonce = Expand(secret, concat("nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("exp", context), Nh)
+  secret = LabeledExtract(psk, "zz", zz)
+  key = LabeledExpand(secret, "key", context, Nk)
+  nonce = LabeledExpand(secret, "nonce", context, Nn)
+  exporter_secret = LabeledExpand(secret, "exp", context, Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
@@ -713,7 +727,7 @@ function.
 
 ~~~~~
 def Context.Export(exporter_context, L):
-  return Expand(self.exporter_secret, exporter_context, L)
+  return LabeledExpand(self.exporter_secret, "sec", exporter_context, L)
 ~~~~~
 
 # Single-Shot APIs
