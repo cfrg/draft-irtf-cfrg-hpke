@@ -497,7 +497,7 @@ TLS presentation syntax:
 
 ~~~~~
 struct {
-    uint8 identifier[12];
+    uint8 identifier[12] = "RFCXXXX HPKE";
 
     // Mode and algorithms
     uint16 kem_id;
