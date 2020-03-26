@@ -899,17 +899,11 @@ HPKE is specified to use HKDF as key derivation function. HKDF is not
 designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
 HPKE's PSK mechanism is not suitable for use with a low-entropy
 password as the PSK: in scenarios in which the adversary knows the
-KEM shared secret zz, it can perform a dictionary attack on the PSK.
-The adversary can use different oracles to decide if a PSK guess was correct,
-depending on the scenario. First, on observation of an HPKE ciphertext,
-the adversary can use decryption of the ciphertext as oracle. HPKE ciphertexts are
-created with an authenticated encryption scheme, which means decryption
-fails when using a wrong key. Second, the adversary can act as sender
-and create candidate HPKE ciphertexts. A recipient's behaviour can serve
-as oracle, e.g. if an error message implies that a wrong PSK was used.
-Third, if an application does not use Seal to create HPKE ciphertexts
-but only the Export interface, the adversary could rely on other
-recipient behavior which is observably different when using a wrong key.
+KEM shared secret zz and has access to an oracle for decryption success
+of an HPKE ciphertext, it can perform a dictionary attack on the PSK.
+If an application does not use Seal to create HPKE ciphertexts but only
+the Export interface, the adversary can rely on other recipient behavior
+which is observably different when using a wrong key.
 
 Scenarios in which the adversary knows the KEM shared secret zz
 depend on the KEM. In the case of DHKEM, it is enough if the adversary
