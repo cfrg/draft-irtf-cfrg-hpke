@@ -290,9 +290,8 @@ def LabeledExpand(PRK, label, info, L):
 
 ## DH-Based KEM
 
-Suppose we are given an instantiation KDF_kem of KDF with functions
-Hash_kem, Extract_kem, and Expand_kem, and a Diffie-Hellman group
-providing the following operations:
+Suppose we are given a KDF, and a Diffie-Hellman group providing the
+following operations:
 
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
@@ -306,14 +305,14 @@ providing the following operations:
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM.
 
-Then we can construct a KEM called `DHKEM(Group, Hash_kem)` in the
+Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
-`Hash_kem` the hash function underlying KDF_kem:
+`KDF` the KDF:
 
 ~~~
 def ExtractAndExpand(dh, context_kem):
-  prk = LabeledExtract_kem(0, "dh", dh)
-  return LabeledExpand_kem(prk, "prk", context_kem, Nzz)
+  prk = LabeledExtract(0, "dh", dh)
+  return LabeledExpand(prk, "prk", context_kem, Nzz)
 
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
@@ -360,8 +359,12 @@ def AuthDecap(enc, skR, pkR, pkS):
   return zz, enc
 ~~~
 
+The KDF used in DHKEM can be equal to or different from the KDF used
+in the remainder of HPKE depending on the chosen variant. See
+{{domain-separation}} for a security-related discussion.
+
 For the variants of DHKEM defined in this document, Ndh is equal to Npk,
-and the output length of the Hash_kem and Extract_kem functions is Nzz
+and the output length of the KDF's Hash and Extract functions is Nzz
 bytes.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
@@ -757,14 +760,14 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM                       | Nzz  | Nenc | Npk | Reference                    |
-|:-------|:--------------------------|:-----|:-----|:----|:-----------------------------|
-| 0x0000 | (reserved)                | N/A  | N/A  | N/A | N/A                          |
-| 0x0010 | DHKEM(P-256, SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC6234}} |
-| 0x0011 | DHKEM(P-384, SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC6234}} |
-| 0x0012 | DHKEM(P-521, SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC6234}} |
-| 0x0020 | DHKEM(Curve25519, SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC6234}}   |
-| 0x0021 | DHKEM(Curve448, SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC6234}}   |
+| Value  | KEM                            | Nzz  | Nenc | Npk | Reference                    |
+|:-------|:-------------------------------|:-----|:-----|:----|:-----------------------------|
+| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
 ### Marshal
 
