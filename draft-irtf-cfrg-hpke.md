@@ -913,22 +913,33 @@ Scenarios in which the adversary knows the KEM shared secret zz
 depend on the KEM. In the case of DHKEM, it is enough if the adversary
 knows all private keys of one participant. 
 
-## Domain Separation
+## Domain Separation {#domain-separation}
 
-HPKE allows combining a DHKEM variant DHKEM(Group, Hash_kem) and a KDF
-such that the hash functions Hash_kem and Hash are instantiated by the
-same hash function. The prefixes used for the second parameter of the
-functions Extract_kem, Expand_kem, Extract, and Expand serve to separate
-their input domains; this justifies modeling them as independent
-functions even if instantiated by the same underlying hash function.
+HPKE allows combining a DHKEM variant DHKEM(Group, KDF') and a KDF
+such that both KDFs are instantiated by the same KDF.
 
-Users of HPKE who want to use a KEM other than DHKEM must make sure
-that any hash function used within this KEM can be modeled as a
-function independent from `Hash`.
+By design, the calls to Extract and Expand inside DHKEM have different prefix-free
+prefixes for their second parameter than the calls to Extract and
+Expand in the remainder of HPKE. This is ensured by the different
+prefix-free label parameters in the calls to LabeledExtract and
+LabeledExpand. This serves to separate their input domains and justifies
+modeling them as independent functions even if instantiated by the same
+KDF.
 
-The string literal `identifier` ensures that any secrets derived in HPKE
-are bound to the scheme's name, even when possibly derived from the
-same KEM shared secret as in another scheme.
+Future KEM instantiations MUST ensure that all internal invocations of
+Extract and Expand can be modeled as functions independent from the
+invocations of Extract and Expand in the remainder of HPKE. One way to
+ensure this is by using an equal or similar prefixing scheme with
+an identifier different from "RFCXXXX ". Particular attention needs to
+be paid if the KEM directly invokes a function that is used internally
+in HPKE's Extract or Expand, like Hash in case of HKDF. It MUST be
+ensured that inputs to these invokation cannot collide with inputs used
+inside Extract or Expand.
+
+The string literal "RFCXXX" used in LabeledExtract and LabeledExpand
+ensures that any secrets derived in HPKE are bound to the scheme's name,
+even when possibly derived from the same Diffie-Hellman or KEM shared
+secret as in another scheme.
 
 ## External Requirements / Non-Goals
 
