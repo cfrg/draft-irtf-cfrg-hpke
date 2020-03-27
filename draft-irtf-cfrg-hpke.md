@@ -490,7 +490,7 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   context = concat(ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
-  if length(psk) > Nb then:
+  if len(psk) > Nb then:
     psk = LabeledExtract(0, "psk", psk)
 
   secret = LabeledExtract(psk, "zz", zz)
