@@ -934,7 +934,9 @@ an identifier different from "RFCXXXX ". Particular attention needs to
 be paid if the KEM directly invokes a function that is used internally
 in HPKE's Extract or Expand, like Hash in case of HKDF. It MUST be
 ensured that inputs to these invokation cannot collide with inputs used
-inside Extract or Expand.
+inside Extract or Expand. To avoid the latter, HPKE's KeySchedule uses
+Extract instead of Hash on the arbitrary-length inputs `info`, `pskID`,
+and `psk`.
 
 The string literal "RFCXXX" used in LabeledExtract and LabeledExpand
 ensures that any secrets derived in HPKE are bound to the scheme's name,
