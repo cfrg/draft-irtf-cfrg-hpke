@@ -565,7 +565,7 @@ The primary differences from the base case are:
   to the KDF
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
-Nh bytes of entropy or more. See {#security-psk} for a more detailed
+Nh bytes of entropy or more. See {{security-psk}} for a more detailed
 discussion.
 
 ~~~~~
@@ -643,7 +643,7 @@ def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
 ~~~~~
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
-Nh bytes of entropy or more. See {#security-psk} for a more detailed
+Nh bytes of entropy or more. See {{security-psk}} for a more detailed
 discussion.
 
 ## Encryption and Decryption {#hpke-dem}
