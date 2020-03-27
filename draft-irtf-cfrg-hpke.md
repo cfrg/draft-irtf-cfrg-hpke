@@ -303,8 +303,8 @@ providing the following operations:
   encoding the public key `pk`
 - Unmarshal(enc): Parse a byte string of length Npk to recover a
   public key
-- Nzz: The output size of the Hash_kem and Extract_kem functions
-  in bytes
+- Ndh: The length in bytes of a Diffie-Hellman shared secret produced
+  by the DH function of this KEM.
 
 Then we can construct a KEM called `DHKEM(Group, Hash_kem)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
@@ -360,8 +360,9 @@ def AuthDecap(enc, skR, pkR, pkS):
   return zz, enc
 ~~~
 
-For the NIST curves P-256, P-384 and P-521, Ndh is equal to Npk.
-For the CFRG curves Curve25519 and Curve448, Ndh is equal to Npk.
+For the variants of DHKEM defined in this document, Ndh is equal to Npk,
+and the output length of the Hash_kem and Extract_kem functions is Nzz
+bytes.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
