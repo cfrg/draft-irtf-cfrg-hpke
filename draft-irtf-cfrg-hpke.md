@@ -921,7 +921,7 @@ calls to Extract and Expand inside DHKEM and the remainder of HPKE have
 different prefix-free encodings for the second parameter. This is
 achieved by the different prefix-free label parameters in the calls to
 LabeledExtract and LabeledExpand. This serves to separate the input
-domains of all Extract and Expand invokations. It also justifies modeling
+domains of all Extract and Expand invocations. It also justifies modeling
 them as independent functions even if instantiated by the same KDF.
 
 Future KEM instantiations MUST ensure that all internal invocations of
@@ -931,8 +931,8 @@ ensure this is by using an equal or similar prefixing scheme with
 an identifier different from "RFCXXXX ". Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's Extract or Expand, such as Hash and HMAC in the case of HKDF.
-It MUST be ensured that inputs to these invokations cannot collide with
-inputs to the internal invokations of these functions inside Extract or
+It MUST be ensured that inputs to these invocations cannot collide with
+inputs to the internal invocations of these functions inside Extract or
 Expand. To avoid the latter, HPKE's KeySchedule uses Extract instead of
 Hash on the arbitrary-length inputs `info`, `pskID`, and `psk`.
 
