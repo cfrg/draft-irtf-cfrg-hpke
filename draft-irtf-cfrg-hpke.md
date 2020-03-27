@@ -211,13 +211,12 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
 - `pk(skX)`: The public key corresponding to private key `skX`
-- `len(x)`: The length of the byte string `x`, expressed as a
-  two-byte unsigned integer in network (big-endian) byte order
+- `len(x)`: The length of the byte string `x` in bytes
 - `encode_big_endian(x, n)`: An byte string encoding the integer
   value `x` as an n-byte big-endian value
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
-- `zero(n)`: An all-zero byte string of length `n`. `zero(4) =
+- `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
   0x00000000`
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
@@ -630,7 +629,7 @@ field to wrap, then the implementation MUST return an error.
 
 ~~~~~
 def Context.Nonce(seq):
-  encSeq = encode_big_endian(seq, len(self.nonce))
+  encSeq = encode_big_endian(seq, Nn)
   return xor(self.nonce, encSeq)
 
 def Context.IncrementSeq():
