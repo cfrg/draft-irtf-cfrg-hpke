@@ -360,8 +360,12 @@ def AuthDecap(enc, skR, pkR, pkS):
 ~~~
 
 The KDF used in DHKEM can be equal to or different from the KDF used
-in the remainder of HPKE depending on the chosen variant. See
-{{domain-separation}} for a security-related discussion.
+in the remainder of HPKE, depending on the chosen variant.
+Implementations MUST make sure to use the constants (Nh) and function
+calls (LabeledExtract, LabeledExpand) of the appropriate KDF when
+implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
+a KDF for the remainder of HPKE, and {{domain-separation}} for the
+rationale of the labels.
 
 For the variants of DHKEM defined in this document, Ndh is equal to Npk,
 and the output length of the KDF's Hash and Extract functions is Nzz
@@ -889,6 +893,13 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Choosing a KDF When Combining With a KEM {#kdf-choice}
+
+The choice of the KDF for the remainder of HPKE should be made based on
+the security level provided by the KEM and, if applicable, by the PSK.
+The KDF SHOULD have at least have the security level of the KEM and
+SHOULD at least have the security level provided by the PSK.
 
 ## Pre-Shared Key Recommendations {#security-psk}
 
