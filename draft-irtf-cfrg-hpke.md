@@ -311,7 +311,7 @@ following way, where `Group` denotes the Diffie-Hellman group and
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  prk = LabeledExtract(0, "dh", dh)
+  prk = LabeledExtract(zero(Nh), "dh", dh)
   return LabeledExpand(prk, "prk", kemContext, Nzz)
 
 def Encap(pkR):
@@ -489,13 +489,13 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
-  pskID_hash = LabeledExtract(0, "pskID", pskID)
-  info_hash = LabeledExtract(0, "info", info)
+  pskID_hash = LabeledExtract(zero(Nh), "pskID", pskID)
+  info_hash = LabeledExtract(zero(Nh), "info", info)
   context = concat(ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
   if len(psk) > Nb then:
-    psk = LabeledExtract(0, "psk", psk)
+    psk = LabeledExtract(zero(Nh), "psk", psk)
 
   secret = LabeledExtract(psk, "zz", zz)
   key = LabeledExpand(secret, "key", context, Nk)
