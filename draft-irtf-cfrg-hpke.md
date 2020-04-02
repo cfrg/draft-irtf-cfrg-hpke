@@ -278,13 +278,13 @@ separation of calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeled_IKM = concat("RFCXXXX ", label, IKM)
-  return Extract(salt, labeled_IKM)
+  labeledIKM = concat("RFCXXXX ", label, IKM)
+  return Extract(salt, labeledIKM)
 
 def LabeledExpand(PRK, label, info, L):
-  labeled_info = concat(encode_big_endian(L, 2),
+  labeledInfo = concat(encode_big_endian(L, 2),
                         "RFCXXXX ", label, info)
-  return Expand(PRK, labeled_info, L)
+  return Expand(PRK, labeledInfo, L)
 ~~~
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
@@ -310,9 +310,9 @@ following way, where `Group` denotes the Diffie-Hellman group and
 `KDF` the KDF:
 
 ~~~
-def ExtractAndExpand(dh, context_kem):
+def ExtractAndExpand(dh, kemContext):
   prk = LabeledExtract(0, "dh", dh)
-  return LabeledExpand(prk, "prk", context_kem, Nzz)
+  return LabeledExpand(prk, "prk", kemContext, Nzz)
 
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
@@ -320,9 +320,9 @@ def Encap(pkR):
   enc = Marshal(pkE)
 
   pkRm = Marshal(pkR)
-  context_kem = concat(enc, pkRm)
+  kemContext = concat(enc, pkRm)
 
-  zz = ExtractAndExpand(dh, context_kem)
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def Decap(enc, skR, pkR):
@@ -330,9 +330,9 @@ def Decap(enc, skR, pkR):
   dh = DH(skR, pkE)
 
   pkRm = Marshal(pkR)
-  context_kem = concat(enc, pkRm)
+  kemContext = concat(enc, pkRm)
 
-  zz = ExtractAndExpand(dh, context_kem)
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def AuthEncap(pkR, skS, pkS):
@@ -342,9 +342,9 @@ def AuthEncap(pkR, skS, pkS):
 
   pkRm = Marshal(pkR)
   pkSm = Marshal(pkS)
-  context_kem = concat(enc, pkRm, pkSm)
+  kemContext = concat(enc, pkRm, pkSm)
 
-  zz = ExtractAndExpand(dh, context_kem)
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def AuthDecap(enc, skR, pkR, pkS):
@@ -353,9 +353,9 @@ def AuthDecap(enc, skR, pkR, pkS):
 
   pkRm = Marshal(pkR)
   pkSm = Marshal(pkS)
-  context_kem = concat(enc, pkRm, pkSm)
+  kemContext = concat(enc, pkRm, pkSm)
 
-  zz = ExtractAndExpand(dh, context_kem)
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 ~~~
 
