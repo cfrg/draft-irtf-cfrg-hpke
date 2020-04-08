@@ -250,14 +250,12 @@ HPKE variants rely on the following primitives:
   - Npk: The length in bytes of an encoded public key for this KEM
 
 * A Key Derivation Function (KDF):
-  - Hash(m): Compute the cryptographic hash of input message `m`
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
     from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nb: The block size of the Hash function in bytes
-  - Nh: The output size of the Hash and Extract functions in bytes
+  - Nh: The output size of the Extract function in bytes
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -368,8 +366,7 @@ a KDF for the remainder of HPKE, and {{domain-separation}} for the
 rationale of the labels.
 
 For the variants of DHKEM defined in this document, Ndh is equal to Npk,
-and the output length of the KDF's Hash and Extract functions is Nzz
-bytes.
+and the output length of the KDF's Extract function is Nzz bytes.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
@@ -941,7 +938,7 @@ be paid if the KEM directly invokes functions that are used internally
 in HPKE's Extract or Expand, such as Hash and HMAC in the case of HKDF.
 It MUST be ensured that inputs to these invocations cannot collide with
 inputs to the internal invocations of these functions inside Extract or
-Expand. To avoid the latter, HPKE's KeySchedule uses Extract instead of
+Expand. In HPKE's KeySchedule this is avoided by using Extract instead of
 Hash on the arbitrary-length inputs `info`, `pskID`, and `psk`.
 
 The string literal "RFCXXXX" used in LabeledExtract and LabeledExpand
@@ -1059,7 +1056,7 @@ Template:
 
 * Value: The two-byte identifier for the algorithm
 * KDF: The name of the algorithm
-* Nh: The length in bytes of the output of the KDF
+* Nh: The output size of the Extract function in bytes
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kdf-ids}}
