@@ -903,7 +903,7 @@ SHOULD at least have the security level provided by the PSK.
 
 ## Pre-Shared Key Recommendations {#security-psk}
 
-In mode PSK and mode AuthPSK, the PSK SHOULD be of length Nh bytes or
+In the PSK and AuthPSK modes, the PSK SHOULD be of length Nh bytes or
 longer, and SHOULD have Nh bytes of entropy or more. Using a PSK shorter
 than Nh bytes is permitted. A PSK that is longer than Nh bytes or that
 has more than Nh bytes of entropy, respectively, does not increase the
