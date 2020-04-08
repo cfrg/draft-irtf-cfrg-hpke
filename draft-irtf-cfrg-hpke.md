@@ -149,6 +149,24 @@ informative:
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
     date: 2019
 
+  HMAC:
+    title: To Hash or Not to Hash Again? (In)differentiability Results for H^2 and HMAC
+    target: https://eprint.iacr.org/2013/382
+    date: 2013
+    authors:
+      -
+        ins: Y. Dodis
+        org: Department of Computer Science, New York University
+      -
+        ins: Thomas Ristenpart
+        org: Department of Computer Sciences, University of Wisconsin–Madison
+      -
+        ins: John Steinberger
+        org: Institute of Theoretical Computer Science, Tsinghua University
+      -
+        ins: Stefano Tessaro
+        org: CSAIL, Massachusetts Institute of Technology
+
 --- abstract
 
 This document describes a scheme for hybrid public-key encryption
@@ -899,12 +917,19 @@ This is usually implemented by including these values explicitly into
 the context of the key derivation function used to compute the shared
 secret. This is also how DHKEM meets the requirement.
 
-## Choosing a KDF When Combining With a KEM {#kdf-choice}
+## Security Requirements on a KDF {#kdf-choice}
 
 The choice of the KDF for the remainder of HPKE should be made based on
 the security level provided by the KEM and, if applicable, by the PSK.
 The KDF SHOULD have at least have the security level of the KEM and
 SHOULD at least have the security level provided by the PSK.
+
+HPKE's KeySchedule uses LabeledExtract to convert an arbitrary-length
+PSK into a fixed-length PSK. This is necessary because of the
+restrictions on the key in HMAC's indifferentiability theorem {{HMAC}}.
+A future instantiation of HPKE MAY omit this line if: Extract is not
+instantiated by HKDF-Extract and there is an indifferentiability theorem
+for Extract without restriction on the key's length.
 
 ## Pre-Shared Key Recommendations {#security-psk}
 
