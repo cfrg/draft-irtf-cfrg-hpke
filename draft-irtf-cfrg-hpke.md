@@ -846,10 +846,12 @@ any IND-CCA2 scheme, and the DH group and KDF satisfy the following
 conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
-- Extract and Extract_kem: Indifferentiable from a random oracle,
-  respectively.
-- Expand and Expand_kem: Behave as a pseudorandom function, respectively,
-  wherein the first argument is the key.
+- Extract and Expand (in DHKEM): Extract is indifferentiable from a
+  random oracle. Expand is a pseudorandom function, wherein the first
+  argument is the key.
+- Extract and Expand (elsewhere): Extract is indifferentiable from a
+  random oracle. Expand is a pseudorandom function, wherein the first
+  argument is the key.
 
 In particular, the KDFs and DH groups defined in this document (see
 {{kdf-ids}} and {{kem-ids}}) satisfy these properties.
