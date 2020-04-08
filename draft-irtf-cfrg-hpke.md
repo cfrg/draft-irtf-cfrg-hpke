@@ -911,14 +911,14 @@ security level of HPKE, because the extraction step involving the PSK
 only outputs Nh bytes.
 
 HPKE is specified to use HKDF as key derivation function. HKDF is not
-designed to slow down dictionary attacks, see {{?RFC5869}}. Thus,
-HPKE's PSK mechanism is not suitable for use with a low-entropy
-password as the PSK: in scenarios in which the adversary knows the
-KEM shared secret zz and has access to an oracle for decryption success
-of an HPKE ciphertext, it can perform a dictionary attack on the PSK.
-If an application does not use Seal to create HPKE ciphertexts but only
-the Export interface, the adversary can rely on other recipient behavior
-which is observably different when using a wrong key.
+designed to slow down dictionary attacks, see {{?RFC5869}}. Thus, HPKE's
+PSK mechanism is not suitable for use with a low-entropy password as the
+PSK: in scenarios in which the adversary knows the KEM shared secret zz
+and has access to an oracle that allows to distinguish between a good
+and a wrong PSK, it can perform a dictionary attack on the PSK. This
+oracle can be the decryption operation on a captured HPKE ciphertext or
+any other recipient behavior which is observably different when using a
+wrong PSK.
 
 Scenarios in which the adversary knows the KEM shared secret zz
 depend on the KEM. In the case of DHKEM, it is enough if the adversary
