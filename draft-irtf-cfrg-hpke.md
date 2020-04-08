@@ -918,11 +918,9 @@ and has access to an oracle that allows to distinguish between a good
 and a wrong PSK, it can perform a dictionary attack on the PSK. This
 oracle can be the decryption operation on a captured HPKE ciphertext or
 any other recipient behavior which is observably different when using a
-wrong PSK.
-
-Scenarios in which the adversary knows the KEM shared secret zz
-depend on the KEM. In the case of DHKEM, it is enough if the adversary
-knows all private keys of one participant. 
+wrong PSK. The adversary knows the KEM shared secret zz if it knows all
+KEM private keys of one participant. In the PSK mode this is trivially
+the case if the adversary acts as sender.
 
 ## Domain Separation {#domain-separation}
 
