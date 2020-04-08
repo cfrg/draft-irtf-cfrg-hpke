@@ -498,8 +498,7 @@ def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
   context = concat(ciphersuite, mode, enc, pkRm,
                    pkSm, pskID_hash, info_hash)
 
-  if len(psk) > Nb then:
-    psk = LabeledExtract(zero(Nh), "psk", psk)
+  psk = LabeledExtract(zero(Nh), "psk", psk)
 
   secret = LabeledExtract(psk, "zz", zz)
   key = LabeledExpand(secret, "key", context, Nk)
