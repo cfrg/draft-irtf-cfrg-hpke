@@ -432,9 +432,7 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
-* `pkR` - The recipient's public key
 * `zz` - A shared secret generated via the KEM for this transaction
-* `enc` - An encapsulated key produced by the KEM for the recipient
 * `info` - Application-supplied information (optional; default value
   "")
 * `psk` - A pre-shared secret held by both the sender
@@ -483,17 +481,15 @@ def VerifyMode(mode, psk, pskID, pkSm):
   if mode == mode_auth_psk and (no_psk or no_pkSm):
     raise Exception("Invalid configuration for mode_auth_psk")
 
-def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
+def KeySchedule(mode, zz, info, psk, pskID, pkSm):
   VerifyMode(mode, psk, pskID, pkSm)
 
-  pkRm = Marshal(pkR)
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
   pskID_hash = LabeledExtract(zero(Nh), "pskID", pskID)
   info_hash = LabeledExtract(zero(Nh), "info", info)
-  context = concat(ciphersuite, mode, enc, pkRm,
-                   pkSm, pskID_hash, info_hash)
+  context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
   psk = LabeledExtract(zero(Nh), "psk", psk)
 
@@ -891,6 +887,17 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Security Requirements on a KEM used within HPKE
+
+A KEM used within HPKE MUST ensure the following to avoid identity
+mis-binding issues: The shared secret computed by Encap and Decap MUST
+depend explicitly on the KEM public key pkR and the KEM ciphertext enc.
+The shared secret returned by AuthEncap and AuthDecap MUST explicitly
+depend on the KEM public keys pkR and pkS and the KEM ciphertext enc.
+This is usually implemented by including these values explicitly into
+the context of the key derivation function used to compute the shared
+secret. This is also how DHKEM meets the requirement.
 
 ## Choosing a KDF When Combining With a KEM {#kdf-choice}
 
