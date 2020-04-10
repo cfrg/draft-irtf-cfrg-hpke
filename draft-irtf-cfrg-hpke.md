@@ -149,6 +149,24 @@ informative:
     target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
     date: 2019
 
+  HMAC:
+    title: To Hash or Not to Hash Again? (In)differentiability Results for H^2 and HMAC
+    target: https://eprint.iacr.org/2013/382
+    date: 2013
+    authors:
+      -
+        ins: Y. Dodis
+        org: Department of Computer Science, New York University
+      -
+        ins: Thomas Ristenpart
+        org: Department of Computer Sciences, University of Wisconsin–Madison
+      -
+        ins: John Steinberger
+        org: Institute of Theoretical Computer Science, Tsinghua University
+      -
+        ins: Stefano Tessaro
+        org: CSAIL, Massachusetts Institute of Technology
+
 --- abstract
 
 This document describes a scheme for hybrid public-key encryption
@@ -244,17 +262,17 @@ HPKE variants rely on the following primitives:
     of the private key `skR` is assured that the ephemeral shared
     key is known only to the holder of the private key corresponding
     to `pkS`
-  - Nenc: The length in bytes of an encapsulated key from this KEM
+  - Nzz: The length in bytes of a shared secret produced by this KEM
+  - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
 
-* A Key Derivation Function:
-  - Hash(m): Compute the cryptographic hash of input message `m`
+* A Key Derivation Function (KDF):
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length
     from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
     optional string `info` into `L` bytes of output keying material
-  - Nh: The output size of the Hash and Extract functions in octets
+  - Nh: The output size of the Extract function in bytes
 
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
@@ -270,45 +288,102 @@ A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
+The following two functions are defined for a KDF to facilitate domain
+separation of calls as well as context binding:
+
+~~~
+def LabeledExtract(salt, label, IKM):
+  labeledIKM = concat("RFCXXXX ", label, IKM)
+  return Extract(salt, labeledIKM)
+
+def LabeledExpand(PRK, label, info, L):
+  labeledInfo = concat(encode_big_endian(L, 2),
+                        "RFCXXXX ", label, info)
+  return Expand(PRK, labeledInfo, L)
+~~~
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
 ## DH-Based KEM
 
-Suppose we are given a Diffie-Hellman group that provides the
+Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
 - GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
-  private key sk and public key pk to produce a shared secret
-  of length Npk
-- Marshal(pk): Produce a fixed-length byte string
+  private key sk and public key pk to produce a Diffie-Hellman
+  shared secret of length Ndh
+- Marshal(pk): Produce a byte string of length Npk
   encoding the public key `pk`
-- Unmarshal(enc): Parse a fixed-length byte string to recover a
+- Unmarshal(enc): Parse a byte string of length Npk to recover a
   public key
+- Ndh: The length in bytes of a Diffie-Hellman shared secret produced
+  by the DH function of this KEM.
 
-Then we can construct a KEM (which we'll call "DHKEM") in the
-following way:
+Then we can construct a KEM called `DHKEM(Group, KDF)` in the
+following way, where `Group` denotes the Diffie-Hellman group and
+`KDF` the KDF:
 
 ~~~
+def ExtractAndExpand(dh, kemContext):
+  prk = LabeledExtract(zero(Nh), "dh", dh)
+  return LabeledExpand(prk, "prk", kemContext, Nzz)
+
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
-  zz = DH(skE, pkR)
+  dh = DH(skE, pkR)
   enc = Marshal(pkE)
+
+  pkRm = Marshal(pkR)
+  kemContext = concat(enc, pkRm)
+
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
-def Decap(enc, skR):
+def Decap(enc, skR, pkR):
   pkE = Unmarshal(enc)
-  return DH(skR, pkE)
+  dh = DH(skR, pkE)
 
-def AuthEncap(pkR, skS):
+  pkRm = Marshal(pkR)
+  kemContext = concat(enc, pkRm)
+
+  zz = ExtractAndExpand(dh, kemContext)
+  return zz, enc
+
+def AuthEncap(pkR, skS, pkS):
   skE, pkE = GenerateKeyPair()
-  zz = concat(DH(skE, pkR), DH(skS, pkR))
+  dh = concat(DH(skE, pkR), DH(skS, pkR))
   enc = Marshal(pkE)
+
+  pkRm = Marshal(pkR)
+  pkSm = Marshal(pkS)
+  kemContext = concat(enc, pkRm, pkSm)
+
+  zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
-def AuthDecap(enc, skR, pkS):
+def AuthDecap(enc, skR, pkR, pkS):
   pkE = Unmarshal(enc)
-  return concat(DH(skR, pkE), DH(skR, pkS))
+  dh = concat(DH(skR, pkE), DH(skR, pkS))
+
+  pkRm = Marshal(pkR)
+  pkSm = Marshal(pkS)
+  kemContext = concat(enc, pkRm, pkSm)
+
+  zz = ExtractAndExpand(dh, kemContext)
+  return zz, enc
 ~~~
+
+The KDF used in DHKEM can be equal to or different from the KDF used
+in the remainder of HPKE, depending on the chosen variant.
+Implementations MUST make sure to use the constants (Nh) and function
+calls (LabeledExtract, LabeledExpand) of the appropriate KDF when
+implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
+a KDF for the remainder of HPKE, and {{domain-separation}} for the
+rationale of the labels.
+
+For the variants of DHKEM defined in this document, Ndh is equal to Npk,
+and the output length of the KDF's Extract function is Nzz bytes.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
@@ -316,6 +391,8 @@ curves referenced in {#ciphersuites} are as follows:
 
 * P-256: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 32-byte big-endian integers
+* P-384: A single byte set to 4, followed by the X-coordinate and the
+  Y-coordinate of the point, encoded as 48-byte big-endian integers
 * P-521: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 66-byte big-endian integers
 * Curve25519: The standard 32-byte representation of the public key
@@ -372,9 +449,7 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
-* `pkR` - The recipient's public key
 * `zz` - A shared secret generated via the KEM for this transaction
-* `enc` - An encapsulated key produced by the KEM for the recipient
 * `info` - Application-supplied information (optional; default value
   "")
 * `psk` - A pre-shared secret held by both the sender
@@ -423,29 +498,25 @@ def VerifyMode(mode, psk, pskID, pkSm):
   if mode == mode_auth_psk and (no_psk or no_pkSm):
     raise Exception("Invalid configuration for mode_auth_psk")
 
-def KeySchedule(mode, pkR, zz, enc, info, psk, pskID, pkSm):
+def KeySchedule(mode, zz, info, psk, pskID, pkSm):
   VerifyMode(mode, psk, pskID, pkSm)
 
-  pkRm = Marshal(pkR)
-  identifier = "RFCXXXX"
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
-  pskID_hash = Hash(pskID)
-  info_hash = Hash(info)
-  context = concat(identifier, ciphersuite, mode, enc, pkRm,
-                   pkSm, pskID_hash, info_hash)
+  pskID_hash = LabeledExtract(zero(Nh), "pskID", pskID)
+  info_hash = LabeledExtract(zero(Nh), "info", info)
+  context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
-  secret = Extract(psk, zz)
-  key = Expand(secret, concat("key", context), Nk)
-  nonce = Expand(secret, concat("nonce", context), Nn)
-  exporter_secret = Expand(secret, concat("exp", context), Nh)
+  psk = LabeledExtract(zero(Nh), "psk", psk)
+
+  secret = LabeledExtract(psk, "zz", zz)
+  key = LabeledExpand(secret, "key", context, Nk)
+  nonce = LabeledExpand(secret, "nonce", context, Nn)
+  exporter_secret = LabeledExpand(secret, "exp", context, Nh)
 
   return Context(key, nonce, exporter_secret)
 ~~~~~
-
-\[\[RFC editor: please change "RFCXXXX" to the correct number before
-publication.]]
 
 Note that the context construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the
@@ -454,10 +525,10 @@ TLS presentation syntax:
 ~~~~~
 struct {
     // Mode and algorithms
-    uint8 mode;
     uint16 kem_id;
     uint16 kdf_id;
     uint16 aead_id;
+    uint8 mode;
 
     // Public inputs to this key exchange
     opaque enc[Nenc];
@@ -495,7 +566,7 @@ def SetupBaseR(enc, skR, info):
                      default_psk, default_pskID, default_pkSm)
 ~~~~~
 
-### Authentication using a Pre-Shared Key
+### Authentication using a Pre-Shared Key {#mode-psk}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given pre-shared key
@@ -509,10 +580,9 @@ The primary differences from the base case are:
 * The PSK ID is added to the context string used as the `info` input
   to the KDF
 
-This mechanism is not suitable for use with a low-entropy password
-as the PSK.  A malicious recipient that does not possess the PSK can
-use decryption of a plaintext as an oracle for performing offline
-dictionary attacks.
+The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
+Nh bytes of entropy or more. See {{security-psk}} for a more detailed
+discussion.
 
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
@@ -526,7 +596,7 @@ def SetupPSKR(enc, skR, info, psk, pskID):
                      psk, pskID, default_pkSm)
 ~~~~~
 
-### Authentication using an Asymmetric Key
+### Authentication using an Asymmetric Key {#mode-auth}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
@@ -567,7 +637,7 @@ def SetupAuthR(enc, skR, info, pkS):
                      default_psk, default_pskID, pkSm)
 ~~~~~
 
-### Authentication using both a PSK and an Asymmetric Key
+### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
 
 This mode is a straightforward combination of the PSK and
 authenticated modes.  The PSK is passed through to the key schedule
@@ -587,6 +657,10 @@ def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
   return KeySchedule(mode_auth_psk, pk(skR), zz, enc, info,
                      psk, pskID, pkSm)
 ~~~~~
+
+The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
+Nh bytes of entropy or more. See {{security-psk}} for a more detailed
+discussion.
 
 ## Encryption and Decryption {#hpke-dem}
 
@@ -660,7 +734,7 @@ function.
 
 ~~~~~
 def Context.Export(exporter_context, L):
-  return Expand(self.exporter_secret, exporter_context, L)
+  return LabeledExpand(self.exporter_secret, "sec", exporter_context, L)
 ~~~~~
 
 # Single-Shot APIs
@@ -699,14 +773,14 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM               | Nenc | Npk | Reference      |
-|:-------|:------------------|:-----|:----|:---------------|
-| 0x0000 | (reserved)        | N/A  | N/A | N/A            |
-| 0x0010 | DHKEM(P-256)      | 65   | 65  | {{NISTCurves}} |
-| 0x0011 | DHKEM(P-384)      | 97   | 97  | {{NISTCurves}} |
-| 0x0012 | DHKEM(P-521)      | 133  | 133 | {{NISTCurves}} |
-| 0x0020 | DHKEM(Curve25519) | 32   | 32  | {{?RFC7748}}   |
-| 0x0021 | DHKEM(Curve448)   | 56   | 56  | {{?RFC7748}}   |
+| Value  | KEM                            | Nzz  | Nenc | Npk | Reference                    |
+|:-------|:-------------------------------|:-----|:-----|:----|:-----------------------------|
+| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
 ### Marshal
 
@@ -787,10 +861,12 @@ any IND-CCA2 scheme, and the DH group and KDF satisfy the following
 conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
-- Hash: Collision resistance.
-- Extract: Indifferentiable from a random oracle.
-- Expand: Behaves as a pseudorandom function wherein the first argument
-is the key.
+- Extract and Expand (in DHKEM): Extract is indifferentiable from a
+  random oracle. Expand is a pseudorandom function, wherein the first
+  argument is the key.
+- Extract and Expand (elsewhere): Extract is indifferentiable from a
+  random oracle. Expand is a pseudorandom function, wherein the first
+  argument is the key.
 
 In particular, the KDFs and DH groups defined in this document (see
 {{kdf-ids}} and {{kem-ids}}) satisfy these properties.
@@ -831,16 +907,79 @@ security models and assumptions, and do not consider attackers capable of quantu
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
 
-## Domain Separation
+## Security Requirements on a KEM used within HPKE
 
-\[\[RFC editor: please change "RFCXXXX" to the correct number before
-publication.]]
+A KEM used within HPKE MUST ensure the following to avoid identity
+mis-binding issues: The shared secret computed by Encap and Decap MUST
+depend explicitly on the KEM public key pkR and the KEM ciphertext enc.
+The shared secret returned by AuthEncap and AuthDecap MUST explicitly
+depend on the KEM public keys pkR and pkS and the KEM ciphertext enc.
+This is usually implemented by including these values explicitly into
+the context of the key derivation function used to compute the shared
+secret. This is also how DHKEM meets the requirement.
 
-The KeySchedule procedure includes the domain separation string "RFCXXXX" in
-each Expand invocation. This ensures any secrets derived in HPKE are independent
-from those used in other protocols, even when derived from the same IKM (secret).
-Derivation of the KeySchedule 'secret' does not include domain separation as it
-is an intermediate value not exposed by the protocol.
+## Security Requirements on a KDF {#kdf-choice}
+
+The choice of the KDF for the remainder of HPKE should be made based on
+the security level provided by the KEM and, if applicable, by the PSK.
+The KDF SHOULD have at least have the security level of the KEM and
+SHOULD at least have the security level provided by the PSK.
+
+HPKE's KeySchedule uses LabeledExtract to convert an arbitrary-length
+PSK into a fixed-length PSK. This is necessary because of the
+restrictions on the key in HMAC's indifferentiability theorem {{HMAC}}.
+A future instantiation of HPKE MAY omit this line if: Extract is not
+instantiated by HKDF-Extract and there is an indifferentiability theorem
+for Extract without restriction on the key's length.
+
+## Pre-Shared Key Recommendations {#security-psk}
+
+In the PSK and AuthPSK modes, the PSK SHOULD be of length Nh bytes or
+longer, and SHOULD have Nh bytes of entropy or more. Using a PSK shorter
+than Nh bytes is permitted. A PSK that is longer than Nh bytes or that
+has more than Nh bytes of entropy, respectively, does not increase the
+security level of HPKE, because the extraction step involving the PSK
+only outputs Nh bytes.
+
+HPKE is specified to use HKDF as key derivation function. HKDF is not
+designed to slow down dictionary attacks, see {{?RFC5869}}. Thus, HPKE's
+PSK mechanism is not suitable for use with a low-entropy password as the
+PSK: in scenarios in which the adversary knows the KEM shared secret zz
+and has access to an oracle that allows to distinguish between a good
+and a wrong PSK, it can perform a dictionary attack on the PSK. This
+oracle can be the decryption operation on a captured HPKE ciphertext or
+any other recipient behavior which is observably different when using a
+wrong PSK. The adversary knows the KEM shared secret zz if it knows all
+KEM private keys of one participant. In the PSK mode this is trivially
+the case if the adversary acts as sender.
+
+## Domain Separation {#domain-separation}
+
+HPKE allows combining a DHKEM variant DHKEM(Group, KDF') and a KDF
+such that both KDFs are instantiated by the same KDF. By design, the
+calls to Extract and Expand inside DHKEM and the remainder of HPKE have
+different prefix-free encodings for the second parameter. This is
+achieved by the different prefix-free label parameters in the calls to
+LabeledExtract and LabeledExpand. This serves to separate the input
+domains of all Extract and Expand invocations. It also justifies modeling
+them as independent functions even if instantiated by the same KDF.
+
+Future KEM instantiations MUST ensure that all internal invocations of
+Extract and Expand can be modeled as functions independent from the
+invocations of Extract and Expand in the remainder of HPKE. One way to
+ensure this is by using an equal or similar prefixing scheme with
+an identifier different from "RFCXXXX ". Particular attention needs to
+be paid if the KEM directly invokes functions that are used internally
+in HPKE's Extract or Expand, such as Hash and HMAC in the case of HKDF.
+It MUST be ensured that inputs to these invocations cannot collide with
+inputs to the internal invocations of these functions inside Extract or
+Expand. In HPKE's KeySchedule this is avoided by using Extract instead of
+Hash on the arbitrary-length inputs `info`, `pskID`, and `psk`.
+
+The string literal "RFCXXXX" used in LabeledExtract and LabeledExpand
+ensures that any secrets derived in HPKE are bound to the scheme's name,
+even when possibly derived from the same Diffie-Hellman or KEM shared
+secret as in another scheme.
 
 ## External Requirements / Non-Goals
 
@@ -935,6 +1074,7 @@ Template:
 
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
+* Nzz: The length in bytes of a shared secret produced by the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
 * Npk: The length in bytes of an encoded public key for the algorithm
 * Reference: Where this algorithm is defined
@@ -951,7 +1091,7 @@ Template:
 
 * Value: The two-byte identifier for the algorithm
 * KDF: The name of the algorithm
-* Nh: The length in bytes of the output of the KDF
+* Nh: The output size of the Extract function in bytes
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kdf-ids}}
