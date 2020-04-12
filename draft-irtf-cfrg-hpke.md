@@ -267,7 +267,7 @@ HPKE variants rely on the following primitives:
   - Npk: The length in bytes of an encoded public key for this KEM
 
 * A Key Derivation Function (KDF):
-  - Extract(salt, IKM): Extract a pseudorandom key of fixed length
+  - Extract(salt, IKM): Extract a pseudorandom key of fixed length `Nh`
     from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
@@ -340,33 +340,33 @@ def Encap(pkR):
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
-def Decap(enc, skR, pkR):
+def Decap(enc, skR):
   pkE = Unmarshal(enc)
   dh = DH(skR, pkE)
 
-  pkRm = Marshal(pkR)
+  pkRm = Marshal(pk(skR))
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
-def AuthEncap(pkR, skS, pkS):
+def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
   dh = concat(DH(skE, pkR), DH(skS, pkR))
   enc = Marshal(pkE)
 
   pkRm = Marshal(pkR)
-  pkSm = Marshal(pkS)
+  pkSm = Marshal(pk(skS))
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
-def AuthDecap(enc, skR, pkR, pkS):
+def AuthDecap(enc, skR, pkS):
   pkE = Unmarshal(enc)
   dh = concat(DH(skR, pkE), DH(skR, pkS))
 
-  pkRm = Marshal(pkR)
+  pkRm = Marshal(pk(skR))
   pkSm = Marshal(pkS)
   kemContext = concat(enc, pkRm, pkSm)
 
@@ -524,21 +524,11 @@ TLS presentation syntax:
 
 ~~~~~
 struct {
-    // Mode and algorithms
     uint16 kem_id;
     uint16 kdf_id;
     uint16 aead_id;
     uint8 mode;
-
-    // Public inputs to this key exchange
-    opaque enc[Nenc];
-    opaque pkR[Npk];
-    opaque pkS[Npk];
-
-    // Cryptographic hash of application-supplied pskID
     opaque pskID_hash[Nh];
-
-    // Cryptographic hash of application-supplied info
     opaque info_hash[Nh];
 } HPKEContext;
 ~~~~~
@@ -557,12 +547,12 @@ explicit `info` parameter provided by the caller.
 ~~~~~
 def SetupBaseS(pkR, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(mode_base, pkR, zz, enc, info,
+  return enc, KeySchedule(mode_base, zz, info,
                           default_psk, default_pskID, default_pkSm)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
-  return KeySchedule(mode_base, pk(skR), zz, enc, info,
+  return KeySchedule(mode_base, zz, info,
                      default_psk, default_pskID, default_pkSm)
 ~~~~~
 
@@ -587,13 +577,11 @@ discussion.
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(mode_psk, pkR, zz, enc, info,
-                          psk, pskID, default_pkSm)
+  return enc, KeySchedule(mode_psk, zz, info, psk, pskID, default_pkSm)
 
 def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
-  return KeySchedule(mode_psk, pk(skR), zz, enc, info,
-                     psk, pskID, default_pkSm)
+  return KeySchedule(mode_psk, zz, info, psk, pskID, default_pkSm)
 ~~~~~
 
 ### Authentication using an Asymmetric Key {#mode-auth}
@@ -626,15 +614,11 @@ to avoid unknown key share attacks.
 ~~~~~
 def SetupAuthS(pkR, info, skS):
   zz, enc = AuthEncap(pkR, skS)
-  pkSm = Marshal(pk(skS))
-  return enc, KeySchedule(mode_auth, pkR, zz, enc, info,
-                          default_psk, default_pskID, pkSm)
+  return enc, KeySchedule(mode_auth, zz, info, default_psk, default_pskID, pkSm)
 
 def SetupAuthR(enc, skR, info, pkS):
   zz = AuthDecap(enc, skR, pkS)
-  pkSm = Marshal(pkS)
-  return KeySchedule(mode_auth, pk(skR), zz, enc, info,
-                     default_psk, default_pskID, pkSm)
+  return KeySchedule(mode_auth, zz, info, default_psk, default_pskID, pkSm)
 ~~~~~
 
 ### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
@@ -647,15 +631,11 @@ variants.
 ~~~~~
 def SetupAuthPSKS(pkR, info, psk, pskID, skS):
   zz, enc = AuthEncap(pkR, skS)
-  pkSm = Marshal(pk(skS))
-  return enc, KeySchedule(mode_auth_psk, pkR, zz, enc, info,
-                          psk, pskID, pkSm)
+  return enc, KeySchedule(mode_auth_psk, zz, info, psk, pskID, pkSm)
 
 def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
   zz = AuthDecap(enc, skR, pkS)
-  pkSm = Marshal(pkS)
-  return KeySchedule(mode_auth_psk, pk(skR), zz, enc, info,
-                     psk, pskID, pkSm)
+  return KeySchedule(mode_auth_psk, zz, info, psk, pskID, pkSm)
 ~~~~~
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
