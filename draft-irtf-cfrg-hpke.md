@@ -229,7 +229,6 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key
 - `pk(skX)`: The public key corresponding to private key `skX`
-- `len(x)`: The length of the byte string `x` in bytes
 - `encode_big_endian(x, n)`: An byte string encoding the integer
   value `x` as an n-byte big-endian value
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
