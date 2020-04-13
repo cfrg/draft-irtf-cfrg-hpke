@@ -267,7 +267,7 @@ HPKE variants rely on the following primitives:
   - Npk: The length in bytes of an encoded public key for this KEM
 
 * A Key Derivation Function (KDF):
-  - Extract(salt, IKM): Extract a pseudorandom key of fixed length `Nh`
+  - Extract(salt, IKM): Extract a pseudorandom key of fixed length `Nh` bytes
     from input keying material `IKM` and an optional byte string
     `salt`
   - Expand(PRK, info, L): Expand a pseudorandom key `PRK` using
@@ -2339,4 +2339,3 @@ ciphertext: 436a379f7d3566a6c87e06a51bfad65ebc1afae48c67f3cb07658ccfe970
 092dff176628ba095d9b8e25dfb3e6
 
 ~~~
-
