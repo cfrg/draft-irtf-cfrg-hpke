@@ -508,7 +508,8 @@ def KeySchedule(mode, zz, info, psk, pskID, pkSm):
   info_hash = LabeledExtract(zero(Nh), "info", info)
   context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
-  psk = LabeledExtract(zero(Nh), "psk", psk)
+  if mode == mode_psk or mode == mode_auth_psk:
+    psk = LabeledExtract(zero(Nh), "psk", psk)
 
   secret = LabeledExtract(psk, "zz", zz)
   key = LabeledExpand(secret, "key", context, Nk)
