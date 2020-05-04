@@ -504,11 +504,11 @@ def KeySchedule(mode, zz, info, psk, pskID, pkSm):
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
-  pskID_hash = LabeledExtract(zero(Nh), "pskID", pskID)
+  pskID_hash = LabeledExtract(zero(Nh), "pskID_hash", pskID)
   info_hash = LabeledExtract(zero(Nh), "info", info)
   context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
-  psk = LabeledExtract(zero(Nh), "psk", psk)
+  psk = LabeledExtract(zero(Nh), "psk_hash", psk)
 
   secret = LabeledExtract(psk, "zz", zz)
   key = LabeledExpand(secret, "key", context, Nk)
