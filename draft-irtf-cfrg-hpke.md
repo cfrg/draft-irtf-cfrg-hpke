@@ -348,7 +348,7 @@ def Decap(enc, skR):
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
-  return zz, enc
+  return zz
 
 def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
@@ -371,7 +371,7 @@ def AuthDecap(enc, skR, pkS):
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
-  return zz, enc
+  return zz
 ~~~
 
 The KDF used in DHKEM can be equal to or different from the KDF used
