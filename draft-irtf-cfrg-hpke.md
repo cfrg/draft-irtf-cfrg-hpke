@@ -783,7 +783,7 @@ static public key `pkS`.
 For the NIST curves P-256, P-384 and P-521, senders and recipients
 MUST perform full public-key validation on all public key inputs as
 defined in {{keyagreement}}, which includes validating that a public
-key is on the curve and part of the correct prime-order subgroup.
+key is on the curve.
 Additionally, one of the following checks MUST be ensured: the scalar
 given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
