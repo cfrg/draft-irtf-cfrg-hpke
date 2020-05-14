@@ -508,9 +508,9 @@ def KeySchedule(mode, zz, info, psk, pskID, pkSm):
   info_hash = LabeledExtract(zero(Nh), "info", info)
   context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
-  psk = LabeledExtract(zero(Nh), "psk_hash", psk)
+  psk_hash = LabeledExtract(zero(Nh), "psk_hash", psk)
 
-  secret = LabeledExtract(psk, "zz", zz)
+  secret = LabeledExtract(psk_hash, "zz", zz)
   key = LabeledExpand(secret, "key", context, Nk)
   nonce = LabeledExpand(secret, "nonce", context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", context, Nh)
