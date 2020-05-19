@@ -246,10 +246,12 @@ HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
   - GenerateKeyPair(): Generate a key pair (sk, pk)
-  - Marshal(pk): Produce a fixed-length byte string encoding the
+  - MarshalPk(pk): Produce a fixed-length byte string encoding the
     public key `pk`
-  - Unmarshal(enc): Parse a fixed-length byte string to recover a
+  - UnmarshalPk(enc): Parse a fixed-length byte string to recover a
     public key
+  - UnmarshalSk(enc): Parse a fixed-length byte string to recover a
+    private key. This function can fail on some inputs.
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
     a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
@@ -265,6 +267,7 @@ HPKE variants rely on the following primitives:
   - Nzz: The length in bytes of a shared secret produced by this KEM
   - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
+  - Nsk: The length in bytes of an encoded private key for this KEM
 
 * A Key Derivation Function (KDF):
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length `Nh` bytes
@@ -313,10 +316,12 @@ following operations:
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
-- Marshal(pk): Produce a byte string of length Npk
+- MarshalPk(pk): Produce a byte string of length Npk
   encoding the public key `pk`
-- Unmarshal(enc): Parse a byte string of length Npk to recover a
+- UnmarshalPk(enc): Parse a byte string of length Npk to recover a
   public key
+- UnmarshalSk(enc): Parse a byte string of length Nsk to recover a
+  private key. This function can fail on some inputs.
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM.
 
@@ -332,19 +337,19 @@ def ExtractAndExpand(dh, kemContext):
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
   dh = DH(skE, pkR)
-  enc = Marshal(pkE)
+  enc = MarshalPk(pkE)
 
-  pkRm = Marshal(pkR)
+  pkRm = MarshalPk(pkR)
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def Decap(enc, skR):
-  pkE = Unmarshal(enc)
+  pkE = UnmarshalPk(enc)
   dh = DH(skR, pkE)
 
-  pkRm = Marshal(pk(skR))
+  pkRm = MarshalPk(pk(skR))
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
@@ -353,21 +358,21 @@ def Decap(enc, skR):
 def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
   dh = concat(DH(skE, pkR), DH(skS, pkR))
-  enc = Marshal(pkE)
+  enc = MarshalPk(pkE)
 
-  pkRm = Marshal(pkR)
-  pkSm = Marshal(pk(skS))
+  pkRm = MarshalPk(pkR)
+  pkSm = MarshalPk(pk(skS))
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def AuthDecap(enc, skR, pkS):
-  pkE = Unmarshal(enc)
+  pkE = UnmarshalPk(enc)
   dh = concat(DH(skR, pkE), DH(skR, pkS))
 
-  pkRm = Marshal(pk(skR))
-  pkSm = Marshal(pkS)
+  pkRm = MarshalPk(pk(skR))
+  pkSm = MarshalPk(pkS)
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
@@ -384,19 +389,6 @@ rationale of the labels.
 
 For the variants of DHKEM defined in this document, Ndh is equal to Npk,
 and Nzz is equal to the output length of the hash function underlying the KDF.
-
-The GenerateKeyPair, Marshal, and Unmarshal functions are the same
-as for the underlying DH group.  The Marshal functions for the
-curves referenced in {#ciphersuites} are as follows:
-
-* P-256: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 32-byte big-endian integers
-* P-384: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 48-byte big-endian integers
-* P-521: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 66-byte big-endian integers
-* Curve25519: The standard 32-byte representation of the public key
-* Curve448: The standard 56-byte representation of the public key
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
@@ -753,24 +745,33 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM                            | Nzz  | Nenc | Npk | Reference                    |
-|:-------|:-------------------------------|:-----|:-----|:----|:-----------------------------|
-| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A                          |
-| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
+| Value  | KEM                            | Nzz  | Nenc | Npk | Nsk | Reference                    |
+|:-------|:-------------------------------|:-----|:-----|:----|:----|:-----------------------------|
+| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | 32  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | 48  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | 66  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
 ### Marshal
 
-For the NIST curves P-256, P-384 and P-521, the Marshal function of the
-DH scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.
+For the NIST curves P-256, P-384 and P-521, the MarshalPk function of the
+KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
+conversion according to {{SECG}}.
 
-For the CFRG curves Curve25519 and Curve448, the Marshal function is
+For the CFRG curves Curve25519 and Curve448, the MarshalPk function is
 the identity function, since these curves already use fixed-length
 byte strings for public keys.
+
+### Unmarshal
+
+For the NIST curves, P-256, P-384, and P-521, the UnmarshalSk function
+performs the Octet-to-Field-Element conversion according to {{SECG}}.
+
+For the CFRG curves Curve25519 and Curve448, the UnmarshalSk function is
+the identity function, since these curves already use fixed-length byte
+strings for private keys.
 
 ### Validation of Inputs and Outputs
 
