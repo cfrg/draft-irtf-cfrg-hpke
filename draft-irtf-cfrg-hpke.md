@@ -776,11 +776,11 @@ def DeriveKeyPair(ikm):
   sk = "invalid"
   counter = 1
   while sk == "invalid":
-      label = concat("candidate ", encode_big_endian(counter, 1))
-      bytes = Expand(prk, label, Nsk)
-      bytes[Nsk-1] = bytes[Nsk-1] & bitmask
-      sk = Octet-String-to-Field-Element(bytes)
-      counter = counter + 1
+    label = concat("candidate ", encode_big_endian(counter, 1))
+    bytes = Expand(prk, label, Nsk)
+    bytes[Nsk-1] = bytes[Nsk-1] & bitmask
+    sk = Octet-String-to-Field-Element(bytes)
+    counter = counter + 1
   return (sk, pk(sk))
 ~~~
 
