@@ -236,6 +236,7 @@ operations, roles, and behaviors of HPKE:
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
   0x00000000`
+- `random(n)`: A psuedorandom byte string of length `n` bytes
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
   length.
@@ -245,13 +246,11 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - GenerateKeyPair(): Generate a key pair (sk, pk)
-  - MarshalPk(pk): Produce a fixed-length byte string encoding the
+  - DeriveKeyPair(ikm): Derive a key pair (sk, pk) from input keying material
+  - Marshal(pk): Produce a fixed-length byte string encoding the
     public key `pk`
-  - UnmarshalPk(enc): Parse a fixed-length byte string to recover a
+  - Unmarshal(enc): Parse a fixed-length byte string to recover a
     public key
-  - UnmarshalSk(enc): Parse a fixed-length byte string to recover a
-    private key. This function can fail on some inputs.
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
     a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
@@ -311,19 +310,18 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
-  for the DH group in use
+- DeriveKeyPair(ikm): Derive a key pair (sk, pk) from a byte sequence of
+  length Nsk.
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
-- MarshalPk(pk): Produce a byte string of length Npk
+- Marshal(pk): Produce a byte string of length Npk
   encoding the public key `pk`
-- UnmarshalPk(enc): Parse a byte string of length Npk to recover a
+- Unmarshal(enc): Parse a byte string of length Npk to recover a
   public key
-- UnmarshalSk(enc): Parse a byte string of length Nsk to recover a
-  private key. This function can fail on some inputs.
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM.
+- Nsk: The length in bytes of a Diffie-Hellman private key
 
 Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
@@ -335,44 +333,44 @@ def ExtractAndExpand(dh, kemContext):
   return LabeledExpand(prk, "prk", kemContext, Nzz)
 
 def Encap(pkR):
-  skE, pkE = GenerateKeyPair()
+  skE, pkE = DeriveKeyPair(random(Nsk))
   dh = DH(skE, pkR)
-  enc = MarshalPk(pkE)
+  enc = Marshal(pkE)
 
-  pkRm = MarshalPk(pkR)
+  pkRm = Marshal(pkR)
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def Decap(enc, skR):
-  pkE = UnmarshalPk(enc)
+  pkE = Unmarshal(enc)
   dh = DH(skR, pkE)
 
-  pkRm = MarshalPk(pk(skR))
+  pkRm = Marshal(pk(skR))
   kemContext = concat(enc, pkRm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz
 
 def AuthEncap(pkR, skS):
-  skE, pkE = GenerateKeyPair()
+  skE, pkE = DeriveKeyPair(random(Nsk))
   dh = concat(DH(skE, pkR), DH(skS, pkR))
-  enc = MarshalPk(pkE)
+  enc = Marshal(pkE)
 
-  pkRm = MarshalPk(pkR)
-  pkSm = MarshalPk(pk(skS))
+  pkRm = Marshal(pkR)
+  pkSm = Marshal(pk(skS))
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz, enc
 
 def AuthDecap(enc, skR, pkS):
-  pkE = UnmarshalPk(enc)
+  pkE = Unmarshal(enc)
   dh = concat(DH(skR, pkE), DH(skR, pkS))
 
-  pkRm = MarshalPk(pk(skR))
-  pkSm = MarshalPk(pkS)
+  pkRm = Marshal(pk(skR))
+  pkSm = Marshal(pkS)
   kemContext = concat(enc, pkRm, pkSm)
 
   zz = ExtractAndExpand(dh, kemContext)
@@ -754,24 +752,40 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
 | 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
-### Marshal
+### Marshal/Unmarshal
 
-For the NIST curves P-256, P-384 and P-521, the MarshalPk function of the
+For the NIST curves P-256, P-384 and P-521, the Marshal function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
-conversion according to {{SECG}}.
+conversion according to {{SECG}}. The Unmarshal function performs the
+uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
 
-For the CFRG curves Curve25519 and Curve448, the MarshalPk function is
-the identity function, since these curves already use fixed-length
-byte strings for public keys.
+For the CFRG curves Curve25519 and Curve448, the Marshal and Unmarshal functions
+are the identity function, since these curves already use fixed-length byte
+strings for public keys.
 
-### Unmarshal
+### DeriveKeyPair
 
-For the NIST curves, P-256, P-384, and P-521, the UnmarshalSk function
-performs the Octet-to-Field-Element conversion according to {{SECG}}.
+For the NIST curves P-256, P-384 and P-521, the DeriveKeyPair function of the
+KEM performs rejection sampling over the Octet-String-to-Field-Element
+conversion function defined in {{SECG}}.
 
-For the CFRG curves Curve25519 and Curve448, the UnmarshalSk function is
-the identity function, since these curves already use fixed-length byte
-strings for private keys.
+~~~
+DeriveKeyPair(ikm) =
+  prk = LabeledExtract(zero(0), "keypair", ikm)
+  sk = "invalid"
+  counter = 1
+  while sk == "invalid" {
+    label = concat("candidate ", encode_big_endian(counter, 2))
+    bytes = Expand(prk, label, Nsk)
+    sk = Octet-String-to-Field-Element(bytes)
+    counter = counter + 1
+  }
+  return (sk, pk(sk))
+~~~
+
+For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function is the
+identity function, since these curves already use fixed-length byte strings for
+private keys.
 
 ### Validation of Inputs and Outputs
 
