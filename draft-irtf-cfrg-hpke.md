@@ -389,7 +389,7 @@ underlying the KDF.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
-curves referenced in {#ciphersuites} are as follows:
+curves referenced in {{ciphersuites}} are as follows:
 
 * P-256: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 32-byte big-endian integers
