@@ -382,8 +382,10 @@ implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
 a KDF for the remainder of HPKE, and {{domain-separation}} for the
 rationale of the labels.
 
-For the variants of DHKEM defined in this document, Ndh is equal to Npk,
-and Nzz is equal to the output length of the hash function underlying the KDF.
+For the variants of DHKEM defined in this document, the size Ndh of the
+Diffie-Hellman shared secret is equal to Npk, and the size Nzz of the
+KEM shared secret is equal to the output length of the hash function
+underlying the KDF.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
