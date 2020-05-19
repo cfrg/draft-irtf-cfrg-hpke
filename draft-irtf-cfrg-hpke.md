@@ -768,25 +768,24 @@ strings for public keys.
 ### DeriveKeyPair
 
 For the NIST curves P-256, P-384 and P-521, the DeriveKeyPair function of the
-KEM performs rejection sampling over the Octet-String-to-Field-Element
-conversion function defined in {{SECG}}:
+KEM performs rejection sampling over field elements:
 
 ~~~
-DeriveKeyPair(ikm) =
+def DeriveKeyPair(ikm):
   prk = LabeledExtract(zero(0), "keypair", ikm)
   sk = "invalid"
   counter = 1
-  while sk == "invalid" {
-    label = concat("candidate ", encode_big_endian(counter, 1))
-    bytes = Expand(prk, label, Nsk)
-    bytes[Nsk-1] &= bitmask
-    sk = Octet-String-to-Field-Element(bytes)
-    counter += 1
-  }
+  while sk == "invalid":
+      label = concat("candidate ", encode_big_endian(counter, 1))
+      bytes = Expand(prk, label, Nsk)
+      bytes[Nsk-1] = bytes[Nsk-1] & bitmask
+      sk = Octet-String-to-Field-Element(bytes)
+      counter = counter + 1
   return (sk, pk(sk))
 ~~~
 
-where bitmask is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
+where `Octet-String-to-Field-Element` is as defined in {{SECG}}, Section 2.3.6,
+and bitmask is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
 
 For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function is the
 identity function, since these curves already use fixed-length byte strings for
