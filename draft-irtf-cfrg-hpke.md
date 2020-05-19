@@ -250,19 +250,19 @@ HPKE variants rely on the following primitives:
     public key `pk`
   - Unmarshal(enc): Parse a fixed-length byte string to recover a
     public key
-  - Encap(pk): Generate an ephemeral, fixed-length symmetric key and
+  - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
-    symmetric key from its encapsulated representation `enc`
+    symmetric key (the KEM shared secret) from its encapsulated representation `enc`
   - AuthEncap(pkR, skS) (optional): Same as Encap(), but the outputs
-    encode an assurance that the ephemeral shared key is known only
+    encode an assurance that the KEM shared secret key is known only
     to the holder of the private key `skS`
   - AuthDecap(skR, pkS) (optional): Same as Decap(), but the holder
-    of the private key `skR` is assured that the ephemeral shared
+    of the private key `skR` is assured that the KEM shared secret
     key is known only to the holder of the private key corresponding
     to `pkS`
-  - Nzz: The length in bytes of a shared secret produced by this KEM
+  - Nzz: The length in bytes of a KEM shared secret produced by this KEM
   - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
 
@@ -382,8 +382,10 @@ implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
 a KDF for the remainder of HPKE, and {{domain-separation}} for the
 rationale of the labels.
 
-For the variants of DHKEM defined in this document, Ndh is equal to Npk,
-and Nzz is equal to the output length of the hash function underlying the KDF.
+For the variants of DHKEM defined in this document, the size Ndh of the
+Diffie-Hellman shared secret is equal to Npk, and the size Nzz of the
+KEM shared secret is equal to the output length of the hash function
+underlying the KDF.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
@@ -449,7 +451,7 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
-* `zz` - A shared secret generated via the KEM for this transaction
+* `zz` - A KEM shared secret generated for this transaction
 * `info` - Application-supplied information (optional; default value
   "")
 * `psk` - A pre-shared secret held by both the sender
@@ -540,7 +542,7 @@ for the holder of a given KEM private key.  The `SetupBaseS()` and
 `SetupBaseR()` procedures establish contexts that can be used to
 encrypt and decrypt, respectively, for a given private key.
 
-The shared secret produced by the KEM is combined via the KDF
+The KEM shared secret is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
@@ -589,7 +591,7 @@ def SetupPSKR(enc, skR, info, psk, pskID):
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
 This assurance is based on the assumption that
-`AuthDecap(enc, skR, pkS)` produces the correct shared secret
+`AuthDecap(enc, skR, pkS)` produces the correct KEM shared secret
 only if the encapsulated value `enc` was produced by
 `AuthEncap(pkR, skS)`, where `skS` is the private key corresponding
 to `pkS`.  In other words, only two people could have produced this
@@ -789,7 +791,7 @@ given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
 
 For the CFRG curves Curve25519 and Curve448, validation of public keys
-is not required. Senders and recipients MUST check whether the shared
+is not required. Senders and recipients MUST check whether the Diffie-Hellman shared
 secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
 
@@ -890,12 +892,12 @@ difference into account, in addition to simply using a post-quantum KEM.
 ## Security Requirements on a KEM used within HPKE
 
 A KEM used within HPKE MUST ensure the following to avoid identity
-mis-binding issues: The shared secret computed by Encap and Decap MUST
+mis-binding issues: The KEM shared secret computed by Encap and Decap MUST
 depend explicitly on the KEM public key pkR and the KEM ciphertext enc.
-The shared secret returned by AuthEncap and AuthDecap MUST explicitly
+The KEM shared secret returned by AuthEncap and AuthDecap MUST explicitly
 depend on the KEM public keys pkR and pkS and the KEM ciphertext enc.
 This is usually implemented by including these values explicitly into
-the context of the key derivation function used to compute the shared
+the context of the key derivation function used to compute the KEM shared
 secret. This is also how DHKEM meets the requirement.
 
 ## Security Requirements on a KDF {#kdf-choice}
@@ -1054,7 +1056,7 @@ Template:
 
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
-* Nzz: The length in bytes of a shared secret produced by the algorithm
+* Nzz: The length in bytes of a KEM shared secret produced by the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
 * Npk: The length in bytes of an encoded public key for the algorithm
 * Reference: Where this algorithm is defined
