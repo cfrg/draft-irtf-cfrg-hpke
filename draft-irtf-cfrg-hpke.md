@@ -485,23 +485,18 @@ default_pkSm = zero(Npk)
 default_psk = zero(Nh)
 default_pskID = zero(0)
 
-def VerifyMode(mode, psk, pskID, pkSm):
-  got_psk = (psk != default_psk and pskID != default_pskID)
-  no_psk = (psk == default_psk and pskID == default_pskID)
-  got_pkSm = (pkSm != default_pkSm)
-  no_pkSm = (pkSm == default_pkSm)
+def VerifyPSKInputs(mode, psk, pskID):
+  got_psk = (psk != default_psk)
+  if got_psk != (pskID != default_pskID):
+    raise Exception("Inconsistent PSK inputs")
 
-  if mode == mode_base and (got_psk or got_pkSm):
-    raise Exception("Invalid configuration for mode_base")
-  if mode == mode_psk and (no_psk or got_pkSm):
-    raise Exception("Invalid configuration for mode_psk")
-  if mode == mode_auth and (got_psk or no_pkSm):
-    raise Exception("Invalid configuration for mode_auth")
-  if mode == mode_auth_psk and (no_psk or no_pkSm):
-    raise Exception("Invalid configuration for mode_auth_psk")
+  if got_psk and (mode in [mode_base, mode_auth]):
+    raise Exception("PSK input provided when not needed")
+  if not got_psk and (mode in [mode_psk, mode_auth_psk]):
+    raise Exception("Missing required PSK input")
 
-def KeySchedule(mode, zz, info, psk, pskID, pkSm):
-  VerifyMode(mode, psk, pskID, pkSm)
+def KeySchedule(mode, zz, info, psk, pskID):
+  VerifyPSKInputs(mode, psk, pskID)
 
   ciphersuite = concat(encode_big_endian(kem_id, 2),
                        encode_big_endian(kdf_id, 2),
@@ -549,13 +544,11 @@ explicit `info` parameter provided by the caller.
 ~~~~~
 def SetupBaseS(pkR, info):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(mode_base, zz, info,
-                          default_psk, default_pskID, default_pkSm)
+  return enc, KeySchedule(mode_base, zz, info, default_psk, default_pskID)
 
 def SetupBaseR(enc, skR, info):
   zz = Decap(enc, skR)
-  return KeySchedule(mode_base, zz, info,
-                     default_psk, default_pskID, default_pkSm)
+  return KeySchedule(mode_base, zz, info, default_psk, default_pskID)
 ~~~~~
 
 ### Authentication using a Pre-Shared Key {#mode-psk}
@@ -579,11 +572,11 @@ discussion.
 ~~~~~
 def SetupPSKS(pkR, info, psk, pskID):
   zz, enc = Encap(pkR)
-  return enc, KeySchedule(mode_psk, zz, info, psk, pskID, default_pkSm)
+  return enc, KeySchedule(mode_psk, zz, info, psk, pskID)
 
 def SetupPSKR(enc, skR, info, psk, pskID):
   zz = Decap(enc, skR)
-  return KeySchedule(mode_psk, zz, info, psk, pskID, default_pkSm)
+  return KeySchedule(mode_psk, zz, info, psk, pskID)
 ~~~~~
 
 ### Authentication using an Asymmetric Key {#mode-auth}
@@ -616,11 +609,11 @@ to avoid unknown key share attacks.
 ~~~~~
 def SetupAuthS(pkR, info, skS):
   zz, enc = AuthEncap(pkR, skS)
-  return enc, KeySchedule(mode_auth, zz, info, default_psk, default_pskID, pkSm)
+  return enc, KeySchedule(mode_auth, zz, info, default_psk, default_pskID)
 
 def SetupAuthR(enc, skR, info, pkS):
   zz = AuthDecap(enc, skR, pkS)
-  return KeySchedule(mode_auth, zz, info, default_psk, default_pskID, pkSm)
+  return KeySchedule(mode_auth, zz, info, default_psk, default_pskID)
 ~~~~~
 
 ### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
@@ -633,11 +626,11 @@ variants.
 ~~~~~
 def SetupAuthPSKS(pkR, info, psk, pskID, skS):
   zz, enc = AuthEncap(pkR, skS)
-  return enc, KeySchedule(mode_auth_psk, zz, info, psk, pskID, pkSm)
+  return enc, KeySchedule(mode_auth_psk, zz, info, psk, pskID)
 
 def SetupAuthPSKR(enc, skR, info, psk, pskID, pkS):
   zz = AuthDecap(enc, skR, pkS)
-  return KeySchedule(mode_auth_psk, zz, info, psk, pskID, pkSm)
+  return KeySchedule(mode_auth_psk, zz, info, psk, pskID)
 ~~~~~
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
