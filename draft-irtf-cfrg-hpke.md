@@ -235,7 +235,7 @@ operations, roles, and behaviors of HPKE:
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
-  0x00000000` and `zero(0)` is the empty string.
+  0x00000000` and `zero(0)` is the empty byte string.
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
   length.
