@@ -771,7 +771,7 @@ def DeriveKeyPair(ikm):
   while sk == "invalid":
     label = concat("candidate ", encode_big_endian(counter, 1))
     bytes = Expand(prk, label, Nsk)
-    bytes[Nsk-1] = bytes[Nsk-1] & bitmask
+    bytes[0] = bytes[0] & bitmask
     sk = Octet-String-to-Field-Element(bytes)
     counter = counter + 1
   return (sk, pk(sk))
