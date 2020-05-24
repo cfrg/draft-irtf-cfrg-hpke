@@ -468,7 +468,9 @@ All of these cases follow the same basic two-step pattern:
 
 A "context" encodes the AEAD algorithm and key in use, and manages
 the nonces used so that the same nonce is not used with multiple
-plaintexts.
+plaintexts. It also has an interface for exporting secret values,
+as described in {{hpke-export}}. See {{hpke-dem}} for a description
+of this structure and its interfaces.
 
 The constructions described here presume that the relevant non-private
 parameters (`enc`, `pskID`, etc.) are transported between the sender and the
@@ -541,21 +543,23 @@ def KeySchedule(mode, zz, info, psk, pskID):
                        encode_big_endian(aead_id, 2))
   pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
   info_hash = LabeledExtract(zero(0), "info_hash", info)
-  context = concat(ciphersuite, mode, pskID_hash, info_hash)
+  schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
   psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
 
   secret = LabeledExtract(psk_hash, "secret", zz)
-  key = LabeledExpand(secret, "key", context, Nk)
-  nonce = LabeledExpand(secret, "nonce", context, Nn)
-  exporter_secret = LabeledExpand(secret, "exp", context, Nh)
+  key = LabeledExpand(secret, "key", schedule_context, Nk)
+  nonce = LabeledExpand(secret, "nonce", schedule_context, Nn)
+  exporter_secret = LabeledExpand(secret, "exp", schedule_context, Nh)
 
-  return Context(key, nonce, exporter_secret)
+  return Context(key, nonce, 0, exporter_secret)
 ~~~~~
 
-Note that the context construction in the KeySchedule procedure is
-equivalent to serializing a structure of the following form in the
-TLS presentation syntax:
+See {{hpke-dem}} for a description of the Context output.
+
+Note that the `schedule_context` construction in the KeySchedule procedure is
+equivalent to serializing a structure of the following form in the TLS presentation
+syntax:
 
 ~~~~~
 struct {
@@ -565,7 +569,7 @@ struct {
     uint8 mode;
     opaque pskID_hash[Nh];
     opaque info_hash[Nh];
-} HPKEContext;
+} ScheduleContext;
 ~~~~~
 
 ### Encryption to a Public Key {#hpke-kem}
@@ -691,6 +695,7 @@ that stores the required state:
 * The key to be used with the AEAD algorithm
 * A base nonce value
 * A sequence number (initially 0)
+* An exporter secret (see {{hpke-export}})
 
 All of these fields except the sequence number are constant.  The
 sequence number is used to provide nonce uniqueness: The nonce used
@@ -703,8 +708,8 @@ overflows.
 
 Encryption is unidirectional from sender to recipient. Each encryption
 or decryption operation increments the sequence number for the context
-in use.  The sender's context MUST be used for encryption only. Similarly,
-the recipient's context MUST be used for decryption only. Higher-level
+in use.  The sender's context MUST NOT be used for decryption. Similarly,
+the recipient's context MUST NOT be used for encryption. Higher-level
 protocols re-using the HPKE key exchange for more general purposes can
 derive separate keying material as needed using use the Export interface;
 see {{hpke-export}} for more details.
