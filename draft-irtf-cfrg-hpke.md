@@ -27,115 +27,139 @@ author:
 
 informative:
   CS01:
-    title: Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive Chosen Ciphertext Attack
+    title: "Design and Analysis of Practical Public-Key Encryption Schemes Secure against Adaptive Chosen Ciphertext Attack"
     target: https://eprint.iacr.org/2001/108
     date: 2001
-    authors:
+    author:
       -
-        ins: Ronald Cramer
+        ins: R. Cramer
+        name: Ronald Cramer
       -
-        ins: Victor Shoup
+        ins: V. Shoup
+        name: Victor Shoup
+
+  S01:
+    title: "A proposal for an ISO standard for public key encryption (version 2.1)"
+    target: https://eprint.iacr.org/2001/112
+    date: 2001
+    author:
+      -
+        ins: V. Shoup
+        name: Victor Shoup
 
   GAP:
-    title: The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes
+    title: "The Gap-Problems - a New Class of Problems for the Security of Cryptographic Schemes"
     target: https://link.springer.com/content/pdf/10.1007/3-540-44586-2_8.pdf
     date: 2001
-    authors:
+    author:
       -
-        ins: Tatsuaki Okamoto
+        ins: T. Okamoto
+        name: Tatsuaki Okamoto
       -
-        ins: David Pointcheval
+        ins: D. Pointcheval
+        name: David Pointcheval
     seriesinfo:
       ISBN: 978-3-540-44586-9
 
   ANSI:
-    title: Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography
+    title: "ANSI X9.63 Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography"
     date: 2001
-    authors:
+    author:
       -
         ins:
         org: American National Standards Institute
 
   IEEE:
-    title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques
+    title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques"
     date: 2004
-    authors:
+    author:
       -
         ins:
         org: Institute of Electrical and Electronics Engineers
 
   ISO:
-    title: ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers
+    title: "ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers"
     date: 2006
-    authors:
+    author:
       -
         ins:
         org: International Organization for Standardization / International Electrotechnical Commission
 
   SECG:
-    title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
+    title: "Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2"
     target: https://secg.org/sec1-v2.pdf
     date: 2009
 
   HPKEAnalysis:
-    title: An Analysis of Hybrid Public Key Encryption
+    title: "An Analysis of Hybrid Public Key Encryption"
     target: https://eprint.iacr.org/2020/243.pdf
     date: 2020
-    authors:
+    author:
       -
-        ins: Benjamin Lipp
+        ins: B. Lipp
+        name: Benjamin Lipp
         org: INRIA Paris
 
   MAEA10:
-    title: A Comparison of the Standardized Versions of ECIES
-    target: http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF
+    title: "A Comparison of the Standardized Versions of ECIES"
+    target: https://ieeexplore.ieee.org/abstract/document/5604194/
     date: 2010
-    authors:
+    author:
       -
         ins: V. Gayoso Martinez
+        name: V. Gayoso Martinez
         org: Applied Physics Institute, CSIC, Madrid, Spain
       -
         ins: F. Hernandez Alvarez
+        name: F. Hernandez Alvarez
         org: Applied Physics Institute, CSIC, Madrid, Spain
       -
         ins: L. Hernandez Encinas
+        name: L. Hernandez Encinas
         org: Applied Physics Institute, CSIC, Madrid, Spain
       -
         ins: C. Sanchez Avila
+        name: C. Sanchez Avila
         org: Polytechnic University, Madrid, Spain
 
   BNT19:
     title: "Nonces Are Noticed: AEAD Revisited"
     target: http://dx.doi.org/10.1007/978-3-030-26948-7_9
     date: 2019
-    authors:
+    author:
       -
         ins: M. Bellare
+        name: Mihir Bellare
         org: University of California, San Diego
       -
         ins: R. Ng
+        name: Ruth Ng
         org: University of California, San Diego
       -
         ins: B. Tackmann
+        name: Björn Tackmann
         org: IBM Research
 
   JKR96:
-    title: Designated Verifier Proofs and Their Applications
+    title: "Designated Verifier Proofs and Their Applications"
     target: https://doi.org/10.1007%2F3-540-49677-7_30
     date: 1996
-    authors:
+    author:
       -
         ins: M. Jakobsson
+        name: Markus Jakobsson
         org: University of California, San Diego
       -
         ins: K. Sako
+        name: Kazue Sako
         org: NEC Corporation
       -
         ins: R. Impagliazzo
+        name: Russell Impagliazzo
         org: University of California, San Diego
 
   TestVectors:
-    title: HPKE Test Vectors
+    title: "HPKE Test Vectors"
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/a1335d2eecf6918e7c85de5b4972d5e02c52f3a1/test-vectors.json
     date: 2020
 
@@ -154,18 +178,22 @@ informative:
     title: To Hash or Not to Hash Again? (In)differentiability Results for H^2 and HMAC
     target: https://eprint.iacr.org/2013/382
     date: 2013
-    authors:
+    author:
       -
         ins: Y. Dodis
+        name: Yevgeniy Dodis
         org: Department of Computer Science, New York University
       -
-        ins: Thomas Ristenpart
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
         org: Department of Computer Sciences, University of Wisconsin–Madison
       -
-        ins: John Steinberger
+        ins: J. Steinberger
+        name: John Steinberger
         org: Institute of Theoretical Computer Science, Tsinghua University
       -
-        ins: Stefano Tessaro
+        ins: S. Tessaro
+        name: Stefano Tessaro
         org: CSAIL, Massachusetts Institute of Technology
 
 --- abstract
@@ -177,19 +205,22 @@ for any combination of an asymmetric key encapsulation mechanism
 (KEM), key derivation function (KDF), and authenticated encryption
 with additional data (AEAD) encryption function. We provide
 instantiations of the scheme using widely-used and efficient
-primitives.
+primitives based on elliptic curve Diffie-Hellman key agreement.
 
 --- middle
 
 # Introduction
 
-"Hybrid" public-key encryption schemes (HPKE) that combine
-asymmetric and symmetric algorithms are a substantially more
-efficient solution than traditional public key encryption techniques
-such as those based on RSA or ElGamal.  Encrypted messages convey an encryption
-key encapsulated with a public-key scheme, along with one or more ciphertexts
-encrypted using that key.  This type of public key encryption has many
-applications in practice, for example:
+Encryption schemes that combine asymmetric and symmetric algorithms have been
+specified and practiced since the early days of public-key cryptography, e.g.,
+{{?RFC1113}}. Combining the two yields the key management advantages of asymmetric
+cryptography and the performance benefits of symmetric cryptography. The traditional
+combination has been "encrypt the symmetric key with the public key." "Hybrid"
+public-key encryption schemes (HPKE), specified here, take a different approach:
+"generate the symmetric key and its encapsulation with the public key."
+Specifically, encrypted messages convey an encryption key encapsulated with a
+public-key scheme, along with one or more ciphertexts encrypted using that key.
+This type of public key encryption has many applications in practice, for example:
 
 * PGP {{?RFC6637}}
 * Messaging Layer Security {{?I-D.ietf-mls-protocol}}
@@ -206,10 +237,10 @@ proofs of IND-CCA2 security, or fail to provide test vectors.
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
-implemented and formally verified. It is secure against (adaptive)
-chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions
-about the underlying primitives {{HPKEAnalysis}}. A summary of this
-analysis is in {{sec-properties}}.
+implemented. The HPKE construction contained herein is secure against (adaptive)
+chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions about
+the underlying primitives {{HPKEAnalysis}}. A summary of this analysis is in
+{{sec-properties}}.
 
 # Requirements Notation
 
@@ -230,7 +261,7 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key.
 - `pk(skX)`: The public key corresponding to private key `skX`.
-- `encode_big_endian(x, n)`: An byte string encoding the integer
+- `encode_big_endian(x, n)`: An byte string encoding the unsigned integer
   value `x` as an n-byte big-endian value.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
@@ -389,7 +420,7 @@ underlying the KDF.
 
 The GenerateKeyPair, Marshal, and Unmarshal functions are the same
 as for the underlying DH group.  The Marshal functions for the
-curves referenced in {{ciphersuites}} are as follows:
+groups referenced in {{ciphersuites}} are as follows:
 
 * P-256: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 32-byte big-endian integers
@@ -397,13 +428,13 @@ curves referenced in {{ciphersuites}} are as follows:
   Y-coordinate of the point, encoded as 48-byte big-endian integers
 * P-521: A single byte set to 4, followed by the X-coordinate and the
   Y-coordinate of the point, encoded as 66-byte big-endian integers
-* Curve25519: The standard 32-byte representation of the public key
-* Curve448: The standard 56-byte representation of the public key
+* X25519: The standard 32-byte representation of the public key
+* X448: The standard 56-byte representation of the public key
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
 
-# Hybrid Public Key Encryption
+# Hybrid Public Key Encryption {#hpke}
 
 In this section, we define a few HPKE variants.  All variants take a
 recipient public key and a sequence of plaintexts `pt`, and produce an
@@ -418,8 +449,9 @@ Additional Authenticated Data to the AEAD algorithm in use.
 In addition to the base case of encrypting to a public key, we
 include two authenticated variants, one of which authenticates
 possession of a pre-shared key, and one of which authenticates
-possession of a KEM private key.  The following one-byte values
-will be used to distinguish between modes:
+possession of a KEM private key. Both authenticated variants contribute
+additional keying material to encryption operation. The following one-byte
+values will be used to distinguish between modes:
 
 | Mode          | Value |
 |:==============|:======|
@@ -440,7 +472,12 @@ plaintexts.
 
 The constructions described here presume that the relevant non-private
 parameters (`enc`, `pskID`, etc.) are transported between the sender and the
-recipient by some application making use of HPKE.
+recipient by some application making use of HPKE. Moreover, a recipient with more
+than one public key needs some way of determining which of its public keys was
+used for the encapsulation operation. As an example, applications may send this
+information alongside a ciphertext from sender to receiver. Specification of
+such a mechanism is left to the application. See {{message-encoding}} for more
+details.
 
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
@@ -451,6 +488,7 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
+* `mode` - A one-byte value indicating the HPKE mode, defined in {{hpke}}.
 * `zz` - A KEM shared secret generated for this transaction
 * `info` - Application-supplied information (optional; default value
   "")
@@ -472,7 +510,7 @@ they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
 that the sender held the PSK.  If the `pkSm` argument is
-provided, then the recipient is assumed that the sender held the
+provided, then the recipient is assured that the sender held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
 
@@ -502,12 +540,12 @@ def KeySchedule(mode, zz, info, psk, pskID):
                        encode_big_endian(kdf_id, 2),
                        encode_big_endian(aead_id, 2))
   pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
-  info_hash = LabeledExtract(zero(0), "info", info)
+  info_hash = LabeledExtract(zero(0), "info_hash", info)
   context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
   psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
 
-  secret = LabeledExtract(psk_hash, "zz", zz)
+  secret = LabeledExtract(psk_hash, "secret", zz)
   key = LabeledExpand(secret, "key", context, Nk)
   nonce = LabeledExpand(secret, "nonce", context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", context, Nh)
@@ -588,8 +626,8 @@ This assurance is based on the assumption that
 only if the encapsulated value `enc` was produced by
 `AuthEncap(pkR, skS)`, where `skS` is the private key corresponding
 to `pkS`.  In other words, only two people could have produced this
-secret, so if the recipient is one, then the sender must be the
-other.
+secret, so if the recipient is one, then the sender is the other
+with overwhelming probability.
 
 The primary differences from the base case are:
 
@@ -754,28 +792,28 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(Curve25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(Curve448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
 ### Marshal
 
-For the NIST curves P-256, P-384 and P-521, the Marshal function of the
-DH scheme produces the normal (non-compressed) representation of the
-public key, according to {{SECG}}.
+For the groups based on NIST curves P-256, P-384 and P-521, the Marshal function
+of the DH scheme produces the normal (non-compressed) representation of the public
+key, according to {{SECG}}.
 
-For the CFRG curves Curve25519 and Curve448, the Marshal function is
-the identity function, since these curves already use fixed-length
+For the groups based on X25519 and X448, the Marshal function is the identity
+function, as specified in {{?RFC7748}}, since these groups already use fixed-length
 byte strings for public keys.
 
 ### Validation of Inputs and Outputs
 
-The following public keys are subject to validation if the curve
+The following public keys are subject to validation if the group
 requires public key validation: the sender MUST validate the recipient's
 public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`.
 
-For the NIST curves P-256, P-384 and P-521, senders and recipients
+For the groups based on NIST curves P-256, P-384 and P-521, senders and recipients
 MUST perform full public-key validation on all public key inputs as
 defined in {{keyagreement}}, which includes validating that a public
 key is on the curve.
@@ -783,9 +821,9 @@ Additionally, one of the following checks MUST be ensured: the scalar
 given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
 
-For the CFRG curves Curve25519 and Curve448, validation of public keys
-is not required. Senders and recipients MUST check whether the Diffie-Hellman shared
-secret is the all-zero value and abort if so, as described in
+For the groups based on X25519 and X448, validation of public keys
+is not required. Senders and recipients MUST check whether the Diffie-Hellman
+shared secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
@@ -886,16 +924,16 @@ difference into account, in addition to simply using a post-quantum KEM.
 
 A KEM used within HPKE MUST ensure the following to avoid identity
 mis-binding issues: The KEM shared secret computed by Encap and Decap MUST
-depend explicitly on the KEM public key pkR and the KEM ciphertext enc.
-The KEM shared secret returned by AuthEncap and AuthDecap MUST explicitly
-depend on the KEM public keys pkR and pkS and the KEM ciphertext enc.
-This is usually implemented by including these values explicitly into
+depend explicitly on the KEM public key `pkR` and the encapsulated key `enc`,
+as observed in {{S01}}. The KEM shared secret returned by AuthEncap and AuthDecap
+MUST explicitly depend on the KEM public keys `pkR` and `pkS` and the encapsulated
+key `enc`. This is usually implemented by including these values explicitly into
 the context of the key derivation function used to compute the KEM shared
 secret. This is also how DHKEM meets the requirement.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
-The choice of the KDF for the remainder of HPKE should be made based on
+The choice of the KDF for the remainder of HPKE SHOULD be made based on
 the security level provided by the KEM and, if applicable, by the PSK.
 The KDF SHOULD have at least have the security level of the KEM and
 SHOULD at least have the security level provided by the PSK.
@@ -988,7 +1026,7 @@ since in a given application context, they might identify the sender.
 An application that wishes to protect these metadata values without requiring
 further provisioning of keys can use an additional instance of HPKE, using the
 unauthenticated base mode.  Where the application might have sent `(pskID, pkS,
-enc, ciphertext)` before, it would now send (enc2, ciphertext2, enc, ciphertext),
+enc, ciphertext)` before, it would now send `(enc2, ciphertext2, enc, ciphertext)`,
 where `(enc2, ciphertext2)` represent the encryption of the `pskID` and `pkS`
 values.
 
@@ -1010,8 +1048,8 @@ the proper mode, and calls the Seal method on the resulting context with an
 empty plaintext value and the content to be signed as AAD.  This produces an
 encoded key `enc` and a ciphertext value that contains only the AAD tag.
 
-For example, using DHKEM-X25519 and AES-128-GCM, this would produce a 48-byte
-signature comprising a 32-byte ephemeral X25519 key and a 16-byte GCM tag.
+For example, using DHKEM(X25519, HKDF-SHA256) and AES-128-GCM, this would produce
+a 48-byte signature comprising a 32-byte ephemeral X25519 key and a 16-byte GCM tag.
 
 To verify such a signature, the recipient performs the corresponding HPKE setup
 and calls Open with the provided ciphertext.  If the AEAD authentication passes,
@@ -1021,12 +1059,14 @@ This scheme re-uses the authentication scheme underlying the AEAD algorithm in
 use, while using the KEM to establish a one-time authentication key from a pair
 of KEM public keys.
 
-# Message Encoding
+# Message Encoding {#message-encoding}
 
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
 minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
-multiple), and any info values that are not implicit.
+multiple), and any info values that are not implicit. One example of a non-implicit value
+is receiver public key used for encapsulation, which may be needed if a receiver
+has more than one public key.
 
 # IANA Considerations
 
