@@ -717,25 +717,27 @@ see {{hpke-export}} for more details.
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
 and decryption nonces align. If a Seal or Open operation would cause the `seq`
-field to wrap, then the implementation MUST return an error.
+field to overflow, then the implementation MUST return an error. Note that
+the internal Seal and Open calls inside corresponding to the context's AEAD
+algorithm.
 
 ~~~~~
-def Context.Nonce(seq):
+def Context.ComputeNonce(seq):
   encSeq = encode_big_endian(seq, Nn)
   return xor(self.nonce, encSeq)
 
 def Context.IncrementSeq():
-  if self.seq >= (1 << Nn) - 1:
+  if self.seq >= (1 << (8*Nn)) - 1:
     return NonceOverflowError
   self.seq += 1
 
 def Context.Seal(aad, pt):
-  ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
+  ct = Seal(self.key, self.ComputeNonce(self.seq), aad, pt)
   self.IncrementSeq()
   return ct
 
 def Context.Open(aad, ct):
-  pt = Open(self.key, self.Nonce(self.seq), aad, ct)
+  pt = Open(self.key, self.ComputeNonce(self.seq), aad, ct)
   if pt == OpenError:
     return OpenError
   self.IncrementSeq()
