@@ -718,7 +718,7 @@ It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
 and decryption nonces align. If a Seal or Open operation would cause the `seq`
 field to overflow, then the implementation MUST return an error. Note that
-the internal Seal and Open calls inside corresponding to the context's AEAD
+the internal Seal and Open calls inside correspond to the context's AEAD
 algorithm.
 
 ~~~~~
