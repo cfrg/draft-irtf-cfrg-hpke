@@ -543,21 +543,21 @@ def KeySchedule(mode, zz, info, psk, pskID):
                        encode_big_endian(aead_id, 2))
   pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
   info_hash = LabeledExtract(zero(0), "info_hash", info)
-  schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
+  key_schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
 
   psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
 
   secret = LabeledExtract(psk_hash, "secret", zz)
-  key = LabeledExpand(secret, "key", schedule_context, Nk)
-  nonce = LabeledExpand(secret, "nonce", schedule_context, Nn)
-  exporter_secret = LabeledExpand(secret, "exp", schedule_context, Nh)
+  key = LabeledExpand(secret, "key", key_schedule_context, Nk)
+  nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
+  exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
 
   return Context(key, nonce, 0, exporter_secret)
 ~~~~~
 
 See {{hpke-dem}} for a description of the Context output.
 
-Note that the `schedule_context` construction in the KeySchedule procedure is
+Note that the `key_schedule_context` construction in the KeySchedule procedure is
 equivalent to serializing a structure of the following form in the TLS presentation
 syntax:
 
@@ -569,7 +569,7 @@ struct {
     uint8 mode;
     opaque pskID_hash[Nh];
     opaque info_hash[Nh];
-} ScheduleContext;
+} KeyScheduleContext;
 ~~~~~
 
 ### Encryption to a Public Key {#hpke-kem}
