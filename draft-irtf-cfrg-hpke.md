@@ -451,7 +451,7 @@ In addition to the base case of encrypting to a public key, we
 include two authenticated variants, one of which authenticates
 possession of a pre-shared key, and one of which authenticates
 possession of a KEM private key. Both authenticated variants contribute
-additional keying material to encryption operation. The following one-byte
+additional keying material to the encryption operation. The following one-byte
 values will be used to distinguish between modes:
 
 | Mode          | Value |
