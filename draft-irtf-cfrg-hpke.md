@@ -205,7 +205,8 @@ for any combination of an asymmetric key encapsulation mechanism
 (KEM), key derivation function (KDF), and authenticated encryption
 with additional data (AEAD) encryption function. We provide
 instantiations of the scheme using widely-used and efficient
-primitives based on elliptic curve Diffie-Hellman key agreement.
+primitives, such as Elliptic Curve Diffie-Hellman key agreement,
+HKDF, and SHA2.
 
 --- middle
 
@@ -237,7 +238,7 @@ proofs of IND-CCA2 security, or fail to provide test vectors.
 This document defines an HPKE scheme that provides a subset
 of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
-implemented. The HPKE construction contained herein is secure against (adaptive)
+implemented. The HPKE construction defined herein is secure against (adaptive)
 chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions about
 the underlying primitives {{HPKEAnalysis}}. A summary of this analysis is in
 {{sec-properties}}.
