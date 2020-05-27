@@ -805,13 +805,11 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ### Marshal
 
-For the groups based on NIST curves P-256, P-384 and P-521, the Marshal function
-of the DH scheme produces the normal (non-compressed) representation of the public
-key, according to {{SECG}}.
+For P-256, P-384 and P-521, the Marshal function of the DH scheme produces the
+normal (non-compressed) representation of the public key, according to {{SECG}}.
 
-For the groups based on X25519 and X448, the Marshal function is the identity
-function, as specified in {{?RFC7748}}, since these groups already use fixed-length
-byte strings for public keys.
+For X25519 and X448, the Marshal function is the identity function, as specified
+in {{?RFC7748}}, since these groups already use fixed-length byte strings for public keys.
 
 ### Validation of Inputs and Outputs
 
@@ -821,7 +819,7 @@ public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`.
 
-For the groups based on NIST curves P-256, P-384 and P-521, senders and recipients
+For P-256, P-384 and P-521, senders and recipients
 MUST perform full public-key validation on all public key inputs as
 defined in {{keyagreement}}, which includes validating that a public
 key is on the curve.
@@ -829,7 +827,7 @@ Additionally, one of the following checks MUST be ensured: the scalar
 given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
 
-For the groups based on X25519 and X448, validation of public keys
+For X25519 and X448, validation of public keys
 is not required. Senders and recipients MUST check whether the Diffie-Hellman
 shared secret is the all-zero value and abort if so, as described in
 {{?RFC7748}}.
