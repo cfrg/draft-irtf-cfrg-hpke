@@ -278,10 +278,10 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - DeriveKeyPair(ikm): Derive a key pair (sk, pk) from input keying material
-  - Marshal(pk): Produce a fixed-length byte string encoding the
+  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string of length `Nsk`
+  - Marshal(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
-  - Unmarshal(enc): Parse a fixed-length byte string to recover a
+  - Unmarshal(enc): Parse a byte string of length `Npk` to recover a
     public key
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
