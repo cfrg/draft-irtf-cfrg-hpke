@@ -849,10 +849,11 @@ public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`.
 
-For P-256, P-384 and P-521, senders and recipients
-MUST perform full public-key validation on all public key inputs as
-defined in {{keyagreement}}, which includes validating that a public
-key is on the curve.
+For P-256, P-384 and P-521, senders and recipients MUST perform partial
+public-key validation on all public key inputs, as defined in section 5.6.2.3.4
+of {{keyagreement}}. This includes validating that the coordinates are in the
+correct range, that the point is on the curve, and that the point is not the
+point at infinity.
 Additionally, one of the following checks MUST be ensured: the scalar
 given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
