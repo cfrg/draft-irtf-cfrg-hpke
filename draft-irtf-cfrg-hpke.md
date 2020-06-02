@@ -811,7 +811,7 @@ KEM performs rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), "keypair", ikm)
+  prk = LabeledExtract(zero(0), "nistp_keypair", ikm)
   sk = "invalid"
   counter = 1
   while sk == "invalid":
@@ -824,11 +824,22 @@ def DeriveKeyPair(ikm):
 ~~~
 
 where `Octet-String-to-Field-Element` is as defined in {{SECG}}, Section 2.3.6,
-and bitmask is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
+and `bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
 
-For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function is the
-identity function, since these curves already use fixed-length byte strings for
-private keys.
+For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function performs
+a KDF operation on its input:
+
+~~~
+def DeriveKeyPair(ikm):
+  prk = LabeledExtract(zero(0), concat(desc, "_keypair"), ikm)
+  sk = Expand(prk, zero(0), Nsk)
+  return (sk, pk(sk))
+~~~
+
+where `desc` is "x25519" or "x448", depending on the KEM being used.
+
+All invocations of `LabeledExtract` and `Expand` in any DHKEM's DeriveKeyPair
+function use the DHKEM's associated KDF (as opposed to the ciphersuite's KDF)
 
 ### Validation of Inputs and Outputs
 
