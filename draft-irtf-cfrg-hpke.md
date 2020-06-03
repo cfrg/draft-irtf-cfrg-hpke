@@ -262,8 +262,9 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key.
 - `pk(skX)`: The public key corresponding to private key `skX`.
-- `encode_big_endian(x, n)`: An byte string encoding the unsigned integer
+- `encode_big_endian(x, n)`: A byte string encoding the unsigned integer
   value `x` as an n-byte big-endian value.
+- `decode_big_endian(x)`: An unsigned integer parsed from the given byte string
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
@@ -815,19 +816,20 @@ KEM performs rejection sampling over field elements:
 ~~~
 def DeriveKeyPair(ikm):
   prk = LabeledExtract(zero(0), "nistp_keypair", ikm)
-  sk = "invalid"
+  sk = 0
   counter = 1
-  while sk == "invalid":
+  while sk < 1 or order <= sk:
     label = concat("candidate ", encode_big_endian(counter, 1))
     bytes = Expand(prk, label, Nsk)
     bytes[0] = bytes[0] & bitmask
-    sk = Octet-String-to-Field-Element(bytes)
+    sk = decode_big_endian(bytes)
     counter = counter + 1
   return (sk, pk(sk))
 ~~~
 
-where `Octet-String-to-Field-Element` is as defined in {{SECG}}, Section 2.3.6,
-and `bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
+where `order` is the order of the curve being used (this can be found in
+section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
+and P-384, and 0x01 for P-521.
 
 For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function performs
 a KDF operation on its input:
