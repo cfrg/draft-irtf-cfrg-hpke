@@ -804,6 +804,9 @@ For the CFRG curves Curve25519 and Curve448, the Marshal and Unmarshal functions
 are the identity function, since these curves already use fixed-length byte
 strings for public keys.
 
+Some unmarshalled public keys MUST be validated before they can be used. See
+{{validation}} for specifics.
+
 ### DeriveKeyPair
 
 For the NIST curves P-256, P-384 and P-521, the DeriveKeyPair function of the
@@ -839,9 +842,9 @@ def DeriveKeyPair(ikm):
 where `desc` is "x25519" or "x448", depending on the KEM being used.
 
 All invocations of `LabeledExtract` and `Expand` in any DHKEM's DeriveKeyPair
-function use the DHKEM's associated KDF (as opposed to the ciphersuite's KDF)
+function use the DHKEM's associated KDF (as opposed to the ciphersuite's KDF).
 
-### Validation of Inputs and Outputs
+### Validation of Inputs and Outputs {#validation}
 
 The following public keys are subject to validation if the group
 requires public key validation: the sender MUST validate the recipient's
@@ -851,7 +854,7 @@ static public key `pkS`.
 
 For P-256, P-384 and P-521, senders and recipients MUST perform partial
 public-key validation on all public key inputs, as defined in section 5.6.2.3.4
-of {{keyagreement}}. This includes validating that the coordinates are in the
+of {{keyagreement}}. This includes checking that the coordinates are in the
 correct range, that the point is on the curve, and that the point is not the
 point at infinity.
 Additionally, one of the following checks MUST be ensured: the scalar
