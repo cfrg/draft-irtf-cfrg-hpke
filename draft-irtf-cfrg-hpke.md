@@ -264,7 +264,8 @@ operations, roles, and behaviors of HPKE:
 - `pk(skX)`: The public key corresponding to private key `skX`.
 - `encode_big_endian(x, n)`: A byte string encoding the unsigned integer
   value `x` as an n-byte big-endian value.
-- `decode_big_endian(x)`: An unsigned integer parsed from the given byte string
+- `decode_big_endian(x)`: An unsigned integer parsed from a big-endian-encoded
+  byte string
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
