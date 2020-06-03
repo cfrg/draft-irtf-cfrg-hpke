@@ -280,10 +280,10 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string of length `Nsk`
+  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm` of length `Nsk`
   - Marshal(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
-  - Unmarshal(enc): Parse a byte string of length `Npk` to recover a
+  - Unmarshal(enc): Parse the byte string `enc` of length `Npk` to recover a
     public key
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
@@ -797,12 +797,12 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ### Marshal/Unmarshal
 
-For the NIST curves P-256, P-384 and P-521, the Marshal function of the
+For P-256, P-384 and P-521, the Marshal function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
 conversion according to {{SECG}}. The Unmarshal function performs the
 uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
 
-For the CFRG curves Curve25519 and Curve448, the Marshal and Unmarshal functions
+For X25519 and X448, the Marshal and Unmarshal functions
 are the identity function, since these curves already use fixed-length byte
 strings for public keys.
 
@@ -811,7 +811,7 @@ Some unmarshalled public keys MUST be validated before they can be used. See
 
 ### DeriveKeyPair
 
-For the NIST curves P-256, P-384 and P-521, the DeriveKeyPair function of the
+For P-256, P-384 and P-521, the DeriveKeyPair function of the
 KEM performs rejection sampling over field elements:
 
 ~~~
@@ -832,7 +832,7 @@ where `order` is the order of the curve being used (this can be found in
 section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
 and P-384, and 0x01 for P-521.
 
-For the CFRG curves Curve25519 and Curve448, the DeriveKeyPair function performs
+For X25519 and X448, the DeriveKeyPair function performs
 a KDF operation on its input:
 
 ~~~
