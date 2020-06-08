@@ -280,8 +280,9 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string `ikm`
-    with at least `Nsk` bytes of entropy
+  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm`,
+    where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
+    {{derive-key-pair}} for discussion)
   - Marshal(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
   - Unmarshal(enc): Parse the byte string `enc` of length `Npk` to recover a
@@ -345,8 +346,9 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string `ikm`
-  with at least `Nsk` bytes of entropy
+- DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm`,
+  where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
+  {{derive-key-pair}} for discussion)
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -810,7 +812,7 @@ strings for public keys.
 Some unmarshalled public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
 
-### DeriveKeyPair
+### DeriveKeyPair {#derive-key-pair}
 
 The keys that DeriveKeyPair produces have only as much entropy as the provided
 input keying material. For a given KEM, the IKM given to DeriveKeyPair SHOULD
