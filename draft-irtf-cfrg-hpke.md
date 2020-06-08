@@ -280,7 +280,8 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm` of length `Nsk`
+  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string `ikm`
+    with at least `Nsk` bytes of entropy
   - Marshal(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
   - Unmarshal(enc): Parse the byte string `enc` of length `Npk` to recover a
@@ -344,8 +345,8 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- DeriveKeyPair(ikm): Derive a key pair (sk, pk) from a byte sequence of
-  length Nsk.
+- DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from a byte string `ikm`
+  with at least `Nsk` bytes of entropy
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -811,8 +812,16 @@ Some unmarshalled public keys MUST be validated before they can be used. See
 
 ### DeriveKeyPair
 
-For P-256, P-384 and P-521, the DeriveKeyPair function of the
-KEM performs rejection sampling over field elements:
+The keys that DeriveKeyPair produces have only as much entropy as the provided
+input keying material. For a given KEM, the IKM given to DeriveKeyPair SHOULD
+have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
+
+All invocations of KDF functions (such as `LabeledExtract` or `Expand`) in any
+DHKEM's DeriveKeyPair function use the DHKEM's associated KDF (as opposed to
+the ciphersuite's KDF).
+
+For P-256, P-384 and P-521, the DeriveKeyPair function of the KEM performs
+rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
@@ -832,20 +841,14 @@ where `order` is the order of the curve being used (this can be found in
 section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
 and P-384, and 0x01 for P-521.
 
-For X25519 and X448, the DeriveKeyPair function performs
-a KDF operation on its input:
+For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), concat(desc, "_keypair"), ikm)
+  prk = LabeledExtract(zero(0), "rfc7748_keypair", ikm)
   sk = Expand(prk, zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
-
-where `desc` is "x25519" or "x448", depending on the KEM being used.
-
-All invocations of `LabeledExtract` and `Expand` in any DHKEM's DeriveKeyPair
-function use the DHKEM's associated KDF (as opposed to the ciphersuite's KDF).
 
 ### Validation of Inputs and Outputs {#validation}
 
