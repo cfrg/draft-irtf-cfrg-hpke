@@ -825,7 +825,7 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), "nistp_keypair", ikm)
+  prk = LabeledExtract(zero(0), desc, ikm)
   sk = 0
   counter = 1
   while sk == 0 or sk >= order:
@@ -837,18 +837,21 @@ def DeriveKeyPair(ikm):
   return (sk, pk(sk))
 ~~~
 
-where `order` is the order of the curve being used (this can be found in
-section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
+where `desc` is "p-256", "p-384", or "p-521", depending on the curve being
+used; `order` is the order of the curve being used (this can be found in
+section D.1.2 of {{NISTCurves}}); and `bitmask` is defined to be 0xFF for P-256
 and P-384, and 0x01 for P-521.
 
 For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), "rfc7748_keypair", ikm)
+  prk = LabeledExtract(zero(0), desc, ikm)
   sk = Expand(prk, zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
+
+where `desc` is "x25519" or "x448", depending on the curve being used.
 
 ### Validation of Inputs and Outputs {#validation}
 
