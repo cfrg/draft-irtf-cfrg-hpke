@@ -828,7 +828,7 @@ def DeriveKeyPair(ikm):
   prk = LabeledExtract(zero(0), "nistp_keypair", ikm)
   sk = 0
   counter = 1
-  while sk < 1 or order <= sk:
+  while sk == 0 or sk >= order:
     label = concat("candidate ", encode_big_endian(counter, 1))
     bytes = Expand(prk, label, Nsk)
     bytes[0] = bytes[0] & bitmask
