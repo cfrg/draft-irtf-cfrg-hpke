@@ -262,12 +262,15 @@ operations, roles, and behaviors of HPKE:
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key.
 - `pk(skX)`: The public key corresponding to private key `skX`.
-- `encode_big_endian(x, n)`: An byte string encoding the unsigned integer
+- `encode_big_endian(x, n)`: A byte string encoding the unsigned integer
   value `x` as an n-byte big-endian value.
+- `decode_big_endian(x)`: An unsigned integer parsed from a big-endian-encoded
+  byte string
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
   0x00000000` and `zero(0)` is the empty byte string.
+- `random(n)`: A psuedorandom byte string of length `n` bytes
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
   length.
@@ -277,10 +280,12 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - GenerateKeyPair(): Generate a key pair (sk, pk)
-  - Marshal(pk): Produce a fixed-length byte string encoding the
+  - DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm`,
+    where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
+    {{derive-key-pair}} for discussion)
+  - Marshal(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
-  - Unmarshal(enc): Parse a fixed-length byte string to recover a
+  - Unmarshal(enc): Parse the byte string `enc` of length `Npk` to recover a
     public key
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
@@ -297,6 +302,7 @@ HPKE variants rely on the following primitives:
   - Nzz: The length in bytes of a KEM shared secret produced by this KEM
   - Nenc: The length in bytes of an encapsulated key produced by this KEM
   - Npk: The length in bytes of an encoded public key for this KEM
+  - Nsk: The length in bytes of an encoded private key for this KEM
 
 * A Key Derivation Function (KDF):
   - Extract(salt, IKM): Extract a pseudorandom key of fixed length `Nh` bytes
@@ -340,8 +346,9 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
-  for the DH group in use
+- DeriveKeyPair(ikm): Derive a key pair `(sk, pk)` from the byte string `ikm`,
+  where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
+  {{derive-key-pair}} for discussion)
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -351,6 +358,7 @@ following operations:
   public key
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM.
+- Nsk: The length in bytes of a Diffie-Hellman private key
 
 Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
@@ -362,7 +370,7 @@ def ExtractAndExpand(dh, kemContext):
   return LabeledExpand(prk, "prk", kemContext, Nzz)
 
 def Encap(pkR):
-  skE, pkE = GenerateKeyPair()
+  skE, pkE = DeriveKeyPair(random(Nsk))
   dh = DH(skE, pkR)
   enc = Marshal(pkE)
 
@@ -383,7 +391,7 @@ def Decap(enc, skR):
   return zz
 
 def AuthEncap(pkR, skS):
-  skE, pkE = GenerateKeyPair()
+  skE, pkE = DeriveKeyPair(random(Nsk))
   dh = concat(DH(skE, pkR), DH(skS, pkR))
   enc = Marshal(pkE)
 
@@ -418,19 +426,6 @@ For the variants of DHKEM defined in this document, the size Ndh of the
 Diffie-Hellman shared secret is equal to Npk, and the size Nzz of the
 KEM shared secret is equal to the output length of the hash function
 underlying the KDF.
-
-The GenerateKeyPair, Marshal, and Unmarshal functions are the same
-as for the underlying DH group.  The Marshal functions for the
-groups referenced in {{ciphersuites}} are as follows:
-
-* P-256: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 32-byte big-endian integers
-* P-384: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 48-byte big-endian integers
-* P-521: A single byte set to 4, followed by the X-coordinate and the
-  Y-coordinate of the point, encoded as 66-byte big-endian integers
-* X25519: The standard 32-byte representation of the public key
-* X448: The standard 56-byte representation of the public key
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
@@ -794,24 +789,73 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM                            | Nzz  | Nenc | Npk | Reference                    |
-|:-------|:-------------------------------|:-----|:-----|:----|:-----------------------------|
-| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A                          |
-| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32   | 32   | 32  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64   | 56   | 56  | {{?RFC7748}}, {{?RFC5869}}   |
+| Value  | KEM                            | Nzz  | Nenc | Npk | Nsk | Reference                    |
+|:-------|:-------------------------------|:-----|:-----|:----|:----|:-----------------------------|
+| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | 32  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | 48  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | 66  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32   | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64   | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
-### Marshal
+### Marshal/Unmarshal
 
-For P-256, P-384 and P-521, the Marshal function of the DH scheme produces the
-normal (non-compressed) representation of the public key, according to {{SECG}}.
+For P-256, P-384 and P-521, the Marshal function of the
+KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
+conversion according to {{SECG}}. The Unmarshal function performs the
+uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
 
-For X25519 and X448, the Marshal function is the identity function, as specified
-in {{?RFC7748}}, since these groups already use fixed-length byte strings for public keys.
+For X25519 and X448, the Marshal and Unmarshal functions
+are the identity function, since these curves already use fixed-length byte
+strings for public keys.
 
-### Validation of Inputs and Outputs
+Some unmarshalled public keys MUST be validated before they can be used. See
+{{validation}} for specifics.
+
+### DeriveKeyPair {#derive-key-pair}
+
+The keys that DeriveKeyPair produces have only as much entropy as the provided
+input keying material. For a given KEM, the IKM given to DeriveKeyPair SHOULD
+have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
+
+All invocations of KDF functions (such as `LabeledExtract` or `Expand`) in any
+DHKEM's DeriveKeyPair function use the DHKEM's associated KDF (as opposed to
+the ciphersuite's KDF).
+
+For P-256, P-384 and P-521, the DeriveKeyPair function of the KEM performs
+rejection sampling over field elements:
+
+~~~
+def DeriveKeyPair(ikm):
+  prk = LabeledExtract(zero(0), desc, ikm)
+  sk = 0
+  counter = 1
+  while sk == 0 or sk >= order:
+    label = concat("candidate ", encode_big_endian(counter, 1))
+    bytes = Expand(prk, label, Nsk)
+    bytes[0] = bytes[0] & bitmask
+    sk = decode_big_endian(bytes)
+    counter = counter + 1
+  return (sk, pk(sk))
+~~~
+
+where `desc` is "p-256", "p-384", or "p-521", depending on the curve being
+used; `order` is the order of the curve being used (this can be found in
+section D.1.2 of {{NISTCurves}}); and `bitmask` is defined to be 0xFF for P-256
+and P-384, and 0x01 for P-521.
+
+For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
+
+~~~
+def DeriveKeyPair(ikm):
+  prk = LabeledExtract(zero(0), desc, ikm)
+  sk = Expand(prk, zero(0), Nsk)
+  return (sk, pk(sk))
+~~~
+
+where `desc` is "x25519" or "x448", depending on the curve being used.
+
+### Validation of Inputs and Outputs {#validation}
 
 The following public keys are subject to validation if the group
 requires public key validation: the sender MUST validate the recipient's
@@ -819,10 +863,11 @@ public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`.
 
-For P-256, P-384 and P-521, senders and recipients
-MUST perform full public-key validation on all public key inputs as
-defined in {{keyagreement}}, which includes validating that a public
-key is on the curve.
+For P-256, P-384 and P-521, senders and recipients MUST perform partial
+public-key validation on all public key inputs, as defined in section 5.6.2.3.4
+of {{keyagreement}}. This includes checking that the coordinates are in the
+correct range, that the point is on the curve, and that the point is not the
+point at infinity.
 Additionally, one of the following checks MUST be ensured: the scalar
 given as input to DH is in the interval [1, n-1] where n is the prime
 order of the subgroup; the result of DH is not the point at infinity.
