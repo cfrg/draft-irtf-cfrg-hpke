@@ -1205,6 +1205,7 @@ Kevin Jacobs,
 Michael Rosenberg,
 Michael Scott,
 Raphael Robert,
+Steven Valdez,
 Riad Wahby,
 and other contributors in the CFRG for helpful feedback that improved this document.
 
