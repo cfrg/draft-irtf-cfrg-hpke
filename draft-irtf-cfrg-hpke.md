@@ -828,7 +828,7 @@ For X25519 and X448, the Serialize and Deserialize functions
 are the identity function, since these curves already use fixed-length byte
 strings for public keys.
 
-Some unmarshalled public keys MUST be validated before they can be used. See
+Some deserialized public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
 
 ### DeriveKeyPair {#derive-key-pair}
