@@ -516,7 +516,9 @@ The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
 and `pskID` arguments are provided, then the recipient is assured
-that the sender held the PSK.  If the `pkSm` argument is
+that the sender held the PSK.
+The PSK is also improving the confidentiality guarantee, as described in more detail in {{sec-properties}}.
+If the `pkSm` argument is
 provided, then the recipient is assured that the sender held the
 corresponding private key (assuming that `zz` and `enc` were
 generated using the AuthEncap / AuthDecap methods; see below).
