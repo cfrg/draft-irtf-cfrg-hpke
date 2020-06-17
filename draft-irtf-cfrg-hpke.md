@@ -158,6 +158,8 @@ informative:
         name: Russell Impagliazzo
         org: University of California, San Diego
 
+  UKS: DOI.10.1007/BF00124891
+
   TestVectors:
     title: "HPKE Test Vectors"
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/f0be13a4cf8fa4f39e1cb396d42b9a234ad85017/test-vectors.json
@@ -286,7 +288,7 @@ HPKE variants rely on the following primitives:
   - Serialize(pk): Produce a byte string of length `Npk` encoding the
     public key `pk`
   - Deserialize(enc): Parse the byte string `enc` of length `Npk` to recover a
-    public key
+    public key (note: this function can raise an error upon `enc` deserialization failure)
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
     by the holder of the private key corresponding to pk
@@ -314,12 +316,12 @@ HPKE variants rely on the following primitives:
 * An AEAD encryption algorithm {{!RFC5116}}:
   - Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext
     `pt` with associated data `aad` using secret key `key` and nonce
-    `nonce`, yielding ciphertext and tag `ct` or the error value
-    `NonceOverflowError`
-  - Open(key, nonce, aad, ct): Decrypt ciphertext `ct` using
+    `nonce`, yielding ciphertext and tag `ct` (note: this function
+     can raise a `NonceOverflowError` upon failure)
+  - Open(key, nonce, aad, ct): Decrypt ciphertext and tag `ct` using
     associated data `aad` with secret key `key` and nonce `nonce`,
-    returning plaintext message `pt` or the error values `OpenError` or
-    `NonceOverflowError`
+    returning plaintext message `pt` (note: this function can raise an
+    `OpenError` or `NonceOverflowError` upon failure)
   - Nk: The length in bytes of a key for this algorithm
   - Nn: The length in bytes of a nonce for this algorithm
 
@@ -353,10 +355,10 @@ following operations:
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
-- Serialize(pk): Produce a byte string of length Npk
+- Serialize(pk): Produce a byte string of length `Npk`
   encoding the public key `pk`
-- Deserialize(enc): Parse a byte string of length Npk to recover a
-  public key (note: this function can fail)
+- Deserialize(enc): Parse a byte string of length `Npk` to recover a
+  public key (note: this function can raise an error upon `enc` deserialization failure)
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM
 - Nsk: The length in bytes of a Diffie-Hellman private key
@@ -420,7 +422,7 @@ ASCII-encoded name of the underlying DHKEM group. The table below lists the valu
 for this parameter for all DHKEM variants specified in this document. For example,
 the `LabeledExtract` label for DHKEM(P-256, HKDF-SHA256) uses the string "P256-dh".
 
-| DHKEM  | Group Name |
+| DHKEM  | GROUP |
 |:-------|:---------- |
 | DHKEM(P-256, HKDF-SHA256)  | "P256"   |
 | DHKEM(P-384, HKDF-SHA384)  | "P384"   |
@@ -507,7 +509,7 @@ context. The key schedule inputs are as follows:
   "") of maximum length 65535 bytes.
 * `psk` - A pre-shared secret held by both the sender
   and the recipient (optional; default value `zero(Nh)`) of maximum
-  length 255 bytes.
+  length 65535 bytes.
 * `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
   of maximum length 65535 bytes.
 * `pkSm` - The sender's encoded public key (optional; default
@@ -659,7 +661,7 @@ This mechanism authenticates only the key pair of the sender, not
 any other identity.  If an application wishes to authenticate some
 other identity for the sender (e.g., an email address or domain
 name), then this identity should be included in the `info` parameter
-to avoid unknown key share attacks.
+to avoid unknown key share attacks {{UKS}}.
 
 ~~~~~
 def SetupAuthS(pkR, info, skS):
@@ -716,7 +718,7 @@ for each encryption or decryption operation is the result of XORing
 the base nonce with the current sequence number, encoded as a
 big-endian integer of the same length as the nonce.  Implementations
 MAY use a sequence number that is shorter than the nonce (padding on
-the left with zero), but MUST return an error if the sequence number
+the left with zero), but MUST raise an error if the sequence number
 overflows.
 
 Encryption is unidirectional from sender to recipient. Each encryption
@@ -729,9 +731,9 @@ see {{hpke-export}} for more details.
 
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
-and decryption nonces align. If a Seal or Open operation would cause the `seq`
-field to overflow, then the implementation MUST return an error. (In the
-pseudocode below, `IncrementSeq` fails with an error when `seq` overflows,
+and decryption nonces align. If `Context.Seal` or `Context.Open` would cause
+the `seq` field to overflow, then the implementation MUST fail with an error.
+(In the pseudocode below, `IncrementSeq` fails with an error when `seq` overflows,
 which causes `Context.Seal` and `Context.Open` to fail accordingly.) Note that
 the internal Seal and Open calls inside correspond to the context's AEAD
 algorithm.
@@ -743,7 +745,7 @@ def Context.ComputeNonce(seq):
 
 def Context.IncrementSeq():
   if self.seq >= (1 << (8*Nn)) - 1:
-    return NonceOverflowError
+    raise NonceOverflowError
   self.seq += 1
 
 def Context.Seal(aad, pt):
@@ -754,7 +756,7 @@ def Context.Seal(aad, pt):
 def Context.Open(aad, ct):
   pt = Open(self.key, self.ComputeNonce(self.seq), aad, ct)
   if pt == OpenError:
-    return OpenError
+    raise OpenError
   self.IncrementSeq()
   return pt
 ~~~~~
@@ -765,7 +767,7 @@ HPKE provides a interface for exporting secrets from the encryption Context, sim
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
-function.
+function. The `exporter_context` parameter has a maximum length of 65535 bytes.
 
 ~~~~~
 def Context.Export(exporter_context, L):
