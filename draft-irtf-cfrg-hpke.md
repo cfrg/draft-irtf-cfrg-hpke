@@ -270,7 +270,7 @@ operations, roles, and behaviors of HPKE:
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
   0x00000000` and `zero(0)` is the empty byte string.
-- `random(n)`: A psuedorandom byte string of length `n` bytes
+- `random(n)`: A pseudorandom byte string of length `n` bytes
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
   length.
