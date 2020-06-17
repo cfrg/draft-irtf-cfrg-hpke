@@ -517,7 +517,7 @@ AEAD `aead_id` 2-byte code points, are assumed implicit from the
 implementation and not passed as parameters.
 
 ~~~~~
-default_psk = zero(Nh)
+default_psk = zero(0)
 default_pskID = zero(0)
 
 def VerifyPSKInputs(mode, psk, pskID):
