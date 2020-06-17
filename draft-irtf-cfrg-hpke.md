@@ -510,8 +510,6 @@ context. The key schedule inputs are as follows:
   length 255 bytes.
 * `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
   of maximum length 65535 bytes.
-* `pkSm` - The sender's encoded public key (optional; default
-  value `zero(Npk)`)
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
