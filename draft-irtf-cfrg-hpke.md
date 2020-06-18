@@ -493,12 +493,10 @@ context. The key schedule inputs are as follows:
 * `mode` - A one-byte value indicating the HPKE mode, defined in {{hpke}}.
 * `zz` - A KEM shared secret generated for this transaction
 * `info` - Application-supplied information (optional; default value
-  "") of maximum length 65535 bytes.
+  "")
 * `psk` - A pre-shared secret held by both the sender
-  and the recipient (optional; default value `zero(0)`) of maximum
-  length 65535 bytes.
+  and the recipient (optional; default value `zero(0)`)
 * `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
-  of maximum length 65535 bytes.
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
@@ -751,8 +749,8 @@ HPKE provides a interface for exporting secrets from the encryption Context, sim
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
-function. The `exporter_context` parameter has a maximum length of 65535 bytes,
-and `L` has a maximum length of `255*Nh` bytes.
+function. For the KDFs defined in this specification, `L` has a maximum length of
+`255*Nh` bytes. Future specifications which define new KDFs MUST specify a bound for `L`.
 
 ~~~~~
 def Context.Export(exporter_context, L):
