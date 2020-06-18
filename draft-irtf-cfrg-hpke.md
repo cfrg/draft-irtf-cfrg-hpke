@@ -503,6 +503,11 @@ The `psk` and `pskID` fields MUST appear together or not at all.
 That is, if a non-default value is provided for one of them, then
 the other MUST be set to a non-default value.
 
+The `psk`, `pskID`, and `info` fields have maximum lengths that depend
+on the KDF itself, on the definition of `LabeledExtract`, and on the
+constant labels used together with them. See {{kdf-input-length}} for
+exact indications.
+
 The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the recipient private key, and
 the party that ran the KEM to generate `zz` and `enc`.  If the `psk`
@@ -747,6 +752,10 @@ input a context string `exporter_context` and desired length `L` (in bytes), and
 a secret derived from the internal exporter secret using the corresponding KDF Expand
 function.
 
+The `exporter_context` field has a maximum length that depends on the KDF
+itself, on the definition of `LabeledExpand`, and on the constant labels
+used together with them. See {{kdf-input-length}} for exact indications.
+
 ~~~~~
 def Context.Export(exporter_context, L):
   return LabeledExpand(self.exporter_secret, "sec", exporter_context, L)
@@ -884,6 +893,45 @@ shared secret is the all-zero value and abort if so, as described in
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
 | 0x0002 | HKDF-SHA384 | 48  | {{?RFC5869}} |
 | 0x0003 | HKDF-SHA512 | 64  | {{?RFC5869}} |
+
+### Input Length Restrictions {#kdf-input-length}
+
+This document defines `LabeledExtract` and `LabeledExpand` based on the
+KDFs listed above. These functions add prefixes to their respective
+inputs `IKM` and `info` before calling the KDF's Extract and Expand
+functions. This leads to a reduction of the maximum input length that
+is available for the inputs `psk`, `pskID`, `info`, `exporter_context`.
+The following table lists the maximum allowed lengths of these fields
+for the KDFs defined in this document, in bytes:
+
+| Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
+|:-----------------|:-------------|:--------------|:--------------|
+| psk              | 2^{61} - 81  | 2^{125} - 145 | 2^{125} - 145 |
+| pskID            | 2^{61} - 83  | 2^{125} - 147 | 2^{125} - 147 |
+| info             | 2^{61} - 82  | 2^{125} - 146 | 2^{125} - 146 |
+| exporter_context | 2^{61} - 111 | 2^{125} - 191 | 2^{125} - 207 |
+
+The values for `psk`, `pskID`, and `info` which are inputs to
+`LabeledExtract` were computed with the following equation:
+
+~~~
+max_size_hash_input - Nb - size_label_rfcXXXX - size_label
+~~~
+
+The value for `exporter_context` which is an input to `LabeledExpand`
+was computed with the following equation:
+
+~~~
+max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_label - 2 - 1
+~~~
+
+In these equations, `max_size_hash_input` is the maximum input length
+of the underlying hash function in bytes, `Nb` is the block size of the
+underlying hash function in bytes, `size_label_rfcXXXX` is the size
+of "RFCXXXX " in bytes and equals 8, and `size_label` is the size of
+the label used as parameter to `LabeledExtract` or `LabeledExpand`.
+
+\[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
