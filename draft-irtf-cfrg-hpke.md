@@ -469,8 +469,8 @@ A "context" encodes the AEAD algorithm and key in use, and manages
 the nonces used so that the same nonce is not used with multiple
 plaintexts. It also has an interface for exporting secret values,
 as described in {{hpke-export}}. See {{hpke-dem}} for a description
-of this structure and its interfaces. As is standard with AEAD interfaces,
-HPKE decryption fails when the underlying AEAD decryption fails.
+of this structure and its interfaces. HPKE decryption fails when
+the underlying AEAD decryption fails.
 
 The constructions described here presume that the relevant non-private
 parameters (`enc`, `pskID`, etc.) are transported between the sender and the
@@ -686,16 +686,21 @@ public-key operations, reducing the overall overhead.
 
 In order to avoid nonce reuse, however, this decryption must be
 stateful. Each of the setup procedures above produces a context object
-that stores the required state:
+that stores the AEAD and Secret Export parameters. The AEAD parameters
+consist of:
 
-* The AEAD algorithm and corresponding key, an initial nonce value,
-  and an initial sequence number (set to 0) used for data encryption
-  and decryption
-* The KDF algorithm and corresponding exporter secret used for the
-  Secret Export interface; see {{hpke-export}}
+* The AEAD algorithm in use
+* The key to be used with the AEAD algorithm
+* A base nonce value
+* A sequence number (initially 0)
 
-All of these fields except the sequence number are constant.  The
-sequence number is used to provide nonce uniqueness: The nonce used
+The Secret Export parameters consist of:
+
+* The KDF algorithm in use
+* The exporter secret used for the Secret Export interface; see {{hpke-export}}
+
+All of these parameters except the AEAD sequence number are constant.
+The sequence number is used to provide nonce uniqueness: The nonce used
 for each encryption or decryption operation is the result of XORing
 the base nonce with the current sequence number, encoded as a
 big-endian integer of the same length as the nonce.  Implementations
@@ -874,9 +879,9 @@ correct range, that the point is on the curve, and that the point is not the
 point at infinity. Additionally, senders and recipients MUST ensure the
 Diffie-Hellman shared secret is not the point at infinity.
 
-For X25519 and X448, validation of public keys is not required. Senders and
-recipients MUST check whether the Diffie-Hellman shared secret is the all-zero
-value and abort if so, as described in {{?RFC7748}}.
+For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
+as described in {{RFC7748}}. In particular, recipients MUST check whether
+the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
