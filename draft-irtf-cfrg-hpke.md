@@ -704,11 +704,11 @@ In order to avoid nonce reuse, however, this decryption must be
 stateful. Each of the setup procedures above produces a context object
 that stores the required state:
 
-* The AEAD algorithm in use
-* The key to be used with the AEAD algorithm
-* A base nonce value
-* A sequence number (initially 0)
-* An exporter secret (see {{hpke-export}})
+* The AEAD algorithm and corresponding key, an initial nonce value,
+  and an initial sequence number (set to 0) used for data encryption
+  and decryption
+* The KDF algorithm and corresponding exporter secret used for the
+  Secret Export interface; see {{hpke-export}}
 
 All of these fields except the sequence number are constant.  The
 sequence number is used to provide nonce uniqueness: The nonce used
