@@ -715,7 +715,7 @@ It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
 and decryption nonces align. If `Context.Seal` or `Context.Open` would cause
 the `seq` field to overflow, then the implementation MUST fail with an error.
-(In the pseudocode below, `IncrementSeq` fails with an error when `seq` overflows,
+(In the pseudocode below, `Context.IncrementSeq` fails with an error when `seq` overflows,
 which causes `Context.Seal` and `Context.Open` to fail accordingly.) Note that
 the internal Seal and Open calls inside correspond to the context's AEAD
 algorithm.
