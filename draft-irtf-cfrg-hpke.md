@@ -228,7 +228,7 @@ practice, for example:
 
 * PGP {{?RFC6637}}
 * Messaging Layer Security {{?I-D.ietf-mls-protocol}}
-* Encrypted Server Name Indication {{?I-D.ietf-tls-esni}}
+* TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}
 * Protection of 5G subscriber identities {{fiveG}}
 
 Currently, there are numerous competing and non-interoperable standards and
