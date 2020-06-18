@@ -369,8 +369,8 @@ following way, where `Group` denotes the Diffie-Hellman group and
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  prk = LabeledExtract(zero(0), "GROUP-dh", dh)
-  return LabeledExpand(prk, "GROUP-prk", kemContext, Nzz)
+  prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dh"), dh)
+  return LabeledExpand(prk, concat(I2OSP(kem_id, 2), "prk"), kemContext, Nzz)
 
 def Encap(pkR):
   skE, pkE = DeriveKeyPair(random(Nsk))
@@ -416,19 +416,6 @@ def AuthDecap(enc, skR, pkS):
   zz = ExtractAndExpand(dh, kemContext)
   return zz
 ~~~
-
-The string "GROUP" used in the `ExtractAndExpand` function is equal to the
-ASCII-encoded name of the underlying DHKEM group. The table below lists the values
-for this parameter for all DHKEM variants specified in this document. For example,
-the `LabeledExtract` label for DHKEM(P-256, HKDF-SHA256) uses the string "P256-dh".
-
-| DHKEM  | GROUP |
-|:-------|:---------- |
-| DHKEM(P-256, HKDF-SHA256)  | "P256"   |
-| DHKEM(P-384, HKDF-SHA384)  | "P384"   |
-| DHKEM(P-521, HKDF-SHA512)  | "P521"   |
-| DHKEM(X25519, HKDF-SHA256) | "X25519" |
-| DHKEM(X448, HKDF-SHA512)   | "X448"   |
 
 The KDF used in DHKEM can be equal to or different from the KDF used
 in the remainder of HPKE, depending on the chosen variant.
@@ -764,7 +751,8 @@ HPKE provides a interface for exporting secrets from the encryption Context, sim
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
-function. The `exporter_context` parameter has a maximum length of 65535 bytes.
+function. The `exporter_context` parameter has a maximum length of 65535 bytes,
+and `L` has a maximum length of `255*Nh` bytes.
 
 ~~~~~
 def Context.Export(exporter_context, L):
