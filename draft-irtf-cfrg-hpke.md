@@ -902,7 +902,7 @@ inputs `IKM` and `info` before calling the KDF's Extract and Expand
 functions. This leads to a reduction of the maximum input length that
 is available for the inputs `psk`, `pskID`, `info`, `exporter_context`.
 The following table lists the maximum allowed lengths of these fields
-for the KDFs defined in this document, in bytes:
+for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
