@@ -749,8 +749,8 @@ HPKE provides a interface for exporting secrets from the encryption Context, sim
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
-function. For the KDFs defined in this specification, `L` has a maximum length of
-`255*Nh` bytes. Future specifications which define new KDFs MUST specify a bound for `L`.
+function. For the KDFs defined in this specification, `L` has a maximum value of
+`255*Nh`. Future specifications which define new KDFs MUST specify a bound for `L`.
 
 ~~~~~
 def Context.Export(exporter_context, L):
