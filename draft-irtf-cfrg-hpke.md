@@ -496,7 +496,7 @@ context. The key schedule inputs are as follows:
 * `zz` - A KEM shared secret generated for this transaction
 * `info` - Application-supplied information (optional; default value
   "")
-* `psk` - A pre-shared secret held by both the sender
+* `psk` - A pre-shared key (PSK) held by both the sender
   and the recipient (optional; default value `zero(0)`)
 * `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
 
@@ -519,9 +519,8 @@ key, and the entity that used the KEM to generate `zz` and `enc`.
 If the AuthEncap function of the KEM was used to generate `zz` and `enc`,
 the recipient is assured that the sender held the private key `sKS`.
 If the `psk` and `pskID` arguments are provided, then the recipient is
-assured that the sender held the PSK. The PSK is also improving the
-confidentiality guarantee, as described in more detail in
-{{sec-properties}}.
+assured that the sender held the corresponding pre-shared key (PSK).
+See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
 AEAD `aead_id` 2-byte code points, are assumed implicit from the
@@ -602,11 +601,11 @@ def SetupBaseR(enc, skR, info):
 ### Authentication using a Pre-Shared Key {#mode-psk}
 
 This variant extends the base mechanism by allowing the recipient to
-authenticate that the sender possessed a given pre-shared key (PSK).
-The PSK is also improving the confidentiality guarantee, as described
-in more detail in {{sec-properties}}. We assume that both parties have
-been provisioned with both the PSK value `psk` and another byte string
-`pskID` that is used to identify which PSK should be used.
+authenticate that the sender possessed a given PSK. The PSK also
+improves confidentiality guarantees in certain adversary models, as
+described in more detail in {{sec-properties}}. We assume that both
+parties have been provisioned with both the PSK value `psk` and another
+byte string `pskID` that is used to identify which PSK should be used.
 
 The primary differences from the base case are:
 
