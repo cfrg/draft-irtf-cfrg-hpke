@@ -900,7 +900,8 @@ This document defines `LabeledExtract` and `LabeledExpand` based on the
 KDFs listed above. These functions add prefixes to their respective
 inputs `IKM` and `info` before calling the KDF's Extract and Expand
 functions. This leads to a reduction of the maximum input length that
-is available for the inputs `psk`, `pskID`, `info`, `exporter_context`.
+is available for the inputs `psk`, `pskID`, `info`, `exporter_context`,
+the variable-length parameters provided by HPKE applications.
 The following table lists the maximum allowed lengths of these fields
 for the KDFs defined in this document, as inclusive bounds in bytes:
 
