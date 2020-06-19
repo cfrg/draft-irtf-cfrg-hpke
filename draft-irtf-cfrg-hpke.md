@@ -913,7 +913,7 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 | exporter_context | 2^{61} - 111 | 2^{125} - 191 | 2^{125} - 207 |
 
 The values for `psk`, `pskID`, and `info` which are inputs to
-`LabeledExtract` were computed with the following equation:
+`LabeledExtract` were computed with the following expression:
 
 ~~~
 max_size_hash_input - Nb - size_label_rfcXXXX - size_label
