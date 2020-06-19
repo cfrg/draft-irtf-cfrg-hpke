@@ -754,7 +754,7 @@ function.
 
 The `exporter_context` field has a maximum length that depends on the KDF
 itself, on the definition of `LabeledExpand`, and on the constant labels
-used together with them. See {{kdf-input-length}} for exact limits on this length.
+used together with them. See {{kdf-input-length}} for precise limits on this length.
 
 ~~~~~
 def Context.Export(exporter_context, L):
@@ -912,6 +912,12 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 | info             | 2^{61} - 82  | 2^{125} - 146 | 2^{125} - 146 |
 | exporter_context | 2^{61} - 111 | 2^{125} - 191 | 2^{125} - 207 |
 
+This shows that the limits are only marginally smaller than the maximum
+input length of the underlying hash function; these limits are large and
+unlikely to be reached in practical applications. Future specifications
+which define new KDFs MUST specify bounds for these variable-length
+parameters.
+ 
 The values for `psk`, `pskID`, and `info` which are inputs to
 `LabeledExtract` were computed with the following expression:
 
@@ -929,8 +935,8 @@ max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_input_label - 2 - 1
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "RFCXXXX " in bytes and equals 8, and `size_input_label` is the size of
-the label used as parameter to `LabeledExtract` or `LabeledExpand`.
+of "RFCXXXX " in bytes and equals 8, and `size_input_label` is the size
+of the label used as parameter to `LabeledExtract` or `LabeledExpand`.
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
