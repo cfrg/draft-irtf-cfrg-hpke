@@ -929,7 +929,7 @@ max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_input_label - 2 - 1
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "RFCXXXX " in bytes and equals 8, and `size_label` is the size of
+of "RFCXXXX " in bytes and equals 8, and `size_input_label` is the size of
 the label used as parameter to `LabeledExtract` or `LabeledExpand`.
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
