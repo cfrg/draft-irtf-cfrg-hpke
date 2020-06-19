@@ -506,7 +506,7 @@ the other MUST be set to a non-default value.
 The `psk`, `pskID`, and `info` fields have maximum lengths that depend
 on the KDF itself, on the definition of `LabeledExtract`, and on the
 constant labels used together with them. See {{kdf-input-length}} for
-exact indications.
+precise limits on these lengths.
 
 The key and nonce computed by this algorithm have the property that
 they are only known to the holder of the recipient private key, and
