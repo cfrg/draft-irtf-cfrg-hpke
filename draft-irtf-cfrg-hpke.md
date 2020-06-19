@@ -923,7 +923,7 @@ The value for `exporter_context` which is an input to `LabeledExpand`
 was computed with the following expression:
 
 ~~~
-max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_label - 2 - 1
+max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_input_label - 2 - 1
 ~~~
 
 In these equations, `max_size_hash_input` is the maximum input length
