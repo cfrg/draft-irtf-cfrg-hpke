@@ -754,7 +754,7 @@ function.
 
 The `exporter_context` field has a maximum length that depends on the KDF
 itself, on the definition of `LabeledExpand`, and on the constant labels
-used together with them. See {{kdf-input-length}} for exact indications.
+used together with them. See {{kdf-input-length}} for exact limits on this length.
 
 ~~~~~
 def Context.Export(exporter_context, L):
