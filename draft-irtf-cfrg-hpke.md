@@ -349,9 +349,6 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from the byte string `ikm`,
-  where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
-  {{derive-key-pair}} for discussion)
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -365,7 +362,8 @@ following operations:
 
 Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
-`KDF` the KDF:
+`KDF` the KDF. {{derive-key-pair}} contains the `DeriveKeyPair`
+function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
@@ -921,7 +919,7 @@ input length of the underlying hash function; these limits are large and
 unlikely to be reached in practical applications. Future specifications
 which define new KDFs MUST specify bounds for these variable-length
 parameters.
- 
+
 The values for `psk`, `pskID`, and `info` which are inputs to
 `LabeledExtract` were computed with the following expression:
 
