@@ -479,6 +479,10 @@ information alongside a ciphertext from sender to receiver. Specification of
 such a mechanism is left to the application. See {{message-encoding}} for more
 details.
 
+Note that some KEMs may not support the AuthEncap or AuthDecap functions.
+For such KEMs, only mode_base or mode_psk are supported. Future specifications
+which define new KEMs MUST indicate whether or not these modes are supported.
+
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
