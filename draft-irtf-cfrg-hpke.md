@@ -198,6 +198,15 @@ informative:
         name: Stefano Tessaro
         org: CSAIL, Massachusetts Institute of Technology
 
+  WireGuard:
+    title: "WireGuard: Next Generation Kernel Network Tunnel"
+    target: https://www.wireguard.com/papers/wireguard.pdf
+    date: 2020
+    author:
+      -
+        ins: J. A. Donenfeld
+        name: Jason A. Donenfeld
+
 --- abstract
 
 This document describes a scheme for hybrid public-key encryption
