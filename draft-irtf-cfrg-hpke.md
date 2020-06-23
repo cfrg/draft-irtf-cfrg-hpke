@@ -1097,7 +1097,8 @@ SHOULD at least have the security level provided by the PSK.
 HPKE's KeySchedule uses LabeledExtract to convert an arbitrary-length
 PSK into a fixed-length PSK. This is necessary because of the
 restrictions on the key in HMAC's indifferentiability theorem {{HMAC}}.
-A future instantiation of HPKE MAY omit this line if: Extract is not
+A future instantiation of HPKE MAY omit this line and use the PSK
+directly as salt for the computation of `secret`, if: Extract is not
 instantiated by HKDF-Extract and there is an indifferentiability theorem
 for Extract without restriction on the key's length.
 
