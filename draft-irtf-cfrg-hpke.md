@@ -851,8 +851,7 @@ def DeriveKeyPair(ikm):
   sk = 0
   counter = 1
   while sk == 0 or sk >= order:
-    label = concat("candidate ", I2OSP(counter, 1))
-    bytes = Expand(prk, label, Nsk)
+    bytes = LabeledExpand(prk, "candidate", I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
