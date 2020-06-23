@@ -522,7 +522,7 @@ on the KDF itself, on the definition of `LabeledExtract`, and on the
 constant labels used together with them. See {{kdf-input-length}} for
 precise limits on these lengths.
 
-The key, nonce, and exporter_secret computed by this algorithm have the
+The `key`, `nonce`, and `exporter_secret` computed by this algorithm have the
 property that they are only known to the holder of the recipient private
 key, and the entity that used the KEM to generate `zz` and `enc`.
 If the AuthEncap function of the KEM was used to generate `zz` and `enc`,
@@ -821,12 +821,12 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM                            | Nzz  | Nenc | Npk | Nsk | Reference                    |
-|:-------|:-------------------------------|:-----|:-----|:----|:----|:-----------------------------|
-| 0x0000 | (reserved)                     | N/A  | N/A  | N/A | N/A | N/A                          |
-| 0x0010 | DHKEM(P-256, HKDF-SHA256)      | 32   | 65   | 65  | 32  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0011 | DHKEM(P-384, HKDF-SHA384)      | 48   | 97   | 97  | 48  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0012 | DHKEM(P-521, HKDF-SHA512)      | 64   | 133  | 133 | 66  | {{NISTCurves}}, {{?RFC5869}} |
+| Value  | KEM                        | Nzz  | Nenc | Npk | Nsk | Reference                    |
+|:-------|:---------------------------|:-----|:-----|:----|:----|:-----------------------------|
+| 0x0000 | (reserved)                 | N/A  | N/A  | N/A | N/A | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)  | 32   | 65   | 65  | 32  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)  | 48   | 97   | 97  | 48  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64   | 133  | 133 | 66  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32   | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
 | 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64   | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
