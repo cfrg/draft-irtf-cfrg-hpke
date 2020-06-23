@@ -976,27 +976,61 @@ against active and adaptive attackers that can compromise partial
 secrets of senders and recipients. The desired security goals are
 detailed below:
 
-- Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
-security
-- Export key secrecy: Indistinguishability of each export
-secret from a uniformly random bitstring of equal length
-- Sender authentication: Proof of sender origin for PSK, Auth, and
-AuthPSK modes
+* Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
+  security
+* Export key secrecy: Indistinguishability of each export
+  secret from a uniformly random bitstring of equal length
+* Sender authentication: Proof of sender origin for PSK, Auth, and
+  AuthPSK modes
 
-It is shown in {{CS01}} that a hybrid scheme of essentially the same
-form described here is IND-CCA2-secure as long as the the underlying KEM
-and AEAD schemes are IND-CCA2-secure.  The main difference between the
-scheme proposed there and the scheme in this document (both named HPKE)
-is that we interpose some KDF calls between the KEM and
-the AEAD.  So further analysis is needed on two fronts, first to verify
-that the additional KDF calls do not cause the IND-CCA2 property to
-fail, and second to verify the two additional properties noted above.
+These security goals are expected to hold for any honest sender and
+honst recipient keys, as well as if the honest sender and honest
+recipient keys are the same. The latter is useful for encrypt-to-self
+settings like for example file encryption.
+
+As noted in {{non-goals}}, HPKE does not provide forward secrecy.
+In the Base mode, the secrecy properties are only expected to
+hold if the recipient private key skR is not compromised at any point
+in time. In the PSK and AuthPSK modes, the secrecy properties are
+expected to hold if the recipient private key skR and the pre-shared key
+are not both compromised at any point in time.
+
+In the Auth mode, sender authentication is generally expected to hold if
+the sender private key skS is not compromised at the time of message
+reception. In the AuthPSK mode, sender authentication is generally
+expected to hold if at the time of message reception, the sender private
+key skS and the pre-shared key are not both compromised. However, it is
+important to note that the DHKEM variants defined in this document are
+vulnerable to key-compromise impersonation, which means that sender
+authentication cannot be expected to hold in the Auth mode if the
+recipient private key skR is compromised, and in the AuthPSK mode if the
+pre-shared key and the recipient private key skR are both compromised.
+
+With the two preceeding paragraphs it becomes apparent that the
+pre-shared key strengthens both the authentication and the secrecy
+properties in certain adversary models. One particular example in which
+this can be useful is a hybrid quantum setting: when a
+non-quantum-resistant KEM used with HPKE is eventually broken by a
+quantum computer, the security properties are preserved through the use
+of a pre-shared key. This assumes that the pre-shared key has not been
+compromised by this time, as described in {{WireGuard}}.
+
+It is shown in {{CS01}} that a hybrid public-key encryption scheme of
+essentially the same form described here is IND-CCA2-secure as long as
+the underlying KEM and AEAD schemes are IND-CCA2-secure. The main
+difference between the scheme proposed there and the scheme in this
+document (both named HPKE) is that we interpose some KDF calls between
+the KEM and the AEAD. So further analysis is needed on two fronts, first
+to verify that the additional KDF calls do not cause the IND-CCA2
+property to fail, and second to verify the two additional properties
+noted above (export key secrecy and sender authentication).
 
 This work has been done for the case where the KEM is DHKEM, the AEAD is
-any IND-CCA2 scheme, and the DH group and KDF satisfy the following
-conditions:
+any IND-CCA2-secure scheme, and the DH group and KDF satisfy the
+following conditions:
 
-- DH group: The gap Diffie-Hellman (GDH) problem is hard {{GAP}}.
+- DH group: The gap Diffie-Hellman (GDH) problem is hard in the
+  appropriate subgroup {{GAP}}.
 - Extract and Expand (in DHKEM): Extract is indifferentiable from a
   random oracle. Expand is a pseudorandom function, wherein the first
   argument is the key.
@@ -1005,43 +1039,42 @@ conditions:
   argument is the key.
 
 In particular, the KDFs and DH groups defined in this document (see
-{{kdf-ids}} and {{kem-ids}}) satisfy these properties when used as specified.
+{{kdf-ids}} and {{kem-ids}}) satisfy these properties when used as
+specified.
 
 The analysis in {{HPKEAnalysis}} demonstrates that under these
 constraints, HPKE continues to provide IND-CCA2 security, and provides
-the additional properties noted above.  The analysis considers two
-variants of HPKE usage: single-shot message encryption and secret key
-export. In the single-shot variant, S uses the single-shot API to use
-the key once to encrypt a plaintext. The export variant is the same as
-single-shot variant, except that the sender additionally exports two
-independent secrets using the secret export interface. We distinguish
-these two variants because the single-shot API does not lend itself to
-use the Export interface.
+the additional properties noted above. Also, the analysis confirms the
+expected properties hold under the different key compromise cases
+mentioned above. The analysis considers a sender that sends one message
+using the encryption context, and additionally exports two independent
+secrets using the secret export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
 means that a property does not apply for the given mode, whereas X means
 the given mode satisfies the property.
 
-| Variant              | Message Sec. | Export Sec. | Sender Auth. |
-|:---------------------|:------------:|:-----------:|:------------:|
-| Base, single-shot    | X            | N/A         | N/A          |
-| PSK, single-shot     | X            | N/A         | X            |
-| Auth, single-shot    | X            | N/A         | X            |
-| AuthPSK, single-shot | X            | N/A         | X            |
-| Base, export         | X            | X           | N/A          |
-| PSK, export          | X            | X           | X            |
-| Auth, export         | X            | X           | X            |
-| AuthPSK, export      | X            | X           | X            |
+| Variant | Message Sec. | Export Sec. | Sender Auth. |
+|:--------|:------------:|:-----------:|:------------:|
+| Base    | X            | X           | N/A          |
+| PSK     | X            | X           | X            |
+| Auth    | X            | X           | X            |
+| AuthPSK | X            | X           | X            |
 
-If non-DH-based KEM schemes are to be used with HPKE, further analysis
-will be necessary to prove their security.  The results from {{CS01}}
-provide some indication that any IND-CCA2 KEM will suffice here, but are
-not conclusive given the difference in schemes.
+If non-DH-based KEMs are to be used with HPKE, further analysis will be
+necessary to prove their security. The results from {{CS01}} provide
+some indication that any IND-CCA2-secure KEM will suffice here, but are
+not conclusive given the differences in the schemes.
 
-In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
-security models and assumptions, and do not consider attackers capable of quantum
-computation. A full proof of post-quantum security would need to take this
-difference into account, in addition to simply using a post-quantum KEM.
+In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on
+classical security models and assumptions, and do not consider
+adversaries capable of quantum computation. A full proof of post-quantum
+security would need to take appropriate security models and assumptions
+into account, in addition to simply using a post-quantum KEM. The hybrid
+quantum-resistance property described above, which is achieved by using
+the PSK or AuthPSK mode, is proven in {{HPKEAnalysis}}; in a quantum
+setting, the remaining security level is smaller and defined by the
+post-quantum security level of the AEAD scheme.
 
 ## Security Requirements on a KEM used within HPKE
 
@@ -1117,7 +1150,7 @@ ensures that any secrets derived in HPKE are bound to the scheme's name,
 even when possibly derived from the same Diffie-Hellman or KEM shared
 secret as in another scheme.
 
-## External Requirements / Non-Goals
+## External Requirements / Non-Goals {#non-goals}
 
 HPKE is designed to be a fairly low-level primitive, and thus does not provide
 several features that a more high-level protocol might provide, for example:
