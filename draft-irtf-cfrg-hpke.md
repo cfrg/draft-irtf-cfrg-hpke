@@ -98,7 +98,7 @@ informative:
       -
         ins: B. Lipp
         name: Benjamin Lipp
-        org: INRIA Paris
+        org: Inria Paris
 
   MAEA10:
     title: "A Comparison of the Standardized Versions of ECIES"
