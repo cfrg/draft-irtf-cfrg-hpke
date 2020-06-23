@@ -847,11 +847,11 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp:prk"), ikm)
+  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
   sk = 0
   counter = 1
   while sk == 0 or sk >= order:
-    bytes = LabeledExpand(prk, "candidate", I2OSP(counter, 1), Nsk)
+    bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
@@ -866,8 +866,8 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp:prk"), ikm)
-  sk = LabeledExpand(prk, "sk", zero(0), Nsk)
+  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
 
