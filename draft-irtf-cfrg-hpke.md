@@ -291,7 +291,7 @@ HPKE variants rely on the following primitives:
     public key (note: this function can raise an error upon `enc` deserialization failure)
   - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
-    by the holder of the private key corresponding to pk
+    by the holder of the private key corresponding to `pk`
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key (the KEM shared secret) from its encapsulated representation `enc`
   - AuthEncap(pkR, skS) (optional): Same as Encap(), but the outputs
@@ -1030,6 +1030,19 @@ In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on classical
 security models and assumptions, and do not consider attackers capable of quantum
 computation. A full proof of post-quantum security would need to take this
 difference into account, in addition to simply using a post-quantum KEM.
+
+## Key Compromise Impersonation
+
+Both the Auth and AuthPSK modes of DHKEM are susceptible to Key Compromise
+Impersonation (KCI) attacks {{?BJM97=DOI.10.1007/BFb0024447}}. Specifically,
+if an adversary compromises `skR` for some receiver, then the adversary can
+forge new messages from any `pkS` to that receiver. These ciphertexts will
+decrypt properly even though they were not produced by an entity holding `skS`.
+
+Applications that require KCI resistance SHOULD take extra steps to prevent
+this attack. One possibility is to produce a digital signature over the Auth
+and AuthPSK `enc` output using the sender's private key, as a proof of
+possession.
 
 ## Security Requirements on a KEM used within HPKE
 
