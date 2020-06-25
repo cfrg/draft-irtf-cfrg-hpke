@@ -367,8 +367,8 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dh"), dh)
-  return LabeledExpand(prk, concat(I2OSP(kem_id, 2), "prk"), kemContext, Nzz)
+  eae_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "eae_prk"), dh)
+  return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
 
 def Encap(pkR):
   skE, pkE = DeriveKeyPair(random(Nsk))
@@ -847,12 +847,13 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), I2OSP(kem_id, 2), ikm)
+  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
   sk = 0
-  counter = 1
+  counter = 0
   while sk == 0 or sk >= order:
-    label = concat("candidate ", I2OSP(counter, 1))
-    bytes = Expand(prk, label, Nsk)
+    if counter > 255:
+      raise DeriveKeyPairError
+    bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
@@ -861,14 +862,16 @@ def DeriveKeyPair(ikm):
 
 where `order` is the order of the curve being used (this can be found in
 section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
-and P-384, and 0x01 for P-521.
+and P-384, and 0x01 for P-521. The precise likelihood of DeriveKeyPair
+failing with DeriveKeyPairError depends on the group being used, but it
+is negligibly small in all cases.
 
 For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  prk = LabeledExtract(zero(0), I2OSP(kem_id, 2), ikm)
-  sk = Expand(prk, zero(0), Nsk)
+  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
 
