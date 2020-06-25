@@ -851,6 +851,8 @@ def DeriveKeyPair(ikm):
   sk = 0
   counter = 1
   while sk == 0 or sk >= order:
+    if counter > 255:
+      raise DeriveKeyPairError
     bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
@@ -860,7 +862,8 @@ def DeriveKeyPair(ikm):
 
 where `order` is the order of the curve being used (this can be found in
 section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
-and P-384, and 0x01 for P-521.
+and P-384, and 0x01 for P-521. The likelihood of DeriveKeyPair failing
+with DeriveKeyPairError is 2^(-8160).
 
 For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
