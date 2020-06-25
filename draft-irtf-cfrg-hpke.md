@@ -367,8 +367,8 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "prk"), dh)
-  return LabeledExpand(prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
+  eae_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "eae_prk"), dh)
+  return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
 
 def Encap(pkR):
   skE, pkE = DeriveKeyPair(random(Nsk))
