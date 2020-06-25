@@ -849,7 +849,7 @@ rejection sampling over field elements:
 def DeriveKeyPair(ikm):
   dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
   sk = 0
-  counter = 1
+  counter = 0
   while sk == 0 or sk >= order:
     if counter > 255:
       raise DeriveKeyPairError
