@@ -985,8 +985,7 @@ detailed below:
 
 These security goals are expected to hold for any honest sender and
 honst recipient keys, as well as if the honest sender and honest
-recipient keys are the same. The latter is useful for encrypt-to-self
-settings like for example file encryption.
+recipient keys are the same.
 
 As noted in {{non-goals}}, HPKE does not provide forward secrecy.
 In the Base mode, the secrecy properties are only expected to
@@ -1006,28 +1005,28 @@ authentication cannot be expected to hold in the Auth mode if the
 recipient private key skR is compromised, and in the AuthPSK mode if the
 pre-shared key and the recipient private key skR are both compromised.
 
-With the two preceeding paragraphs it becomes apparent that the
-pre-shared key strengthens both the authentication and the secrecy
-properties in certain adversary models. One particular example in which
-this can be useful is a hybrid quantum setting: when a
-non-quantum-resistant KEM used with HPKE is eventually broken by a
+Given these properties, pre-shared keys strengthen both the authentication and the 
+secrecy properties in certain adversary models. One particular example in which
+this can be useful is a hybrid quantum setting: if a
+non-quantum-resistant KEM used with HPKE is broken by a
 quantum computer, the security properties are preserved through the use
 of a pre-shared key. This assumes that the pre-shared key has not been
-compromised by this time, as described in {{WireGuard}}.
+compromised, as described in {{WireGuard}}.
 
 It is shown in {{CS01}} that a hybrid public-key encryption scheme of
 essentially the same form described here is IND-CCA2-secure as long as
 the underlying KEM and AEAD schemes are IND-CCA2-secure. The main
 difference between the scheme proposed there and the scheme in this
 document (both named HPKE) is that we interpose some KDF calls between
-the KEM and the AEAD. So further analysis is needed on two fronts, first
-to verify that the additional KDF calls do not cause the IND-CCA2
-property to fail, and second to verify the two additional properties
-noted above (export key secrecy and sender authentication).
+the KEM and the AEAD. Analyzing the HPKE instantiation in this
+document therefore required verifying that the additional KDF calls 
+do not cause the IND-CCA2 property to fail, as well as verifying the 
+two additional properties noted above (export key secrecy and 
+sender authentication).
 
 This work has been done for the case where the KEM is DHKEM, the AEAD is
 any IND-CCA2-secure scheme, and the DH group and KDF satisfy the
-following conditions:
+following conditions {{HPKEAnalysis}}:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard in the
   appropriate subgroup {{GAP}}.
