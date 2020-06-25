@@ -863,7 +863,7 @@ def DeriveKeyPair(ikm):
 where `order` is the order of the curve being used (this can be found in
 section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
 and P-384, and 0x01 for P-521. The likelihood of DeriveKeyPair failing
-with DeriveKeyPairError is 2^(-8160).
+with DeriveKeyPairError depends on the group, but is negligible.
 
 For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
