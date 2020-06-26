@@ -20,6 +20,10 @@ author:
     name: Karthik Bhargavan
     org: Inria
     email: karthikeyan.bhargavan@inria.fr
+ -  ins: B. Lipp
+    name: Benjamin Lipp
+    org: Inria
+    email: benjamin.lipp@inria.fr
  -  ins: C. A. Wood
     name: Christopher A. Wood
     org: Cloudflare
@@ -1243,8 +1247,7 @@ Initial contents: Provided in {{aead-ids}}
 
 # Acknowledgements
 
-This document benefited greatly from analysis done by Benjamin Lipp. The authors
-would also like to thank
+The authors would like to thank
 David Benjamin,
 Benjamin Beurdouche,
 Frank Denis,
@@ -1254,7 +1257,7 @@ Michael Scott,
 Raphael Robert,
 Steven Valdez,
 Riad Wahby,
-and other contributors in the CFRG for helpful feedback that improved this document.
+and other contributors in the CFRG for helpful feedback that greatly improved this document.
 
 --- back
 
