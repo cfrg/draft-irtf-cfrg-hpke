@@ -348,7 +348,7 @@ primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
 The following two functions are defined to facilitate domain separation of
-KDF calls as well as context binding.
+KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
