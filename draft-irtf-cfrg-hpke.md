@@ -347,8 +347,8 @@ A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
-The following two functions are defined for a KDF to facilitate domain
-separation of calls as well as context binding:
+The following two functions are defined to facilitate domain separation of
+KDF calls as well as context binding.
 
 ~~~
 def LabeledExtract(salt, label, IKM):
@@ -385,8 +385,18 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  eae_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "eae_prk"), dh)
-  return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
+  eae_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "eae_prk"),
+    dh
+  )
+  zz = LabeledExpand(
+    eae_prk,
+    concat(I2OSP(kem_id, 2), "zz"),
+    kemContext,
+    Nzz
+  )
+  return zz
 
 def Encap(pkR):
   skE, pkE = DeriveKeyPair(random(Nsk))
@@ -571,16 +581,21 @@ def VerifyPSKInputs(mode, psk, pskID):
 def KeySchedule(mode, zz, info, psk, pskID):
   VerifyPSKInputs(mode, psk, pskID)
 
-  ciphersuite = concat(I2OSP(kem_id, 2),
-                       I2OSP(kdf_id, 2),
-                       I2OSP(aead_id, 2))
-  pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
-  info_hash = LabeledExtract(zero(0), "info_hash", info)
-  key_schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
+  identifier = concat(
+    ISO2P(mode, 1),
+    I2OSP(kem_id, 2),
+    I2OSP(kdf_id, 2),
+    I2OSP(aead_id, 2)
+  )
 
-  psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
+  pskID_hash = LabeledExtract(zero(0), concat(identifier, "pskID_hash"), pskID)
+  info_hash = LabeledExtract(zero(0), concat(identifier, "info_hash"), info)
+  key_schedule_context = concat(identifier, pskID_hash, info_hash)
 
-  secret = LabeledExtract(psk_hash, "secret", zz)
+  psk_hash = LabeledExtract(zero(0), concat(identifier, "psk_hash"), psk)
+
+  secret = LabeledExtract(psk_hash, concat(identifier, "secret"), zz)
+
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
   nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
@@ -596,10 +611,10 @@ syntax:
 
 ~~~~~
 struct {
+    uint8 mode;
     uint16 kem_id;
     uint16 kdf_id;
     uint16 aead_id;
-    uint8 mode;
     opaque pskID_hash[Nh];
     opaque info_hash[Nh];
 } KeyScheduleContext;
@@ -877,13 +892,22 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "dkp_prk"),
+    ikm
+  )
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
     if counter > 255:
       raise DeriveKeyPairError
-    bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
+    bytes = LabeledExpand(
+      dkp_prk,
+      concat(I2OSP(kem_id, 2), "candidate"),
+      I2OSP(counter, 1),
+      Nsk
+    )
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
@@ -900,7 +924,11 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "dkp_prk"),
+    ikm
+  )
   sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
