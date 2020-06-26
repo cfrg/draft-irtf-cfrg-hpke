@@ -22,7 +22,7 @@ author:
     email: karthikeyan.bhargavan@inria.fr
  -  ins: B. Lipp
     name: Benjamin Lipp
-    org: INRIA Paris
+    org: Inria
     email: benjamin.lipp@inria.fr
  -  ins: C. A. Wood
     name: Christopher A. Wood
