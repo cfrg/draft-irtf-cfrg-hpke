@@ -637,7 +637,7 @@ byte string `pskID` that is used to identify which PSK should be used.
 
 The primary differences from the base case are:
 
-* The PSK is used as the `salt` input to the KDF (instead of a 
+* The PSK is used as the `salt` input to the KDF (instead of a
   constant value)
 * The PSK ID is added to the context string used as the `info` input
   to the KDF
@@ -668,11 +668,10 @@ to `pkS`.  In other words, only two entities could have produced this
 secret, so if the recipient is one, then the sender is the other
 with overwhelming probability.
 
-The primary differences from the base case are:
-
-* The calls to `Encap` and `Decap` are replaced with calls to
-  `AuthEncap` and `AuthDecap`, which add the sender public key to their
-  internal context string
+The primary difference from the base case is that the calls to
+`Encap` and `Decap` are replaced with calls to `AuthEncap` and
+`AuthDecap`, which add the sender public key to their internal
+context string.
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
@@ -1034,7 +1033,7 @@ SHOULD take extra steps to prevent this attack. One possibility is to
 produce a digital signature over the Auth and AuthPSK `enc` output using
 a sender's private key, as a proof of possession.
 
-Given these properties, pre-shared keys strengthen both the authentication and the 
+Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
 non-quantum-resistant KEM used with HPKE is broken by a
@@ -1048,9 +1047,9 @@ the underlying KEM and AEAD schemes are IND-CCA2-secure. The main
 difference between the scheme proposed there and the scheme in this
 document (both named HPKE) is that we interpose some KDF calls between
 the KEM and the AEAD. Analyzing the HPKE instantiation in this
-document therefore required verifying that the additional KDF calls 
-do not cause the IND-CCA2 property to fail, as well as verifying the 
-two additional properties noted above (export key secrecy and 
+document therefore required verifying that the additional KDF calls
+do not cause the IND-CCA2 property to fail, as well as verifying the
+two additional properties noted above (export key secrecy and
 sender authentication).
 
 This work has been done for the case where the KEM is DHKEM, the AEAD is
