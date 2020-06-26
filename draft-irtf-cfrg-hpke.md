@@ -367,8 +367,12 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  eae_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "eae_prk"), dh)
-  return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
+  eae_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "eae_prk"),
+    dh
+  )
+  return LabeledExpand(eae_prk, "zz", kemContext, Nzz)
 
 def Encap(pkR):
   skE, pkE = DeriveKeyPair(random(Nsk))
@@ -542,9 +546,11 @@ def VerifyPSKInputs(mode, psk, pskID):
 def KeySchedule(mode, zz, info, psk, pskID):
   VerifyPSKInputs(mode, psk, pskID)
 
-  ciphersuite = concat(I2OSP(kem_id, 2),
-                       I2OSP(kdf_id, 2),
-                       I2OSP(aead_id, 2))
+  ciphersuite = concat(
+    I2OSP(kem_id, 2),
+    I2OSP(kdf_id, 2),
+    I2OSP(aead_id, 2)
+  )
   pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
   info_hash = LabeledExtract(zero(0), "info_hash", info)
   key_schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
@@ -847,7 +853,11 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "dkp_prk"),
+    ikm
+  )
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
@@ -870,7 +880,11 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(
+    zero(0),
+    concat(I2OSP(kem_id, 2), "dkp_prk"),
+    ikm
+  )
   sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
