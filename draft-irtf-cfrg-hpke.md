@@ -448,7 +448,6 @@ in {{kem-ids}}:
 identifier = I2OSP(kem_id, 2)
 ~~~
 
-
 The KDF used in DHKEM can be equal to or different from the KDF used
 in the remainder of HPKE, depending on the chosen variant.
 Implementations MUST make sure to use the constants (Nh) and function
