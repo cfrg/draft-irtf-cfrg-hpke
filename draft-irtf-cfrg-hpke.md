@@ -352,15 +352,21 @@ KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeledIKM = concat("RFCXXXX ", label, IKM)
+  labeledIKM = concat("RFCXXXX ", identifier, label, IKM)
   return Extract(salt, labeledIKM)
 
 def LabeledExpand(PRK, label, info, L):
-  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", label, info)
+  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", identifier, label, info)
   return Expand(PRK, labeledInfo, L)
 ~~~
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
+The value of `identifier` depends on where the KDF is used; it is assumed
+implicit from the implementation and not passed as parameter. If used
+inside a KEM algorithm, `identifier` MUST identify this KEM algorithm;
+if used in the remainder of HPKE, it MUST identify the entire ciphersuite
+in use. See sections {{dhkem}} and {{encryption-context}} for details.
 
 ## DH-Based KEM {#dhkem}
 
@@ -385,17 +391,8 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  eae_prk = LabeledExtract(
-    zero(0),
-    concat(I2OSP(kem_id, 2), "eae_prk"),
-    dh
-  )
-  zz = LabeledExpand(
-    eae_prk,
-    concat(I2OSP(kem_id, 2), "zz"),
-    kemContext,
-    Nzz
-  )
+  eae_prk = LabeledExtract(zero(0), "eae_prk", dh)
+  zz = LabeledExpand(eae_prk, "zz", kemContext, Nzz)
   return zz
 
 def Encap(pkR):
@@ -442,6 +439,14 @@ def AuthDecap(enc, skR, pkS):
   zz = ExtractAndExpand(dh, kemContext)
   return zz
 ~~~
+
+The `identifier` value used within `LabeledExtract` and `LabeledExpand`
+is defined as follows:
+
+~~~
+identifier = I2OSP(kem_id, 2)
+~~~
+
 
 The KDF used in DHKEM can be equal to or different from the KDF used
 in the remainder of HPKE, depending on the chosen variant.
@@ -521,7 +526,7 @@ which define new KEMs MUST indicate whether or not these modes are supported.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
-## Creating the Encryption Context
+## Creating the Encryption Context {#encryption-context}
 
 The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
@@ -562,7 +567,17 @@ pre-shared key (PSK). See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
 AEAD `aead_id` 2-byte code points, are assumed implicit from the
-implementation and not passed as parameters.
+implementation and not passed as parameters. The implicit `identifier`
+value used within `LabeledExtract` and `LabeledExpand` is defined based
+on them as follows:
+
+~~~
+identifier = concat(
+  I2OSP(kem_id, 2),
+  I2OSP(kdf_id, 2),
+  I2OSP(aead_id, 2)
+)
+~~~
 
 ~~~~~
 default_psk = zero(0)
@@ -581,20 +596,13 @@ def VerifyPSKInputs(mode, psk, pskID):
 def KeySchedule(mode, zz, info, psk, pskID):
   VerifyPSKInputs(mode, psk, pskID)
 
-  identifier = concat(
-    ISO2P(mode, 1),
-    I2OSP(kem_id, 2),
-    I2OSP(kdf_id, 2),
-    I2OSP(aead_id, 2)
-  )
+  pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
+  info_hash = LabeledExtract(zero(0), "info_hash", info)
+  key_schedule_context = concat(mode, pskID_hash, info_hash)
 
-  pskID_hash = LabeledExtract(zero(0), concat(identifier, "pskID_hash"), pskID)
-  info_hash = LabeledExtract(zero(0), concat(identifier, "info_hash"), info)
-  key_schedule_context = concat(identifier, pskID_hash, info_hash)
+  psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
 
-  psk_hash = LabeledExtract(zero(0), concat(identifier, "psk_hash"), psk)
-
-  secret = LabeledExtract(psk_hash, concat(identifier, "secret"), zz)
+  secret = LabeledExtract(psk_hash, "secret", zz)
 
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
   nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
@@ -612,9 +620,6 @@ syntax:
 ~~~~~
 struct {
     uint8 mode;
-    uint16 kem_id;
-    uint16 kdf_id;
-    uint16 aead_id;
     opaque pskID_hash[Nh];
     opaque info_hash[Nh];
 } KeyScheduleContext;
@@ -892,22 +897,13 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(
-    zero(0),
-    concat(I2OSP(kem_id, 2), "dkp_prk"),
-    ikm
-  )
+  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
     if counter > 255:
       raise DeriveKeyPairError
-    bytes = LabeledExpand(
-      dkp_prk,
-      concat(I2OSP(kem_id, 2), "candidate"),
-      I2OSP(counter, 1),
-      Nsk
-    )
+    bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
@@ -924,11 +920,7 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(
-    zero(0),
-    concat(I2OSP(kem_id, 2), "dkp_prk"),
-    ikm
-  )
+  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
   sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
