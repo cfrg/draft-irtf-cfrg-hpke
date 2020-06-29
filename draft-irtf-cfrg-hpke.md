@@ -348,6 +348,8 @@ A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
+Note that `GenerateKeyPair` can be implemented as `DeriveKeyPair(random(Nsk))`.
+
 The following two functions are defined for a KDF to facilitate domain
 separation of calls as well as context binding:
 
