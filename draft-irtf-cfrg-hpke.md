@@ -368,7 +368,7 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
-- GenerateKeyPair(): Generate an ephemeral key pair `(sk, pk)`
+- GenerateKeyPair(): Generate an ephemeral key pair `(skX, pkX)`
   for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
