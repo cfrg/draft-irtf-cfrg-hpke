@@ -300,6 +300,7 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
+  - GenerateKeyPair(): Generate a key pair (skX, pkX)
   - DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from the byte string `ikm`,
     where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
     {{derive-key-pair}} for discussion)
@@ -347,6 +348,8 @@ A set of algorithm identifiers for concrete instantiations of these
 primitives is provided in {{ciphersuites}}.  Algorithm identifier
 values are two bytes long.
 
+Note that `GenerateKeyPair` can be implemented as `DeriveKeyPair(random(Nsk))`.
+
 The following two functions are defined for a KDF to facilitate domain
 separation of calls as well as context binding:
 
@@ -367,6 +370,8 @@ def LabeledExpand(PRK, label, info, L):
 Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
+- GenerateKeyPair(): Generate an ephemeral key pair `(skX, pkX)`
+  for the DH group in use
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -389,7 +394,7 @@ def ExtractAndExpand(dh, kemContext):
   return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
 
 def Encap(pkR):
-  skE, pkE = DeriveKeyPair(random(Nsk))
+  skE, pkE = GenerateKeyPair()
   dh = DH(skE, pkR)
   enc = Serialize(pkE)
 
@@ -410,7 +415,7 @@ def Decap(enc, skR):
   return zz
 
 def AuthEncap(pkR, skS):
-  skE, pkE = DeriveKeyPair(random(Nsk))
+  skE, pkE = GenerateKeyPair()
   dh = concat(DH(skE, pkR), DH(skS, pkR))
   enc = Serialize(pkE)
 
