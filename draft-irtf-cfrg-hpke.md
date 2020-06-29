@@ -300,7 +300,7 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - GenerateKeyPair(): Generate a key pair (sk, pk)
+  - GenerateKeyPair(): Generate a key pair (skX, pkX)
   - DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from the byte string `ikm`,
     where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
     {{derive-key-pair}} for discussion)
