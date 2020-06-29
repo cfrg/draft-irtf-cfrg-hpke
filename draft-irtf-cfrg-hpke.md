@@ -440,8 +440,9 @@ def AuthDecap(enc, skR, pkS):
   return zz
 ~~~
 
-The `identifier` value used within `LabeledExtract` and `LabeledExpand`
-is defined as follows:
+The implicit `identifier` value used within `LabeledExtract` and
+`LabeledExpand` is defined as follows, where `kem_id` is defined
+in {{kem-ids}}:
 
 ~~~
 identifier = I2OSP(kem_id, 2)
@@ -566,10 +567,10 @@ then the recipient is assured that the sender held the corresponding
 pre-shared key (PSK). See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
-AEAD `aead_id` 2-byte code points, are assumed implicit from the
-implementation and not passed as parameters. The implicit `identifier`
-value used within `LabeledExtract` and `LabeledExpand` is defined based
-on them as follows:
+AEAD `aead_id` 2-byte code points as defined in {{ciphersuites}}, are
+assumed implicit from the implementation and not passed as parameters.
+The implicit `identifier` value used within `LabeledExtract` and
+`LabeledExpand` is defined based on them as follows:
 
 ~~~
 identifier = concat(
