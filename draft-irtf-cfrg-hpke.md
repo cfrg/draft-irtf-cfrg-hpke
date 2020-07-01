@@ -352,21 +352,22 @@ KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeledIKM = concat("RFCXXXX ", identifier, label, IKM)
+  labeledIKM = concat("RFCXXXX ", suite_id, label, IKM)
   return Extract(salt, labeledIKM)
 
 def LabeledExpand(PRK, label, info, L):
-  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", identifier, label, info)
+  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", suite_id, label, info)
   return Expand(PRK, labeledInfo, L)
 ~~~
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
 
-The value of `identifier` depends on where the KDF is used; it is assumed
+The value of `suite_id` depends on where the KDF is used; it is assumed
 implicit from the implementation and not passed as parameter. If used
-inside a KEM algorithm, `identifier` MUST identify this KEM algorithm;
-if used in the remainder of HPKE, it MUST identify the entire ciphersuite
-in use. See sections {{dhkem}} and {{encryption-context}} for details.
+inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
+this KEM algorithm; if used in the remainder of HPKE, it MUST start with
+"DEM" and identify the entire ciphersuite in use. See sections {{dhkem}}
+and {{encryption-context}} for details.
 
 ## DH-Based KEM {#dhkem}
 
@@ -440,12 +441,12 @@ def AuthDecap(enc, skR, pkS):
   return zz
 ~~~
 
-The implicit `identifier` value used within `LabeledExtract` and
+The implicit `suite_id` value used within `LabeledExtract` and
 `LabeledExpand` is defined as follows, where `kem_id` is defined
 in {{kem-ids}}:
 
 ~~~
-identifier = I2OSP(kem_id, 2)
+suite_id = concat("KEM", I2OSP(kem_id, 2))
 ~~~
 
 The KDF used in DHKEM can be equal to or different from the KDF used
@@ -568,11 +569,12 @@ pre-shared key (PSK). See {{sec-properties}} for more details.
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
 AEAD `aead_id` 2-byte code points as defined in {{ciphersuites}}, are
 assumed implicit from the implementation and not passed as parameters.
-The implicit `identifier` value used within `LabeledExtract` and
+The implicit `suite_id` value used within `LabeledExtract` and
 `LabeledExpand` is defined based on them as follows:
 
 ~~~
-identifier = concat(
+suite_id = concat(
+  "DEM",
   I2OSP(kem_id, 2),
   I2OSP(kdf_id, 2),
   I2OSP(aead_id, 2)
@@ -966,10 +968,10 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 81  | 2^{125} - 145 | 2^{125} - 145 |
-| pskID            | 2^{61} - 83  | 2^{125} - 147 | 2^{125} - 147 |
-| info             | 2^{61} - 82  | 2^{125} - 146 | 2^{125} - 146 |
-| exporter_context | 2^{61} - 111 | 2^{125} - 191 | 2^{125} - 207 |
+| psk              | 2^{61} - 90  | 2^{125} - 154 | 2^{125} - 154 |
+| pskID            | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
+| info             | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| exporter_context | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
 
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
@@ -981,20 +983,21 @@ The values for `psk`, `pskID`, and `info` which are inputs to
 `LabeledExtract` were computed with the following expression:
 
 ~~~
-max_size_hash_input - Nb - size_label_rfcXXXX - size_input_label
+max_size_hash_input - Nb - size_label_rfcXXXX - size_suite_id - size_input_label
 ~~~
 
 The value for `exporter_context` which is an input to `LabeledExpand`
 was computed with the following expression:
 
 ~~~
-max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_input_label - 2 - 1
+max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_suite_id - size_input_label - 2 - 1
 ~~~
 
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "RFCXXXX " in bytes and equals 8, and `size_input_label` is the size
+of "RFCXXXX " in bytes and equals 8, `size_suite_id` is the size of the
+`suite_id` and equals 9, and `size_input_label` is the size
 of the label used as parameter to `LabeledExtract` or `LabeledExpand`.
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
