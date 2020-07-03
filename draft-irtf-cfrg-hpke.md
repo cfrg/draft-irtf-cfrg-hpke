@@ -350,20 +350,27 @@ values are two bytes long.
 
 Note that `GenerateKeyPair` can be implemented as `DeriveKeyPair(random(Nsk))`.
 
-The following two functions are defined for a KDF to facilitate domain
-separation of calls as well as context binding:
+The following two functions are defined to facilitate domain separation of
+KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, IKM):
-  labeledIKM = concat("RFCXXXX ", label, IKM)
+  labeledIKM = concat("RFCXXXX ", suite_id, label, IKM)
   return Extract(salt, labeledIKM)
 
 def LabeledExpand(PRK, label, info, L):
-  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", label, info)
+  labeledInfo = concat(I2OSP(L, 2), "RFCXXXX ", suite_id, label, info)
   return Expand(PRK, labeledInfo, L)
 ~~~
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
+
+The value of `suite_id` depends on where the KDF is used; it is assumed
+implicit from the implementation and not passed as parameter. If used
+inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
+this KEM algorithm; if used in the remainder of HPKE, it MUST start with
+"HPKE" and identify the entire ciphersuite in use. See sections {{dhkem}}
+and {{encryption-context}} for details.
 
 ## DH-Based KEM {#dhkem}
 
@@ -390,8 +397,9 @@ function specification for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  eae_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "eae_prk"), dh)
-  return LabeledExpand(eae_prk, concat(I2OSP(kem_id, 2), "zz"), kemContext, Nzz)
+  eae_prk = LabeledExtract(zero(0), "eae_prk", dh)
+  zz = LabeledExpand(eae_prk, "zz", kemContext, Nzz)
+  return zz
 
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
@@ -436,6 +444,14 @@ def AuthDecap(enc, skR, pkS):
 
   zz = ExtractAndExpand(dh, kemContext)
   return zz
+~~~
+
+The implicit `suite_id` value used within `LabeledExtract` and
+`LabeledExpand` is defined as follows, where `kem_id` is defined
+in {{kem-ids}}:
+
+~~~
+suite_id = concat("KEM", I2OSP(kem_id, 2))
 ~~~
 
 The KDF used in DHKEM can be equal to or different from the KDF used
@@ -516,7 +532,7 @@ which define new KEMs MUST indicate whether or not these modes are supported.
 The procedures described in this session are laid out in a
 Python-like pseudocode.  The algorithms in use are left implicit.
 
-## Creating the Encryption Context
+## Creating the Encryption Context {#encryption-context}
 
 The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
@@ -556,8 +572,19 @@ then the recipient is assured that the sender held the corresponding
 pre-shared key (PSK). See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
-AEAD `aead_id` 2-byte code points, are assumed implicit from the
-implementation and not passed as parameters.
+AEAD `aead_id` 2-byte code points as defined in {{ciphersuites}}, are
+assumed implicit from the implementation and not passed as parameters.
+The implicit `suite_id` value used within `LabeledExtract` and
+`LabeledExpand` is defined based on them as follows:
+
+~~~
+suite_id = concat(
+  "HPKE",
+  I2OSP(kem_id, 2),
+  I2OSP(kdf_id, 2),
+  I2OSP(aead_id, 2)
+)
+~~~
 
 ~~~~~
 default_psk = zero(0)
@@ -576,16 +603,14 @@ def VerifyPSKInputs(mode, psk, pskID):
 def KeySchedule(mode, zz, info, psk, pskID):
   VerifyPSKInputs(mode, psk, pskID)
 
-  ciphersuite = concat(I2OSP(kem_id, 2),
-                       I2OSP(kdf_id, 2),
-                       I2OSP(aead_id, 2))
   pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
   info_hash = LabeledExtract(zero(0), "info_hash", info)
-  key_schedule_context = concat(ciphersuite, mode, pskID_hash, info_hash)
+  key_schedule_context = concat(mode, pskID_hash, info_hash)
 
   psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
 
   secret = LabeledExtract(psk_hash, "secret", zz)
+
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
   nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
@@ -601,9 +626,6 @@ syntax:
 
 ~~~~~
 struct {
-    uint16 kem_id;
-    uint16 kdf_id;
-    uint16 aead_id;
     uint8 mode;
     opaque pskID_hash[Nh];
     opaque info_hash[Nh];
@@ -882,7 +904,7 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
@@ -905,7 +927,7 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), concat(I2OSP(kem_id, 2), "dkp_prk"), ikm)
+  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
   sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
   return (sk, pk(sk))
 ~~~
@@ -951,10 +973,10 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 81  | 2^{125} - 145 | 2^{125} - 145 |
-| pskID            | 2^{61} - 83  | 2^{125} - 147 | 2^{125} - 147 |
-| info             | 2^{61} - 82  | 2^{125} - 146 | 2^{125} - 146 |
-| exporter_context | 2^{61} - 111 | 2^{125} - 191 | 2^{125} - 207 |
+| psk              | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| pskID            | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
+| info             | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
+| exporter_context | 2^{61} - 121 | 2^{125} - 201 | 2^{125} - 217 |
 
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
@@ -966,20 +988,21 @@ The values for `psk`, `pskID`, and `info` which are inputs to
 `LabeledExtract` were computed with the following expression:
 
 ~~~
-max_size_hash_input - Nb - size_label_rfcXXXX - size_input_label
+max_size_hash_input - Nb - size_label_rfcXXXX - size_suite_id - size_input_label
 ~~~
 
 The value for `exporter_context` which is an input to `LabeledExpand`
 was computed with the following expression:
 
 ~~~
-max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_input_label - 2 - 1
+max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_suite_id - size_input_label - 2 - 1
 ~~~
 
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "RFCXXXX " in bytes and equals 8, and `size_input_label` is the size
+of "RFCXXXX " in bytes and equals 8, `size_suite_id` is the size of the
+`suite_id` and equals 9, and `size_input_label` is the size
 of the label used as parameter to `LabeledExtract` or `LabeledExpand`.
 
 \[\[RFC editor: please change "RFCXXXX" to the correct number before publication.]]
@@ -1178,7 +1201,7 @@ inputs to the internal invocations of these functions inside Extract or
 Expand. In HPKE's KeySchedule this is avoided by using Extract instead of
 Hash on the arbitrary-length inputs `info`, `pskID`, and `psk`.
 
-The string literal "RFCXXXX" used in LabeledExtract and LabeledExpand
+The string literal "RFCXXXX " used in LabeledExtract and LabeledExpand
 ensures that any secrets derived in HPKE are bound to the scheme's name,
 even when possibly derived from the same Diffie-Hellman or KEM shared
 secret as in another scheme.
