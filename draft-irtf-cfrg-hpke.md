@@ -366,7 +366,7 @@ The value of `suite_id` depends on where the KDF is used; it is assumed
 implicit from the implementation and not passed as parameter. If used
 inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
 this KEM algorithm; if used in the remainder of HPKE, it MUST start with
-"DEM" and identify the entire ciphersuite in use. See sections {{dhkem}}
+"HPKE" and identify the entire ciphersuite in use. See sections {{dhkem}}
 and {{encryption-context}} for details.
 
 ## DH-Based KEM {#dhkem}
@@ -574,7 +574,7 @@ The implicit `suite_id` value used within `LabeledExtract` and
 
 ~~~
 suite_id = concat(
-  "DEM",
+  "HPKE",
   I2OSP(kem_id, 2),
   I2OSP(kdf_id, 2),
   I2OSP(aead_id, 2)
@@ -968,10 +968,10 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 90  | 2^{125} - 154 | 2^{125} - 154 |
-| pskID            | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
-| info             | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
-| exporter_context | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
+| psk              | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| pskID            | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
+| info             | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
+| exporter_context | 2^{61} - 121 | 2^{125} - 201 | 2^{125} - 217 |
 
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
@@ -1196,7 +1196,7 @@ inputs to the internal invocations of these functions inside Extract or
 Expand. In HPKE's KeySchedule this is avoided by using Extract instead of
 Hash on the arbitrary-length inputs `info`, `pskID`, and `psk`.
 
-The string literal "RFCXXXX" used in LabeledExtract and LabeledExpand
+The string literal "RFCXXXX " used in LabeledExtract and LabeledExpand
 ensures that any secrets derived in HPKE are bound to the scheme's name,
 even when possibly derived from the same Diffie-Hellman or KEM shared
 secret as in another scheme.
