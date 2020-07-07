@@ -300,17 +300,26 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - GenerateKeyPair(): Generate a key pair (skX, pkX)
+  - GenerateKeyPair(): Generate a key pair `(skX, pkX)`
   - DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from the byte string `ikm`,
     where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
     {{derive-key-pair}} for discussion)
-  - Serialize(pk): Produce a byte string of length `Npk` encoding the
-    public key `pk`
-  - Deserialize(enc): Parse the byte string `enc` of length `Npk` to recover a
-    public key (note: this function can raise an error upon `enc` deserialization failure)
-  - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the KEM shared secret) and
-    a fixed-length encapsulation of that key that can be decapsulated
-    by the holder of the private key corresponding to pk
+  - SerializePublicKey(pk): Produce a byte string of length `Npk`
+    encoding the KEM public key `pk`. A KEM might provide different
+    encoding algorithms for public keys, with different output
+    lengths `Npk`.
+  - DeserializePublicKey(enc): Parse the byte string `enc` of length `Npk`
+    to recover a KEM public key. This function can raise an error upon
+    `enc` deserialization failure.
+  - SerializeCiphertext(ct): Produce a byte string of length `Nenc`
+    encoding the KEM ciphertext `ct` which encapsulates a KEM shared
+    secret.
+  - DeserializeCiphertext(enc): Parse the byte string `enc` of
+    length `Nenc` to recover a KEM ciphertext. This function can raise
+    an error upon `enc` deserialization failure.
+  - Encap(pk): Generate an ephemeral, fixed-length symmetric key (the
+    KEM shared secret) and a fixed-length encapsulation of that key that
+    can be decapsulated by the holder of the private key corresponding to pk
   - Decap(enc, sk): Use the private key `sk` to recover the ephemeral
     symmetric key (the KEM shared secret) from its encapsulated representation `enc`
   - AuthEncap(pkR, skS) (optional): Same as Encap(), and the outputs
@@ -383,12 +392,17 @@ following operations:
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
 - Serialize(pk): Produce a byte string of length `Npk`
-  encoding the public key `pk`
+  encoding the public key `pk`.
 - Deserialize(enc): Parse a byte string of length `Npk` to recover a
   public key (note: this function can raise an error upon `enc` deserialization failure)
 - Ndh: The length in bytes of a Diffie-Hellman shared secret produced
   by the DH function of this KEM
 - Nsk: The length in bytes of a Diffie-Hellman private key
+
+`Serialize` implements both `SerializePublicKey` and `SerializeCiphertext`,
+as an encapsulated key is a Diffie-Hellman public key in this KEM
+algorithm. Likewise, `Deserialize` implements both `DeserializePublicKey`
+and `DeserializeCiphertext`. `Npk` and `Nenc` are equal.
 
 Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
@@ -1303,7 +1317,11 @@ Template:
 * KEM: The name of the algorithm
 * Nzz: The length in bytes of a KEM shared secret produced by the algorithm
 * Nenc: The length in bytes of an encapsulated key produced by the algorithm
-* Npk: The length in bytes of an encoded public key for the algorithm
+* Npk: The length in bytes of an encoded public key for the algorithm.
+  An algorithm can define different equivalent encodings with different
+  lengths; these different lengths SHOULD be indicated by a list or by
+  a range.
+* Nsk: The length in bytes of an encoded private key for the algorithm.
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kem-ids}}
