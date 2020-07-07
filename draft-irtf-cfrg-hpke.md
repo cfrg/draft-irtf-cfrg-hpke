@@ -965,6 +965,11 @@ For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
+### Future KEMs
+
+{{kem-security}} lists security requirements on a KEM used within HPKE.
+
+
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
 | Value  | KDF         | Nh  | Reference    |
@@ -1145,16 +1150,18 @@ the PSK or AuthPSK mode, is proven in {{HPKEAnalysis}}; in a quantum
 setting, the remaining security level is smaller and defined by the
 post-quantum security level of the AEAD scheme.
 
-## Security Requirements on a KEM used within HPKE
+## Security Requirements on a KEM used within HPKE {#kem-security}
 
-A KEM used within HPKE MUST ensure the following to avoid identity
-mis-binding issues: The KEM shared secret computed by Encap and Decap MUST
-depend explicitly on the KEM public key `pkR` and the encapsulated key `enc`,
-as observed in {{S01}}. The KEM shared secret returned by AuthEncap and AuthDecap
-MUST explicitly depend on the KEM public keys `pkR` and `pkS` and the encapsulated
-key `enc`. This is usually implemented by including these values explicitly into
-the context of the key derivation function used to compute the KEM shared
-secret. This is also how DHKEM meets the requirement.
+A KEM used within HPKE MUST be IND-CCA2-secure.
+
+A KEM that provides the AuthEncap/AuthDecap interface MUST be
+Outsider-Auth-secure. If the application requires resistance against
+key-compromise impersonation, the KEM MUST be Insider-Auth-secure.
+
+TODO:
+- provide a reference for Outsider-Auth and Insider-Auth
+- for IND-CCA2 security, clarify if Outsider-CCA is enough or if
+  Insider-CCA is required (and provide reference for them)
 
 ## Security Requirements on a KDF {#kdf-choice}
 
