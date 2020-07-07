@@ -392,8 +392,10 @@ following operations:
 
 Then we can construct a KEM called `DHKEM(Group, KDF)` in the
 following way, where `Group` denotes the Diffie-Hellman group and
-`KDF` the KDF. {{derive-key-pair}} contains the `DeriveKeyPair`
-function specification for DHKEMs defined in this document.
+`KDF` the KDF. The function parameters `pkR` and `pkS` are deserialized
+public keys, and `enc` is a serialized public key.
+{{derive-key-pair}} contains the `DeriveKeyPair` function specification
+for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
@@ -643,6 +645,9 @@ The KEM shared secret is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
+The parameter `pkR` is a deserialized public key, and `enc` is a
+serialized public key.
+
 ~~~~~
 def SetupBaseS(pkR, info):
   zz, enc = Encap(pkR)
@@ -698,7 +703,8 @@ with overwhelming probability.
 The primary difference from the base case is that the calls to
 `Encap` and `Decap` are replaced with calls to `AuthEncap` and
 `AuthDecap`, which add the sender public key to their internal
-context string.
+context string. The function parameters `pkR` and `pkS` are deserialized
+public keys, and `enc` is a serialized public key.
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
@@ -861,6 +867,9 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
   ctx = SetupAuthPSKR(enc, skR, info, psk, pskID, pkS)
   return ctx.Open(aad, ct)
 ~~~
+
+The function parameters `pkR` and `pkS` are deserialized public keys,
+and `enc` is a serialized public key.
 
 # Algorithm Identifiers {#ciphersuites}
 
