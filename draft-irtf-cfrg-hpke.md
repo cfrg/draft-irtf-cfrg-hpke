@@ -309,15 +309,16 @@ HPKE variants rely on the following primitives:
     the byte string `ikm`, where `ikm` SHOULD have at least `Nsk` bytes
     of entropy (see {{derive-key-pair}} for discussion)
   - SerializePublicKey(pk): Produce a byte string of length `Npk`
-    encoding the KEM public key `pk`. A KEM might provide different
-    encoding algorithms for public keys, with different output
-    lengths `Npk`.
+    encoding the KEM public key `pk`. A KEM MAY provide multiple
+    different equivalent encoding algorithms for public keys, with
+    different output lengths `Npk`.
   - DeserializePublicKey(enc): Parse the byte string `enc` of length `Npk`
     to recover a KEM public key. This function can raise an error upon
     `enc` deserialization failure.
   - SerializeCiphertext(ct): Produce a byte string of length `Nenc`
     encoding the KEM ciphertext `ct` which encapsulates a KEM shared
-    secret.
+    secret. A KEM MAY provide multiple different equivalent encoding
+    algorithms for KEM ciphertexts, with different output lengths `Nenc`.
   - DeserializeCiphertext(enc): Parse the byte string `enc` of
     length `Nenc` to recover a KEM ciphertext. This function can raise
     an error upon `enc` deserialization failure.
@@ -983,6 +984,16 @@ future KEMs different from the DHKEM variants defined in this document:
 These functions are not needed if the KEM algorithm does not employ them
 within the `Encap`, `Decap`, `AuthEncap`, or `AuthDecap` functions.
 
+The `AuthEncap` and `AuthDecap` functions are OPTIONAL. If a KEM algorithm
+does not provide them, only the Base and PSK modes of HPKE are supported.
+Future specifications which define new KEMs MUST indicate whether or not
+these modes are supported.
+
+A KEM algorithm MAY define multiple different equivalent encoding
+algorithms for KEM public keys or KEM ciphertexts, with different output
+lengths `Npk` for public keys and `Nenc` for ciphertexts. In this case
+these different lengths MUST be indicated. It is left to the application
+using HPKE to define how entities communicate which encoding is used.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
@@ -1337,11 +1348,14 @@ Template:
 * Value: The two-byte identifier for the algorithm
 * KEM: The name of the algorithm
 * Nzz: The length in bytes of a KEM shared secret produced by the algorithm
-* Nenc: The length in bytes of an encapsulated key produced by the algorithm
+* Nenc: The length in bytes of an encapsulated key produced by the algorithm.
+  An algorithm MAY define multiple different equivalent encoding
+  algorithms with different output lengths; in this case these different
+  lengths MUST be indicated.
 * Npk: The length in bytes of an encoded public key for the algorithm.
-  An algorithm can define different equivalent encodings with different
-  lengths; these different lengths SHOULD be indicated by a list or by
-  a range.
+  An algorithm MAY define multiple different equivalent encoding
+  algorithms with different output lengths; in this case these different
+  lengths MUST be indicated.
 * Nsk: The length in bytes of an encoded private key for the algorithm.
 * Reference: Where this algorithm is defined
 
