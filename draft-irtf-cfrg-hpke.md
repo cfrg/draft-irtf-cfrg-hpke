@@ -279,7 +279,11 @@ operations, roles, and behaviors of HPKE:
 
 - `(skX, pkX)`: A KEM key pair used in role X; `skX` is the private
   key and `pkX` is the public key.
-- `pk(skX)`: The public key corresponding to private key `skX`.
+- `pk(skX)`: The KEM public key corresponding to the KEM private key
+  `skX`. Depending on its use and the KEM, this is either the computation
+  of the public key using the private key, or just syntax expressing the
+  retrieval of the public key assuming it is stored along with the private
+  key object.
 - Sender (S): Role of entity which sends an encrypted message.
 - Recipient (R): Role of entity which receives an encrypted message.
 - Ephemeral (E): Role of a fresh random value meant for one-time use.
@@ -300,10 +304,10 @@ operations, roles, and behaviors of HPKE:
 HPKE variants rely on the following primitives:
 
 * A Key Encapsulation Mechanism (KEM):
-  - GenerateKeyPair(): Generate a key pair `(skX, pkX)`
-  - DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from the byte string `ikm`,
-    where `ikm` SHOULD have at least `Nsk` bytes of entropy (see
-    {{derive-key-pair}} for discussion)
+  - GenerateKeyPair() (optional): Generate a key pair `(skX, pkX)`
+  - DeriveKeyPair(ikm) (optional): Derive a key pair `(skX, pkX)` from
+    the byte string `ikm`, where `ikm` SHOULD have at least `Nsk` bytes
+    of entropy (see {{derive-key-pair}} for discussion)
   - SerializePublicKey(pk): Produce a byte string of length `Npk`
     encoding the KEM public key `pk`. A KEM might provide different
     encoding algorithms for public keys, with different output
@@ -388,6 +392,9 @@ following operations:
 
 - GenerateKeyPair(): Generate an ephemeral key pair `(skX, pkX)`
   for the DH group in use
+- DeriveKeyPair(ikm): Derive a key pair `(skX, pkX)` from
+  the byte string `ikm`, where `ikm` SHOULD have at least `Nsk` bytes
+  of entropy (see {{derive-key-pair}} for discussion)
 - DH(sk, pk): Perform a non-interactive DH exchange using the
   private key sk and public key pk to produce a Diffie-Hellman
   shared secret of length Ndh
@@ -968,6 +975,10 @@ the Diffie-Hellman shared secret is the all-zero value and abort if so.
 ### Future KEMs
 
 {{kem-security}} lists security requirements on a KEM used within HPKE.
+
+The functions `GenerateKeyPair` and `DeriveKeyPair` are optional: They
+are not needed if the KEM algorithm does not employ them within the
+`Encap`, `Decap`, `AuthEncap`, or `AuthDecap` functions.
 
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
