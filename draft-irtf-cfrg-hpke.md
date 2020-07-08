@@ -896,14 +896,14 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, pskID, pkS):
 | 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32   | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
 | 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64   | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
 
-### Serialize/Deserialize
+### Serialize and Deserialize
 
-For P-256, P-384 and P-521, the Serialize function of the
+For P-256, P-384 and P-521, the `Serialize` function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
-conversion according to {{SECG}}. The Deserialize function performs the
+conversion according to {{SECG}}. The `Deserialize` function performs the
 uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
 
-For X25519 and X448, the Serialize and Deserialize functions
+For X25519 and X448, the `Serialize` and `Deserialize` functions
 are the identity function, since these curves already use fixed-length byte
 strings for public keys.
 
@@ -913,14 +913,14 @@ Some deserialized public keys MUST be validated before they can be used. See
 ### DeriveKeyPair {#derive-key-pair}
 
 The keys that DeriveKeyPair produces have only as much entropy as the provided
-input keying material. For a given KEM, the IKM given to DeriveKeyPair SHOULD
-have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
+input keying material (IKM). For a given KEM, the IKM given to DeriveKeyPair SHOULD
+have length at least `Nsk` bytes, and SHOULD have at least `Nsk` bytes of entropy.
 
-All invocations of KDF functions (such as `LabeledExtract` or `Expand`) in any
+All invocations of KDF functions (such as `LabeledExtract` or `LabeledExpand`) in any
 DHKEM's DeriveKeyPair function use the DHKEM's associated KDF (as opposed to
 the ciphersuite's KDF).
 
-For P-256, P-384 and P-521, the DeriveKeyPair function of the KEM performs
+For P-256, P-384 and P-521, the DeriveKeyPair function of the DHKEM performs
 rejection sampling over field elements:
 
 ~~~
@@ -944,7 +944,8 @@ and P-384, and 0x01 for P-521. The precise likelihood of DeriveKeyPair
 failing with DeriveKeyPairError depends on the group being used, but it
 is negligibly small in all cases.
 
-For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
+For X25519 and X448, the DeriveKeyPair function of the DHKEM applies
+a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
