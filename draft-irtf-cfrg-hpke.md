@@ -1177,16 +1177,17 @@ post-quantum security level of the AEAD scheme.
 
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
-A KEM used within HPKE MUST be IND-CCA2-secure.
+The Encap/Decap interface of a KEM used within HPKE MUST be
+IND-CCA2-secure.
 
-A KEM that provides the AuthEncap/AuthDecap interface MUST be
-Outsider-Auth-secure. If the application requires resistance against
-key-compromise impersonation, the KEM MUST be Insider-Auth-secure.
+The AuthEncap/AuthDecap interface of a KEM used within HPKE MUST be
+Insider-CCA-secure and Insider-Auth-secure. If the application does not
+require resistance against key-compromise impersonation, it is enough
+if the AuthEncap/AuthDecap interface is Outsider-Auth-secure instead of
+Insider-Auth-secure.
 
 TODO:
 - provide a reference for Outsider-Auth and Insider-Auth
-- for IND-CCA2 security, clarify if Outsider-CCA is enough or if
-  Insider-CCA is required (and provide reference for them)
 
 ## Security Requirements on a KDF {#kdf-choice}
 
