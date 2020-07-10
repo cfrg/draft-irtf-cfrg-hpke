@@ -94,6 +94,23 @@ informative:
     target: https://secg.org/sec1-v2.pdf
     date: 2009
 
+  BHK09:
+    title: "Subtleties in the Definition of IND-CCA: When and How Should Challenge-Decryption be Disallowed?"
+    target: https://eprint.iacr.org/2009/418
+    date: 2009
+    author:
+      -
+        ins: Mihir Bellare
+        org: University of California San Diego
+      -
+        ins: Dennis Hofheinz
+        org: CWI Amsterdam
+      -
+        ins: Eike Kiltz
+        org: CWI Amsterdam
+
+  SigncryptionDZ10: DOI.10.1007/978-3-540-89411-7
+
   HPKEAnalysis:
     title: "An Analysis of Hybrid Public Key Encryption"
     target: https://eprint.iacr.org/2020/243.pdf
@@ -1074,7 +1091,7 @@ detailed below:
   AuthPSK modes
 
 These security goals are expected to hold for any honest sender and
-honst recipient keys, as well as if the honest sender and honest
+honest recipient keys, as well as if the honest sender and honest
 recipient keys are the same.
 
 As noted in {{non-goals}}, HPKE does not provide forward secrecy.
@@ -1175,16 +1192,15 @@ post-quantum security level of the AEAD scheme.
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
 The Encap/Decap interface of a KEM used within HPKE MUST be
-IND-CCA2-secure.
+IND-CCA2-secure. An appropriate definition of this security notion for
+KEMs can be found in {{BHK09}}.
 
 The AuthEncap/AuthDecap interface of a KEM used within HPKE MUST be
-Insider-CCA-secure and Insider-Auth-secure. If the application does not
-require resistance against key-compromise impersonation, it is enough
-if the AuthEncap/AuthDecap interface is Outsider-Auth-secure instead of
-Insider-Auth-secure.
-
-TODO:
-- provide a reference for Outsider-Auth and Insider-Auth
+multi-user insider IND-CCA-secure and multi-user insider strongly
+unforgeable (sUF-CMA-secure) as defined in {{SigncryptionDZ10}}.
+If the application does not require resistance against key-compromise
+impersonation, it is enough if the AuthEncap/AuthDecap interface is
+LoR-CCA-secure instead of sUF-CMA-secure.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
