@@ -288,8 +288,6 @@ operations, roles, and behaviors of HPKE:
   in big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
-- `zero(n)`: An all-zero byte string of length `n` bytes. `zero(4) =
-  0x00000000` and `zero(0)` is the empty byte string.
 - `random(n)`: A pseudorandom byte string of length `n` bytes
 - `xor(a,b)`: XOR of byte strings; `xor(0xF0F0, 0x1234) = 0xE2C4`.
   It is an error to call this function with two arguments of unequal
@@ -399,7 +397,7 @@ for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kemContext):
-  eae_prk = LabeledExtract(zero(0), "eae_prk", dh)
+  eae_prk = LabeledExtract("", "eae_prk", dh)
   zz = LabeledExpand(eae_prk, "zz", kemContext, Nzz)
   return zz
 
@@ -545,8 +543,8 @@ context. The key schedule inputs are as follows:
 * `info` - Application-supplied information (optional; default value
   "")
 * `psk` - A pre-shared key (PSK) held by both the sender
-  and the recipient (optional; default value `zero(0)`)
-* `pskID` - An identifier for the PSK (optional; default value `zero(0)`)
+  and the recipient (optional; default value "")
+* `pskID` - An identifier for the PSK (optional; default value "")
 
 Senders and recipients MUST validate KEM inputs and outputs as described
 in {{kem-ids}}.
@@ -589,8 +587,8 @@ suite_id = concat(
 ~~~
 
 ~~~~~
-default_psk = zero(0)
-default_pskID = zero(0)
+default_psk = ""
+default_pskID = ""
 
 def VerifyPSKInputs(mode, psk, pskID):
   got_psk = (psk != default_psk)
@@ -605,11 +603,11 @@ def VerifyPSKInputs(mode, psk, pskID):
 def KeySchedule(mode, zz, info, psk, pskID):
   VerifyPSKInputs(mode, psk, pskID)
 
-  pskID_hash = LabeledExtract(zero(0), "pskID_hash", pskID)
-  info_hash = LabeledExtract(zero(0), "info_hash", info)
+  pskID_hash = LabeledExtract("", "pskID_hash", pskID)
+  info_hash = LabeledExtract("", "info_hash", info)
   key_schedule_context = concat(mode, pskID_hash, info_hash)
 
-  psk_hash = LabeledExtract(zero(0), "psk_hash", psk)
+  psk_hash = LabeledExtract("", "psk_hash", psk)
 
   secret = LabeledExtract(psk_hash, "secret", zz)
 
@@ -913,7 +911,7 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
+  dkp_prk = LabeledExtract("", "dkp_prk", ikm)
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
@@ -936,8 +934,8 @@ For X25519 and X448, the DeriveKeyPair function applies a KDF to the input:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract(zero(0), "dkp_prk", ikm)
-  sk = LabeledExpand(dkp_prk, "sk", zero(0), Nsk)
+  dkp_prk = LabeledExtract("", "dkp_prk", ikm)
+  sk = LabeledExpand(dkp_prk, "sk", "", Nsk)
   return (sk, pk(sk))
 ~~~
 
