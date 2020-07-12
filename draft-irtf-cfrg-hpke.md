@@ -1198,16 +1198,20 @@ post-quantum security level of the AEAD scheme.
 
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
-The Encap/Decap interface of a KEM used within HPKE MUST be
-IND-CCA2-secure. An appropriate definition of this security notion for
-KEMs can be found in {{BHK09}}.
+A KEM used within HPKE MUST allow HPKE to satisfy its desired security
+properties described in {{sec-properties}}. There are indications that
+this is the case
 
-The AuthEncap/AuthDecap interface of a KEM used within HPKE MUST be
-multi-user insider IND-CCA-secure and multi-user insider strongly
-unforgeable (sUF-CMA-secure) as defined in {{SigncryptionDZ10}}.
-If the application does not require resistance against key-compromise
-impersonation, it is enough if the AuthEncap/AuthDecap interface is
-LoR-CCA-secure instead of sUF-CMA-secure.
+- for the Base and PSK modes, if the KEM's Encap/Decap interface is
+  IND-CCA2-secure {{CS01}}. An appropriate definition of this security
+  notion for KEMs can be found in {{CS01}} and {{BHK09}}.
+- for the Auth and AuthPSK modes, if the KEM's AuthEncap/AuthDecap
+  interface is multi-user insider IND-CCA-secure and multi-user insider
+  strongly unforgeable (sUF-CMA-secure), or, if the application does not
+  require resistance against key-compromise impersonation, if the KEM's
+  AuthEncap/AuthDecap interface is multi-user insider IND-CCA-secure and
+  LoR-CCA-secure. Definitions for these security notions can be found in
+  {{SigncryptionDZ10}}.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
