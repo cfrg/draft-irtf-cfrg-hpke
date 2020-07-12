@@ -375,6 +375,11 @@ values are two bytes long.
 
 Note that `GenerateKeyPair` can be implemented as `DeriveKeyPair(random(Nsk))`.
 
+The notation `pk(skX)`, depending on its use and the KEM, is either the
+computation of the public key using the private key, or just syntax
+expressing the retrieval of the public key assuming it is stored along
+with the private key object.
+
 The following two functions are defined to facilitate domain separation of
 KDF calls as well as context binding:
 
@@ -1010,11 +1015,6 @@ algorithms for KEM public keys or KEM ciphertexts, with different output
 lengths. In this case `Npk` and `Nenc` MUST indicate the maximum output
 length. It is left to the application using HPKE to define how entities
 communicate which encoding is used.
-
-The notation `pk(skX)`, depending on its use and the KEM, is either the
-computation of the public key using the private key, or just syntax
-expressing the retrieval of the public key assuming it is stored along
-with the private key object.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
