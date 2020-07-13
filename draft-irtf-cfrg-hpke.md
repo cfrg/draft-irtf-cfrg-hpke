@@ -23,7 +23,7 @@ author:
  -  ins: B. Lipp
     name: Benjamin Lipp
     org: Inria
-    email: benjamin.lipp@inria.fr
+    email: ietf@benjaminlipp.de
  -  ins: C. A. Wood
     name: Christopher A. Wood
     org: Cloudflare
