@@ -1369,7 +1369,7 @@ Note that the plaintext is the same for each test vector. Only the nonce
 and AAD values differ. In these vectors, `GenerateKeyPair` is implemented
 as `DeriveKeyPair(random(Nsk))`.
 
-## DHKEM(Curve25519, HKDF-SHA256), HKDF-SHA256, AES-GCM-128
+## DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-GCM-128
 
 ### Base Setup Information
 ~~~
@@ -1589,7 +1589,7 @@ ciphertext: ebbc30676d69daa70a91c654b9cb1ab8ae8af629bd6c909a053f3cea2421
 
 ~~~
 
-## DHKEM(Curve25519, HKDF-SHA256), HKDF-SHA256, ChaCha20Poly1305
+## DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, ChaCha20Poly1305
 
 ### Base Setup Information
 ~~~
