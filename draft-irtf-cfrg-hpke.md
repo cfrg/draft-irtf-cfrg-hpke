@@ -1017,8 +1017,8 @@ of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 | Value  | AEAD             | Nk  | Nn  | Reference    |
 |:-------|:-----------------|:----|:----|:-------------|
 | 0x0000 | (reserved)       | N/A | N/A | N/A          |
-| 0x0001 | AES-GCM-128      | 16  | 12  | {{GCM}}      |
-| 0x0002 | AES-GCM-256      | 32  | 12  | {{GCM}}      |
+| 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
+| 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
 
 # Security Considerations {#sec-considerations}
@@ -1367,7 +1367,7 @@ Note that the plaintext is the same for each test vector. Only the nonce
 and AAD values differ. In these vectors, `GenerateKeyPair()` is implemented
 as `DeriveKeyPair(random(Nsk))`.
 
-## DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-GCM-128
+## DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-128-GCM
 
 ### Base Setup Information
 ~~~
@@ -1807,7 +1807,7 @@ dd7e4aa61bcea06cabb5d9414c8c6e
 
 ~~~
 
-## DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-GCM-128
+## DHKEM(P-256, HKDF-SHA256), HKDF-SHA256, AES-128-GCM
 
 ### Base Setup Information
 ~~~
@@ -2255,7 +2255,7 @@ ciphertext: 0eeffe74e03f6c1d4fdcbc84bdacb1ccea00ee2b139c5bd2f27b8870524e
 
 ~~~
 
-## DHKEM(P-521, HKDF-SHA512), HKDF-SHA512, AES-GCM-256
+## DHKEM(P-521, HKDF-SHA512), HKDF-SHA512, AES-256-GCM
 
 ### Base Setup Information
 ~~~
