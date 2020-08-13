@@ -673,8 +673,8 @@ described in more detail in {{sec-properties}}. We assume that both
 parties have been provisioned with both the PSK value `psk` and another
 byte string `psk_id` that is used to identify which PSK should be used.
 
-The primary difference from the base case is that the PSK and PSK ID values
-are used as `ikm` inputs to the KDF (instead of using the empty string)
+The primary difference from the base case is that the `psk` and `psk_id` values
+are used as `ikm` inputs to the KDF (instead of using the empty string).
 
 The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
 Nh bytes of entropy or more. See {{security-psk}} for a more detailed
@@ -822,7 +822,7 @@ def Context.Open(aad, ct):
 
 ## Secret Export {#hpke-export}
 
-HPKE provides a interface for exporting secrets from the encryption `Context`, similar
+HPKE provides an interface for exporting secrets from the encryption `Context`, similar
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
 input a context string `exporter_context` and desired length `L` (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
@@ -982,7 +982,7 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
 | psk              | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
-| psk_id            | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
+| psk_id           | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
 | info             | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
 | exporter_context | 2^{61} - 121 | 2^{125} - 201 | 2^{125} - 217 |
 
@@ -1229,9 +1229,9 @@ several features that a more high-level protocol might provide, for example:
   provides a degree of replay protection within a stream of ciphertexts
   resulting from a given `Context`.  HPKE provides no other replay protection.
 
-* Forward secrecy - HPKE ciphertexts are not forward-secure. In Base and
+* Forward secrecy - HPKE ciphertexts are not forward-secure. In the Base and
   Auth modes, a given ciphertext can be decrypted if the recipient's public
-  encryption key is compromised. In PSK and AuthPSK modes, a given
+  encryption key is compromised. In the PSK and AuthPSK modes, a given
   ciphertext can be decrypted if the recipient's public encryption key and the
   PSK are compromised.
 
