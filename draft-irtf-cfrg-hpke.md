@@ -73,7 +73,7 @@ informative:
         ins:
         org: American National Standards Institute
 
-  IEEE:
+  IEEE1363:
     title: IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques"
     date: 2004
     author:
@@ -251,7 +251,7 @@ practice, for example:
 
 Currently, there are numerous competing and non-interoperable standards and
 variants for hybrid encryption, mostly based on ECIES, including ANSI X9.63
-(ECIES) {{ANSI}}, IEEE 1363a {{IEEE}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
+(ECIES) {{ANSI}}, IEEE 1363a {{IEEE1363}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
 {{SECG}}.  See {{MAEA10}} for a thorough comparison.  All of these existing
 schemes have problems, e.g., because they rely on outdated primitives, lack
 proofs of IND-CCA2 security, or fail to provide test vectors.
@@ -465,10 +465,13 @@ implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
 a KDF for the remainder of HPKE, and {{domain-separation}} for the
 rationale of the labels.
 
-For the variants of DHKEM defined in this document, the size `Ndh` of the
-Diffie-Hellman shared secret is equal to `Npk`, and the size `Nsecret` of the
+For the variants of DHKEM defined in this document, the size `Nsecret` of the
 KEM shared secret is equal to the output length of the hash function
-underlying the KDF.
+underlying the KDF. For P-256, P-384 and P-521, the size `Ndh` of the
+Diffie-Hellman shared secret is equal to 32, 48, and 66, respectively,
+corresponding to the x-coordinate of the resulting elliptic curve point {{IEEE1363}}.
+For X25519 and X448, the size `Ndh` of is equal to 32 and 56, respectively
+(see {{?RFC7748}}, Section 5).
 
 It is important to note that the `AuthEncap()` and `AuthDecap()` functions of the
 DHKEM variants defined in this document are vulnerable to key-compromise
