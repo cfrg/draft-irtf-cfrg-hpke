@@ -162,7 +162,7 @@ informative:
         name: Russell Impagliazzo
         org: University of California, San Diego
 
-  UKS: DOI.10.1007/BF00124891
+  IMB: DOI.10.1007/BF00124891
 
   TestVectors:
     title: "HPKE Test Vectors"
@@ -380,8 +380,8 @@ following operations:
 
 - `GenerateKeyPair()`: Generate an ephemeral key pair `(skX, pkX)`
   for the DH group in use
-- `DH(sk, pk)`: Perform a non-interactive DH exchange using the
-  private key `sk` and public key `pk` to produce a Diffie-Hellman
+- `DH(skX, pkY)`: Perform a non-interactive DH exchange using the
+  private key `skX` and public key `pkY` to produce a Diffie-Hellman
   shared secret of length `Ndh`
 - `Serialize(pk)`: Produce a byte string of length `Npk`
   encoding the public key `pk`
@@ -712,10 +712,10 @@ Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
 
 This mechanism authenticates only the key pair of the sender, not
-any other identity.  If an application wishes to authenticate some
-other identity for the sender (e.g., an email address or domain
-name), then this identity should be included in the `info` parameter
-to avoid identity mis-binding issues {{UKS}}.
+any other identifier.  If an application wishes to bind HPKE
+ciphertexts or exported secrets to another identity for the sender
+(e.g., an email address or domain name), then this identifier should be
+included in the `info` parameter to avoid identity mis-binding issues {{IMB}}.
 
 ~~~~~
 def SetupAuthS(pkR, info, skS):
@@ -822,12 +822,14 @@ def Context.Open(aad, ct):
 
 ## Secret Export {#hpke-export}
 
-HPKE provides an interface for exporting secrets from the encryption `Context`, similar
-to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
-input a context string `exporter_context` and desired length `L` (in bytes), and produces
-a secret derived from the internal exporter secret using the corresponding KDF Expand
-function. For the KDFs defined in this specification, `L` has a maximum value of
-`255*Nh`. Future specifications which define new KDFs MUST specify a bound for `L`.
+HPKE provides an interface for exporting secrets from the encryption `Context`
+using a variable-length PRF, similar to the TLS 1.3 exporter interface
+(see {{?RFC8446}}, Section 7.5). This interface takes as input a context
+string `exporter_context` and a desired length `L` in bytes, and produces
+a secret derived from the internal exporter secret using the corresponding
+KDF Expand function. For the KDFs defined in this specification, `L` has
+a maximum value of `255*Nh`. Future specifications which define new KDFs
+MUST specify a bound for `L`.
 
 The `exporter_context` field has a maximum length that depends on the KDF
 itself, on the definition of `LabeledExpand()`, and on the constant labels
@@ -1033,10 +1035,11 @@ against active and adaptive attackers that can compromise partial
 secrets of senders and recipients. The desired security goals are
 detailed below:
 
-* Message secrecy: Privacy of the sender's messages, i.e., IND-CCA2
-  security
+* Message secrecy: Confidentiality of the sender's messages against
+  chosen ciphertext attacks, i.e., IND-CCA2 security
 * Export key secrecy: Indistinguishability of each export
-  secret from a uniformly random bitstring of equal length
+  secret from a uniformly random bitstring of equal length, i.e.,
+  `Context.Export` is a variable-length PRF
 * Sender authentication: Proof of sender origin for PSK, Auth, and
   AuthPSK modes
 
@@ -1078,7 +1081,7 @@ of a pre-shared key. This assumes that the pre-shared key has not been
 compromised, as described in {{WireGuard}}.
 
 It is shown in {{CS01}} that a hybrid public-key encryption scheme of
-essentially the same form described here is IND-CCA2-secure as long as
+essentially the same form as described here is IND-CCA2-secure as long as
 the underlying KEM and AEAD schemes are IND-CCA2-secure. The main
 difference between the scheme proposed there and the scheme in this
 document (both named HPKE) is that we interpose some KDF calls between
@@ -1094,12 +1097,12 @@ following conditions {{HPKEAnalysis}}:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard in the
   appropriate subgroup {{GAP}}.
-- `Extract()` and `Expand()` (in DHKEM): `Extract()` is indifferentiable from a
-  random oracle. `Expand()` is a pseudorandom function, wherein the first
-  argument is the key.
-- `Extract()` and `Expand()` (elsewhere): `Extract()` is indifferentiable from a
-  random oracle. `Expand()` is a pseudorandom function, wherein the first
-  argument is the key.
+- `Extract()` and `Expand()` (in DHKEM): `Extract()` can be modeled as
+  a random oracle. `Expand()` can be modeled as a pseudorandom function,
+  wherein the first argument is the key.
+- `Extract()` and `Expand()` (elsewhere): `Extract()` can be modeled as
+  a random oracle. `Expand()` can be modeled as a pseudorandom function,
+  wherein the first argument is the key.
 
 In particular, the KDFs and DH groups defined in this document (see
 {{kdf-ids}} and {{kem-ids}}) satisfy these properties when used as
@@ -1114,15 +1117,15 @@ using the encryption context, and additionally exports two independent
 secrets using the secret export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
-means that a property does not apply for the given mode, whereas X means
+means that a property does not apply for the given mode, whereas `y` means
 the given mode satisfies the property.
 
 | Variant | Message Sec. | Export Sec. | Sender Auth. |
 |:--------|:------------:|:-----------:|:------------:|
-| Base    | X            | X           | N/A          |
-| PSK     | X            | X           | X            |
-| Auth    | X            | X           | X            |
-| AuthPSK | X            | X           | X            |
+| Base    | y            | y           | N/A          |
+| PSK     | y            | y           | y            |
+| Auth    | y            | y           | y            |
+| AuthPSK | y            | y           | y            |
 
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
