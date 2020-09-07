@@ -912,13 +912,13 @@ rejection sampling over field elements:
 
 ~~~
 def DeriveKeyPair(ikm):
-  dkp_prk = LabeledExtract("", "dkp_prk", ikm)
+  dkp_prk = Extract("dkp_prk", ikm)
   sk = 0
   counter = 0
   while sk == 0 or sk >= order:
     if counter > 255:
       raise DeriveKeyPairError
-    bytes = LabeledExpand(dkp_prk, "candidate", I2OSP(counter, 1), Nsk)
+    bytes = Expand(dkp_prk, I2OSP(counter, 1), Nsk)
     bytes[0] = bytes[0] & bitmask
     sk = OS2IP(bytes)
     counter = counter + 1
