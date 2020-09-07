@@ -400,8 +400,8 @@ for DHKEMs defined in this document.
 
 ~~~
 def ExtractAndExpand(dh, kem_context):
-  eae_prk = LabeledExtract("", "eae_prk", dh)
-  shared_secret = LabeledExpand(eae_prk, "shared_secret", kem_context, Nsecret)
+  eae_prk = Extract("eae_prk", dh)
+  shared_secret = Expand(eae_prk, kem_context, Nsecret)
   return shared_secret
 
 def Encap(pkR):
