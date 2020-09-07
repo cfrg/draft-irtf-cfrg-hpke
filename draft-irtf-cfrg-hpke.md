@@ -326,8 +326,8 @@ HPKE variants rely on the following primitives:
   - `Extract(salt, ikm)`: Extract a pseudorandom key of fixed length `Nh` bytes
     from input keying material `ikm` and an optional byte string
     `salt`
-  - `Expand(prk, info, L)`: Expand a pseudorandom key `prk` using
-    optional string `info` into `L` bytes of output keying material
+  - `Expand(prk, info, length)`: Expand a pseudorandom key `prk` using
+    optional string `info` into `length` bytes of output keying material
   - `Nh`: The output size of the `Extract()` function in bytes
 
 * An AEAD encryption algorithm {{!RFC5116}}:
@@ -359,9 +359,9 @@ def LabeledExtract(salt, label, ikm):
   labeled_ikm = concat("HPKE-05 ", suite_id, label, ikm)
   return Extract(salt, labeled_ikm)
 
-def LabeledExpand(prk, label, info, L):
-  labeled_info = concat(I2OSP(L, 2), "HPKE-05 ", suite_id, label, info)
-  return Expand(prk, labeled_info, L)
+def LabeledExpand(prk, label, info, length):
+  labeled_info = concat(I2OSP(length, 2), "HPKE-05 ", suite_id, label, info)
+  return Expand(prk, labeled_info, length)
 ~~~
 
 \[\[RFC editor: please change "HPKE-05" to "RFCXXXX", where XXXX is the final number, before publication.]]
@@ -824,18 +824,18 @@ def Context.Open(aad, ct):
 
 HPKE provides a interface for exporting secrets from the encryption `Context`, similar
 to the TLS 1.3 exporter interface (See {{?RFC8446}}, Section 7.5). This interface takes as
-input a context string `exporter_context` and desired length `L` (in bytes), and produces
+input a context string `exporter_context` and desired length (in bytes), and produces
 a secret derived from the internal exporter secret using the corresponding KDF Expand
-function. For the KDFs defined in this specification, `L` has a maximum value of
-`255*Nh`. Future specifications which define new KDFs MUST specify a bound for `L`.
+function. For the KDFs defined in this specification, `length` has a maximum value of
+`255*Nh`. Future specifications which define new KDFs MUST specify a bound for `length`.
 
 The `exporter_context` field has a maximum length that depends on the KDF
 itself, on the definition of `LabeledExpand()`, and on the constant labels
 used together with them. See {{kdf-input-length}} for precise limits on this length.
 
 ~~~~~
-def Context.Export(exporter_context, L):
-  return LabeledExpand(self.exporter_secret, "sec", exporter_context, L)
+def Context.Export(exporter_context, length):
+  return LabeledExpand(self.exporter_secret, "sec", exporter_context, length)
 ~~~~~
 
 # Single-Shot APIs
@@ -899,7 +899,7 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 ### DeriveKeyPair {#derive-key-pair}
 
-The keys that `DeriveKeyPair()` produces have only as much entropy as the provided
+The keys that `DeriveKeyPair()` produce have only as much entropy as the provided
 input keying material. For a given KEM, the `ikm` parameter given to `DeriveKeyPair()` SHOULD
 have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
 
