@@ -504,7 +504,7 @@ additional keying material to the encryption operation. The following one-byte
 values will be used to distinguish between modes:
 
 | Mode          | Value |
-|:==============|:======|
+|:--------------|:------|
 | mode_base     | 0x00  |
 | mode_psk      | 0x01  |
 | mode_auth     | 0x02  |
