@@ -144,24 +144,6 @@ informative:
         name: Björn Tackmann
         org: IBM Research
 
-  JKR96:
-    title: "Designated Verifier Proofs and Their Applications"
-    target: https://doi.org/10.1007%2F3-540-49677-7_30
-    date: 1996
-    author:
-      -
-        ins: M. Jakobsson
-        name: Markus Jakobsson
-        org: University of California, San Diego
-      -
-        ins: K. Sako
-        name: Kazue Sako
-        org: NEC Corporation
-      -
-        ins: R. Impagliazzo
-        name: Russell Impagliazzo
-        org: University of California, San Diego
-
   IMB: DOI.10.1007/BF00124891
 
   TestVectors:
@@ -1263,29 +1245,6 @@ the recipient.  A potential lower-cost approach (involving only symmetric
 operations) would be available if the nonce-protection schemes in {{BNT19}}
 could be extended to cover other metadata.  However, this construction would
 require further analysis.
-
-## Designated-Verifier Signature
-
-The Auth and AuthPSK modes can be used to construct a lightweight
-"designated-verifier signature" scheme {{JKR96}}, in the sense that the message
-is authenticated as coming from the sender, but the only party who can verify
-the authentication is the recipient (the holder of `skR`).
-
-To create such a signature, the sender simply performs a normal HPKE setup in
-the proper mode, and calls the Seal method on the resulting context with an
-empty plaintext value and the content to be signed as AAD.  This produces an
-encoded key `enc` and a ciphertext value that contains only the AAD tag.
-
-For example, using DHKEM(X25519, HKDF-SHA256) and AES-128-GCM, this would produce
-a 48-byte signature comprising a 32-byte ephemeral X25519 key and a 16-byte GCM tag.
-
-To verify such a signature, the recipient performs the corresponding HPKE setup
-and calls `Open()` with the provided ciphertext.  If the AEAD authentication passes,
-then the signature is valid.
-
-This scheme reuses the authentication scheme underlying the AEAD algorithm in
-use, while using the KEM to establish a one-time authentication key from a pair
-of KEM public keys.
 
 # Message Encoding {#message-encoding}
 
