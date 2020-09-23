@@ -847,6 +847,8 @@ def Context.Export(exporter_context, L):
 
 # Single-Shot APIs
 
+## Encryption and Decryption {#single-shot-encryption}
+
 In many cases, applications encrypt only a single message to a recipient's public key.
 This section provides templates for HPKE APIs that implement stateless "single-shot" encryption
 and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
@@ -876,6 +878,27 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, psk_id, pkS):
   ctx = SetupAuthPSKR(enc, skR, info, psk, psk_id, pkS)
   return ctx.Open(aad, ct)
 ~~~
+
+## Secret Export
+
+Applications may also want to derive a secret known only to a given recipient's
+public key. This section provides templates for HPKE APIs that implement stateless
+"single-shot" secret export using APIs specified in {{hpke-export}}:
+
+~~~
+def SendExport<MODE>(pkR, info, exporter_context, L, ...):
+  enc, ctx = Setup<MODE>S(pkR, info, ...)
+  exported = ctx.Export(exporter_context, L)
+  return enc, exported
+
+def ReceiveExport<MODE>(enc, skR, info, exporter_context, L, ...):
+  ctx = Setup<MODE>R(enc, skR, info, ...)
+  return ctx.Export(exporter_context, L)
+~~~
+
+As in {{single-shot-encryption}}, the `MODE` template parameter is one of Base, PSK,
+Auth, or AuthPSK. The optional parameters indicated by "..." depend on `MODE` and may
+be empty.
 
 # Algorithm Identifiers {#ciphersuites}
 
