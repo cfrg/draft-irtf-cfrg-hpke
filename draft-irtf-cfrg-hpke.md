@@ -164,6 +164,23 @@ informative:
 
   IMB: DOI.10.1007/BF00124891
 
+  LGR20:
+    title: "Partitioning Oracle Attacks"
+    date: In preparation
+    author:
+      -
+        ins: J. Len
+        name: Julia Len
+        org: Cornell University
+      -
+        ins: P. Grubbs
+        name: Paul Grubbs
+        org: Cornell University
+      -
+        ins: T. Ristenpart
+        name: Thomas Ristenpart
+        org: Cornell University
+
   TestVectors:
     title: "HPKE Test Vectors"
     target: https://github.com/cfrg/draft-irtf-cfrg-hpke/blob/47118132e6913848eb1b4121370b1795d867a7bf/test-vectors.json
@@ -681,9 +698,8 @@ byte string `psk_id` that is used to identify which PSK should be used.
 The primary difference from the base case is that the `psk` and `psk_id` values
 are used as `ikm` inputs to the KDF (instead of using the empty string).
 
-The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
-Nh bytes of entropy or more. See {{security-psk}} for a more detailed
-discussion.
+The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh
+bytes or longer. See {{security-psk}} for a more detailed discussion.
 
 ~~~~~
 def SetupPSKS(pkR, info, psk, psk_id):
@@ -749,9 +765,8 @@ def SetupAuthPSKR(enc, skR, info, psk, psk_id, pkS):
   return KeySchedule(mode_auth_psk, shared_secret, info, psk, psk_id)
 ~~~~~
 
-The PSK SHOULD be of length Nh bytes or longer, and SHOULD have
-Nh bytes of entropy or more. See {{security-psk}} for a more detailed
-discussion.
+The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh
+bytes or longer. See {{security-psk}} for a more detailed discussion.
 
 ## Encryption and Decryption {#hpke-dem}
 
@@ -1175,24 +1190,35 @@ for `Extract()` without restriction on the key's length.
 
 ## Pre-Shared Key Recommendations {#security-psk}
 
-In the PSK and AuthPSK modes, the PSK SHOULD be of length `Nh` bytes or
-longer, and SHOULD have `Nh` bytes of entropy or more. Using a PSK shorter
-than `Nh` bytes is permitted. A PSK that is longer than `Nh` bytes or that
-has more than `Nh` bytes of entropy, respectively, does not increase the
-security level of HPKE, because the extraction step involving the PSK
-only outputs `Nh` bytes.
+In the PSK and AuthPSK modes, the PSK MUST have at least 32 bytes of
+entropy and SHOULD be of length Nh bytes or longer. Using a PSK longer than
+32 bytes but shorter than `Nh` bytes is permitted. A PSK that is longer than
+`Nh` bytes or that has more than `Nh` bytes of entropy, respectively, does
+not increase the security level of HPKE, because the extraction step involving
+the PSK only outputs `Nh` bytes.
 
 HPKE is specified to use HKDF as key derivation function. HKDF is not
 designed to slow down dictionary attacks, see {{?RFC5869}}. Thus, HPKE's
 PSK mechanism is not suitable for use with a low-entropy password as the
-PSK: in scenarios in which the adversary knows the KEM shared secret `shared_secret`
-and has access to an oracle that allows to distinguish between a good
-and a wrong PSK, it can perform a dictionary attack on the PSK. This
-oracle can be the decryption operation on a captured HPKE ciphertext or
-any other recipient behavior which is observably different when using a
-wrong PSK. The adversary knows the KEM shared secret `shared_secret` if it
-knows all KEM private keys of one participant. In the PSK mode this is
-trivially the case if the adversary acts as sender.
+PSK: in scenarios in which the adversary knows the KEM shared secret
+`shared_secret` and has access to an oracle that allows to distinguish between
+a good and a wrong PSK, it can perform PSK-recovering attacks. This oracle
+can be the decryption operation on a captured HPKE ciphertext or any other
+recipient behavior which is observably different when using a wrong PSK.
+The adversary knows the KEM shared secret shared_secret if it knows all
+KEM private keys of one participant. In the PSK mode this is trivially
+the case if the adversary acts as sender.
+
+To recover a lower entropy PSK, an attacker in this scenario can trivially
+perform a dictionary attack. Given a set `S` of possible PSK values, the
+attacker generates an HPKE ciphertext using each value in `S`, and submits
+the resulting ciphertexts to the oracle to learn which PSK is being used by
+the receiver. Further, because HPKE uses AEAD schemes that are not key-committing,
+an attacker can mount a partitioning oracle attack {{LGR20}} which can recover
+the PSK from a set of `S` possible PSK values, with |S| = m\*k, in roughly
+m + log k queries to the oracle using ciphertexts of length proportional to
+k, the maximum message length in blocks. The PSK must therefore be chosen with
+sufficient entropy so that m + log k is prohibitive for attackers (e.g., 2^128).
 
 ## Domain Separation {#domain-separation}
 
