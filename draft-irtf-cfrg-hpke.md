@@ -881,8 +881,8 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, psk_id, pkS):
 
 ## Secret Export
 
-Applications may also want to derive a secret known only to a given recipient's
-public key. This section provides templates for HPKE APIs that implement stateless
+Applications may also want to derive a secret known only to a given recipient. 
+This section provides templates for HPKE APIs that implement stateless
 "single-shot" secret export using APIs specified in {{hpke-export}}:
 
 ~~~
