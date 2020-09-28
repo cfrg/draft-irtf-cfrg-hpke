@@ -166,20 +166,20 @@ informative:
 
   LGR20:
     title: "Partitioning Oracle Attacks"
-    date: In preparation
+    date: To appear in USENIX Security 2021
     author:
       -
         ins: J. Len
         name: Julia Len
-        org: Cornell University
+        org: Cornell Tech
       -
         ins: P. Grubbs
         name: Paul Grubbs
-        org: Cornell University
+        org: Cornell Tech
       -
         ins: T. Ristenpart
         name: Thomas Ristenpart
-        org: Cornell University
+        org: Cornell Tech
 
   TestVectors:
     title: "HPKE Test Vectors"
