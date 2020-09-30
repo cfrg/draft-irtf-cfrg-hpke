@@ -1191,7 +1191,7 @@ for `Extract()` without restriction on the key's length.
 ## Pre-Shared Key Recommendations {#security-psk}
 
 In the PSK and AuthPSK modes, the PSK MUST have at least 32 bytes of
-entropy and SHOULD be of length Nh bytes or longer. Using a PSK longer than
+entropy and SHOULD be of length `Nh` bytes or longer. Using a PSK longer than
 32 bytes but shorter than `Nh` bytes is permitted. A PSK that is longer than
 `Nh` bytes or that has more than `Nh` bytes of entropy, respectively, does
 not increase the security level of HPKE, because the extraction step involving
