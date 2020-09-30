@@ -1205,7 +1205,7 @@ PSK: in scenarios in which the adversary knows the KEM shared secret
 a good and a wrong PSK, it can perform PSK-recovering attacks. This oracle
 can be the decryption operation on a captured HPKE ciphertext or any other
 recipient behavior which is observably different when using a wrong PSK.
-The adversary knows the KEM shared secret shared_secret if it knows all
+The adversary knows the KEM shared secret `shared_secret` if it knows all
 KEM private keys of one participant. In the PSK mode this is trivially
 the case if the adversary acts as sender.
 
