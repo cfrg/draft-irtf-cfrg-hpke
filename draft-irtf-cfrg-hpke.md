@@ -602,9 +602,7 @@ def KeySchedule(mode, shared_secret, info, psk, psk_id):
   info_hash = LabeledExtract("", "info_hash", info)
   key_schedule_context = concat(mode, psk_id_hash, info_hash)
 
-  psk_hash = LabeledExtract("", "psk_hash", psk)
-
-  secret = LabeledExtract(psk_hash, "secret", shared_secret)
+  secret = LabeledExtract(shared_secret, "secret", psk)
 
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
   nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
@@ -863,7 +861,7 @@ def OpenAuthPSK(enc, skR, info, aad, ct, psk, psk_id, pkS):
 
 ## Secret Export
 
-Applications may also want to derive a secret known only to a given recipient. 
+Applications may also want to derive a secret known only to a given recipient.
 This section provides templates for HPKE APIs that implement stateless
 "single-shot" secret export using APIs specified in {{hpke-export}}:
 
@@ -993,7 +991,7 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| psk              | 2^{61} - 89  | 2^{125} - 153 | 2^{125} - 153 |
 | psk_id           | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
 | info             | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
 | exporter_context | 2^{61} - 121 | 2^{125} - 201 | 2^{125} - 217 |
@@ -1170,22 +1168,11 @@ the security level provided by the KEM and, if applicable, by the PSK.
 The KDF SHOULD have at least have the security level of the KEM and
 SHOULD at least have the security level provided by the PSK.
 
-HPKE's `KeySchedule()` uses `LabeledExtract()` to convert an arbitrary-length
-PSK into a fixed-length PSK. This is necessary because of the
-restrictions on the key in HMAC's indifferentiability theorem {{HMAC}}.
-A future instantiation of HPKE MAY omit this line and use the PSK
-directly as salt for the computation of `secret`, if: `Extract()` is not
-instantiated by `HKDF-Extract()` and there is an indifferentiability theorem
-for `Extract()` without restriction on the key's length.
-
 ## Pre-Shared Key Recommendations {#security-psk}
 
 In the PSK and AuthPSK modes, the PSK SHOULD be of length `Nh` bytes or
 longer, and SHOULD have `Nh` bytes of entropy or more. Using a PSK shorter
-than `Nh` bytes is permitted. A PSK that is longer than `Nh` bytes or that
-has more than `Nh` bytes of entropy, respectively, does not increase the
-security level of HPKE, because the extraction step involving the PSK
-only outputs `Nh` bytes.
+than `Nh` bytes is permitted.
 
 HPKE is specified to use HKDF as key derivation function. HKDF is not
 designed to slow down dictionary attacks, see {{?RFC5869}}. Thus, HPKE's
@@ -1220,7 +1207,7 @@ in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case o
 It MUST be ensured that inputs to these invocations cannot collide with
 inputs to the internal invocations of these functions inside Extract or
 Expand. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
-`Hash()` on the arbitrary-length inputs `info`, `psk_id`, and `psk`.
+`Hash()` on the arbitrary-length inputs `info` and `psk_id`.
 
 The string literal "HPKE-05 " used in `LabeledExtract()` and `LabeledExpand()`
 ensures that any secrets derived in HPKE are bound to the scheme's name,
