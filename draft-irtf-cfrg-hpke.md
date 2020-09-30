@@ -765,7 +765,7 @@ def SetupAuthPSKR(enc, skR, info, psk, psk_id, pkS):
   return KeySchedule(mode_auth_psk, shared_secret, info, psk, psk_id)
 ~~~~~
 
-The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh
+The PSK MUST have at least 32 bytes of entropy and SHOULD be of length `Nh`
 bytes or longer. See {{security-psk}} for a more detailed discussion.
 
 ## Encryption and Decryption {#hpke-dem}
