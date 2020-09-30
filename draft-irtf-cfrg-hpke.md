@@ -1211,7 +1211,7 @@ the case if the adversary acts as sender.
 
 To recover a lower entropy PSK, an attacker in this scenario can trivially
 perform a dictionary attack. Given a set `S` of possible PSK values, the
-attacker generates an HPKE ciphertext using each value in `S`, and submits
+attacker generates an HPKE ciphertext for each value in `S`, and submits
 the resulting ciphertexts to the oracle to learn which PSK is being used by
 the receiver. Further, because HPKE uses AEAD schemes that are not key-committing,
 an attacker can mount a partitioning oracle attack {{LGR20}} which can recover
