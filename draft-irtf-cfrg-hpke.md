@@ -698,7 +698,7 @@ byte string `psk_id` that is used to identify which PSK should be used.
 The primary difference from the base case is that the `psk` and `psk_id` values
 are used as `ikm` inputs to the KDF (instead of using the empty string).
 
-The PSK MUST have at least 32 bytes of entropy and SHOULD be of length Nh
+The PSK MUST have at least 32 bytes of entropy and SHOULD be of length `Nh`
 bytes or longer. See {{security-psk}} for a more detailed discussion.
 
 ~~~~~
