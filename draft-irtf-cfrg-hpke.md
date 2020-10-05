@@ -121,6 +121,35 @@ informative:
         name: Benjamin Lipp
         org: Inria Paris
 
+  ABHKLR20:
+    title: "A Formal Analysis of the HPKE Standard"
+    date: 2020
+    author:
+      -
+        ins: J. Alwen
+        name: Joël Alwen
+        org: Wickr
+      -
+        ins: B. Blanchet
+        name: Bruno Blanchet
+        org: Inria Paris
+      -
+        ins: E. Hauck
+        name: Eduard Hauck
+        org: Ruhr-Universität Bochum
+      -
+        ins: E. Kiltz
+        name: Eike Kiltz
+        org: Ruhr-Universität Bochum
+      -
+        ins: B. Lipp
+        name: Benjamin Lipp
+        org: Inria Paris
+      -
+        ins: D. Riepel
+        name: Doreen Riepel
+        org: Ruhr-Universität Bochum
+
   MAEA10:
     title: "A Comparison of the Standardized Versions of ECIES"
     target: https://ieeexplore.ieee.org/abstract/document/5604194/
@@ -1105,7 +1134,7 @@ secrets of senders and recipients. The desired security goals are
 detailed below:
 
 * Message secrecy: Confidentiality of the sender's messages against
-  chosen ciphertext attacks, i.e., IND-CCA2 security
+  chosen ciphertext attacks
 * Export key secrecy: Indistinguishability of each export
   secret from a uniformly random bitstring of equal length, i.e.,
   `Context.Export` is a variable-length PRF
@@ -1136,10 +1165,20 @@ AuthPSK mode if the pre-shared key and the recipient private key `skR` are
 both compromised. NaCl's `box` interface {{NaCl}} has the same issue. At
 the same time, this enables repudiability.
 
+Even though it is possible to construct an authenticated
+KEM that is resistant against key-compromise impersonation, a key-compromise
+impersonation stays generally possible on the level of HPKE, as shown by {{ABHKLR20}}.
+That is because the KEM ciphertext is not bound to the HPKE message.
+Thus, an adversary who knows a recipients private key, can decapsulate an
+observed KEM ciphertext, compute the key schedule, and encrypt an arbitrary
+message that the recipient will accept as coming from the original sender.
+Mitigating this issue would require fundamental changes, which are
+out-of-scope of this document.
+
 Applications that require resistance against key-compromise impersonation
 SHOULD take extra steps to prevent this attack. One possibility is to
-produce a digital signature over the Auth and AuthPSK `enc` output using
-a sender's private key, as a proof of possession.
+produce a digital signature over the entire HPKE message using a sender's private key,
+as a proof of possession.
 
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
@@ -1150,19 +1189,26 @@ of a pre-shared key. This assumes that the pre-shared key has not been
 compromised, as described in {{WireGuard}}.
 
 It is shown in {{CS01}} that a hybrid public-key encryption scheme of
-essentially the same form as described here is IND-CCA2-secure as long as
-the underlying KEM and AEAD schemes are IND-CCA2-secure. The main
-difference between the scheme proposed there and the scheme in this
-document (both named HPKE) is that we interpose some KDF calls between
-the KEM and the AEAD. Analyzing the HPKE instantiation in this
-document therefore required verifying that the additional KDF calls
-do not cause the IND-CCA2 property to fail, as well as verifying the
-two additional properties noted above (export key secrecy and
-sender authentication).
+essentially the same form as the Base mode described here is
+IND-CCA2-secure as long as the underlying KEM and AEAD schemes are
+IND-CCA2-secure. The main difference between the scheme proposed there
+and the Base mode in this document (both named HPKE) is that we interpose
+some KDF calls between the KEM and the AEAD. Analyzing the HPKE Base mode
+instantiation in this document therefore requires verifying that the
+additional KDF calls do not cause the IND-CCA2 property to fail, as
+well as verifying the additional export key secrecy property.
 
-This work has been done for the case where the KEM is DHKEM, the AEAD is
-any IND-CCA2-secure scheme, and the DH group and KDF satisfy the
-following conditions {{HPKEAnalysis}}:
+Analysis of the PSK, Auth, and AuthPSK modes defined in this document
+additionally requires verifying the sender authentication property.
+While the PSK mode just adds supplementary keying material to the key
+schedule, the Auth and AuthPSK modes make use of a non-standard
+authenticated KEM construction. Generally, the authenticated modes of
+HPKE can be viewed and analyzed as flavors of signcryption {{SigncryptionDZ10}}.
+
+A preliminary computational analysis of all HPKE modes has been done
+in {{HPKEAnalysis}}, indicating asymptotic security for the case where
+the KEM is DHKEM, the AEAD is any IND-CCA2-secure scheme, and the DH group
+and KDF satisfy the following conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard in the
   appropriate subgroup {{GAP}}.
@@ -1175,9 +1221,7 @@ following conditions {{HPKEAnalysis}}:
 
 In particular, the KDFs and DH groups defined in this document (see
 {{kdf-ids}} and {{kem-ids}}) satisfy these properties when used as
-specified.
-
-The analysis in {{HPKEAnalysis}} demonstrates that under these
+specified. The analysis in {{HPKEAnalysis}} demonstrates that under these
 constraints, HPKE continues to provide IND-CCA2 security, and provides
 the additional properties noted above. Also, the analysis confirms the
 expected properties hold under the different key compromise cases
@@ -1201,33 +1245,72 @@ necessary to prove their security. The results from {{CS01}} provide
 some indication that any IND-CCA2-secure KEM will suffice here, but are
 not conclusive given the differences in the schemes.
 
-In addition, both {{CS01}} and {{HPKEAnalysis}} are premised on
+A detailed computational analysis of HPKE's Auth mode single-shot
+encryption API has been done in {{ABHKLR20}}.
+The paper defines security notions for authenticated
+KEMs and for authenticated public key encryption, using the outsider and
+insider security terminology known from signcryption {{SigncryptionDZ10}}.
+The analysis proves that DHKEM's `AuthEncap()`/`AuthDecap()` interface
+fulfills these notions for all Diffie-Hellman groups specified in this document,
+and indicates exact security bounds, under the assumption that the
+gap Diffie-Hellman (GDH) problem is hard in the appropriate subgroup {{GAP}},
+and that HKDF can be modeled as a random oracle.
+
+Further, the paper proves composition theorems, showing that HPKE's
+Auth mode fulfills the security notions of authenticated public key encryption
+for all KDFs and AEAD schemes specified in this document, given any
+authenticated KEM satisfying the previously defined security notions
+for authenticated KEMs. The assumptions on the KDF are that `Extract()`
+and `Expand()` can be modeled as pseudorandom functions wherein the first
+argument is the key, respectively; the assumption for the AEAD is
+IND-CCA2 security.
+
+In summary, the analysis in {{ABHKLR20}} proves that the single-shot encryption API of HPKE's
+Auth mode satisfies the desired message confidentiality and sender
+authentication properties listed at the beginning of this section;
+it does not consider multiple messages, nor the secret export API.
+
+All of {{CS01}}, {{HPKEAnalysis}}, and {{ABHKLR20}} are premised on
 classical security models and assumptions, and do not consider
 adversaries capable of quantum computation. A full proof of post-quantum
 security would need to take appropriate security models and assumptions
-into account, in addition to simply using a post-quantum KEM. The hybrid
-quantum-resistance property described above, which is achieved by using
-the PSK or AuthPSK mode, is proven in {{HPKEAnalysis}}; in a quantum
-setting, the remaining security level is smaller and defined by the
-post-quantum security level of the AEAD scheme.
+into account, in addition to simply using a post-quantum KEM. However,
+the composition theorems from {{ABHKLR20}} for HPKE's Auth mode only make
+standard assumptions (i.e., no random oracle assumption) that are expected
+to hold against quantum adversaries (although with slightly worse bounds).
+Thus, these composition theorems, in combination with a post-quantum-secure
+authenticated KEM, guarantee the post-quantum security of HPKE's Auth mode
+(as a reminder, DHKEM is not post-quantum-secure).
+In future work, the analysis from {{ABHKLR20}} can be extended to cover
+HPKE's other modes and desired security properties.
+The hybrid quantum-resistance property described above, which is achieved
+by using the PSK or AuthPSK mode, is not proven in {{HPKEAnalysis}} because
+this analysis requires the random oracle model; in a quantum
+setting, this model needs adaption to, for example, the quantum random
+oracle model.
 
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
-properties described in {{sec-properties}}. {{CS01}} and
-{{SigncryptionDZ10}} provide some indications that the following criteria
-are sufficient to meet HPKE's security needs:
+properties described in {{sec-properties}}. In particular, the KEM
+shared secret MUST be a uniformly random byte string of length `Nsecret`.
+(This means, for instance, that it would not be sufficient if the KEM
+shared secret is only uniformly random as an element of some set prior
+to its encoding as byte string.)
 
-- for the Base and PSK modes, if the KEM's Encap/Decap interface is
-  IND-CCA2-secure {{CS01}}. An appropriate definition of this security
-  notion for KEMs can be found in {{CS01}} and {{BHK09}}.
-- for the Auth and AuthPSK modes, if the KEM's AuthEncap/AuthDecap
-  interface is multi-user insider IND-CCA-secure and multi-user insider
-  strongly unforgeable (sUF-CMA-secure), or, if the application does not
-  require resistance against key-compromise impersonation, if the KEM's
-  AuthEncap/AuthDecap interface is multi-user insider IND-CCA-secure and
-  LoR-CCA-secure. Definitions for these security notions can be found in
-  {{SigncryptionDZ10}}.
+**Requirements on a KEM's `Encap()`/`Decap()` interface.**
+As mentioned in {{sec-considerations}}, {{CS01}} provides some indications
+that if the KEM's `Encap()`/`Decap()` interface (which is used in the Base
+and PSK modes), is IND-CCA2-secure, HPKE is able to satisfy its desired
+security properties. An appropriate definition of IND-CCA2-security for
+KEMs can be found in {{CS01}} and {{BHK09}}.
+
+**Requirements on a KEM's `AuthEncap()`/`AuthDecap()` interface.**
+The analysis of HPKE's Auth mode single-shot encryption API in {{ABHKLR20}}
+provides composition theorems that guarantee that HPKE's Auth mode achieves
+its desired security properties if the KEM's `AuthEncap()`/`AuthDecap()`
+interface satisfies multi-user Outsider-CCA, Outsider-Auth, and
+Insider-CCA security as defined in the same paper.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
