@@ -1156,7 +1156,11 @@ In the Auth mode, sender authentication is generally expected to hold if
 the sender private key `skS` is not compromised at the time of message
 reception. In the AuthPSK mode, sender authentication is generally
 expected to hold if at the time of message reception, the sender private
-key skS and the pre-shared key are not both compromised. However, it is
+key skS and the pre-shared key are not both compromised.
+
+### Key-Compromise Impersonation
+
+However, it is
 important to note that the DHKEM variants defined in this document are
 vulnerable to key-compromise impersonation attacks {{?BJM97=DOI.10.1007/BFb0024447}},
 which means that sender authentication cannot be expected to hold in the
@@ -1180,6 +1184,8 @@ SHOULD take extra steps to prevent this attack. One possibility is to
 produce a digital signature over the entire HPKE message using a sender's private key,
 as a proof of possession.
 
+### The Pre-Shared Key
+
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
@@ -1187,6 +1193,8 @@ non-quantum-resistant KEM used with HPKE is broken by a
 quantum computer, the security properties are preserved through the use
 of a pre-shared key. This assumes that the pre-shared key has not been
 compromised, as described in {{WireGuard}}.
+
+### Computational Analysis
 
 It is shown in {{CS01}} that a hybrid public-key encryption scheme of
 essentially the same form as the Base mode described here is
@@ -1270,6 +1278,8 @@ Auth mode satisfies the desired message confidentiality and sender
 authentication properties listed at the beginning of this section;
 it does not consider multiple messages, nor the secret export API.
 
+### Post-Quantum Security
+
 All of {{CS01}}, {{HPKEAnalysis}}, and {{ABHKLR20}} are premised on
 classical security models and assumptions, and do not consider
 adversaries capable of quantum computation. A full proof of post-quantum
@@ -1298,19 +1308,38 @@ shared secret MUST be a uniformly random byte string of length `Nsecret`.
 shared secret is only uniformly random as an element of some set prior
 to its encoding as byte string.)
 
-**Requirements on a KEM's `Encap()`/`Decap()` interface.**
+### The KEM `Encap()`/`Decap()` interface
+
 As mentioned in {{sec-considerations}}, {{CS01}} provides some indications
 that if the KEM's `Encap()`/`Decap()` interface (which is used in the Base
 and PSK modes), is IND-CCA2-secure, HPKE is able to satisfy its desired
 security properties. An appropriate definition of IND-CCA2-security for
 KEMs can be found in {{CS01}} and {{BHK09}}.
 
-**Requirements on a KEM's `AuthEncap()`/`AuthDecap()` interface.**
+### The KEM `AuthEncap()`/`AuthDecap()` interface
+
 The analysis of HPKE's Auth mode single-shot encryption API in {{ABHKLR20}}
 provides composition theorems that guarantee that HPKE's Auth mode achieves
 its desired security properties if the KEM's `AuthEncap()`/`AuthDecap()`
 interface satisfies multi-user Outsider-CCA, Outsider-Auth, and
 Insider-CCA security as defined in the same paper.
+
+Intuitively, Outsider-CCA security formalizes confidentiality, and
+Outsider-Auth security formalizes authentication of the KEM shared secret
+in case none of the sender or recipient private keys are compromised.
+Insider-CCA security formalizes confidentiality of the KEM shared secret
+in case the sender private key is known or chosen by the adversary.
+(If the recipient private key is known or chosen by the adversary,
+confidentiality is trivially broken, because then the adversary knows
+all secrets on the recipient's side).
+
+An Insider-Auth security notion would formalize authentication of the
+KEM shared secret in case the recipient private key is known or chosen
+by the adversary. (If the sender private key is known or chosen by the
+adversary, it can create KEM ciphertexts in the name of the sender).
+Because of the generic attack on an analogous Insider-Auth security
+notion of HPKE described in {{sec-properties}}, a definition of
+Insider-Auth security for KEMs used within HPKE is not useful.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
