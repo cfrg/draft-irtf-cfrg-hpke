@@ -174,11 +174,6 @@ informative:
 
   GCM: DOI.10.6028/NIST.SP.800-38D
 
-  fiveG:
-    title: Security architecture and procedures for 5G System
-    target: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169
-    date: 2019
-
   HMAC:
     title: To Hash or Not to Hash Again? (In)differentiability Results for H^2 and HMAC
     target: https://eprint.iacr.org/2013/382
@@ -241,12 +236,8 @@ public-key encryption schemes (HPKE), specified here, take a different approach:
 Specifically, encrypted messages convey an encryption key encapsulated with a
 public-key scheme, along with one or more arbitrary-sized ciphertexts encrypted
 using that key. This type of public key encryption has many applications in
-practice, for example:
-
-* PGP {{?RFC6637}}
-* Messaging Layer Security {{?I-D.ietf-mls-protocol}}
-* TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}
-* Protection of 5G subscriber identities {{fiveG}}
+practice, including Messaging Layer Security {{?I-D.ietf-mls-protocol}} and
+TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}.
 
 Currently, there are numerous competing and non-interoperable standards and
 variants for hybrid encryption, mostly based on ECIES, including ANSI X9.63
@@ -343,7 +334,7 @@ HPKE variants rely on the following primitives:
     returning plaintext message `pt`. This function can raise an
     `OpenError` or `NonceOverflowError` upon failure.
   - `Nk`: The length in bytes of a key for this algorithm
-  - `Nn`: The length in bytes of a nonce for this algorithm
+  - `Nn`: The length in bytes of a nonce (and initialization vector) for this algorithm
 
 A _ciphersuite_ is a triple (KEM, KDF, AEAD) containing a choice of algorithm
 for each primitive.
@@ -359,18 +350,18 @@ KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, ikm):
-  labeled_ikm = concat("HPKE-05 ", suite_id, label, ikm)
+  labeled_ikm = concat("HPKE-06", suite_id, label, ikm)
   return Extract(salt, labeled_ikm)
 
 def LabeledExpand(prk, label, info, L):
-  labeled_info = concat(I2OSP(L, 2), "HPKE-05 ", suite_id, label, info)
+  labeled_info = concat(I2OSP(L, 2), "HPKE-06", suite_id, label, info)
   return Expand(prk, labeled_info, L)
 ~~~
 
-\[\[RFC editor: please change "HPKE-05" to "RFCXXXX", where XXXX is the final number, before publication.]]
+\[\[RFC editor: please change "HPKE-06" to "RFCXXXX", where XXXX is the final number, before publication.]]
 
 The value of `suite_id` depends on where the KDF is used; it is assumed
-implicit from the implementation and not passed as parameter. If used
+implicit from the implementation and not passed as a parameter. If used
 inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
 this KEM algorithm; if used in the remainder of HPKE, it MUST start with
 "HPKE" and identify the entire ciphersuite in use. See sections {{dhkem}}
@@ -492,12 +483,11 @@ in {{kem-ids}}.
 In this section, we define a few HPKE variants.  All variants take a
 recipient public key and a sequence of plaintexts `pt`, and produce an
 encapsulated key `enc` and a sequence of ciphertexts `ct`.  These outputs are
-constructed so that only the holder of the private key corresponding
-to `pkR` can decapsulate the key from `enc` and decrypt the
-ciphertexts.  All of the algorithms also take an `info` parameter
-that can be used to influence the generation of keys (e.g., to fold
-in identity information) and an `aad` parameter that provides
-Additional Authenticated Data to the AEAD algorithm in use.
+constructed so that only the holder of `skR` can decapsulate the key from
+`enc` and decrypt the ciphertexts.  All of the algorithms also take an
+`info` parameter that can be used to influence the generation of keys
+(e.g., to fold in identity information) and an `aad` parameter that
+provides Additional Authenticated Data to the AEAD algorithm in use.
 
 In addition to the base case of encrypting to a public key, we
 include three authenticated variants, one which authenticates
@@ -570,7 +560,7 @@ on the KDF itself, on the definition of `LabeledExtract()`, and on the
 constant labels used together with them. See {{kdf-input-length}} for
 precise limits on these lengths.
 
-The `key`, `nonce`, and `exporter_secret` computed by the key schedule have the
+The `key`, `iv`, and `exporter_secret` computed by the key schedule have the
 property that they are only known to the holder of the recipient private
 key, and the entity that used the KEM to generate `shared_secret` and `enc`.
 
@@ -622,10 +612,10 @@ def KeySchedule(mode, shared_secret, info, psk, psk_id):
   secret = LabeledExtract(shared_secret, "secret", psk)
 
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
-  nonce = LabeledExpand(secret, "nonce", key_schedule_context, Nn)
+  iv = LabeledExpand(secret, "iv", key_schedule_context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
 
-  return Context(key, nonce, 0, exporter_secret)
+  return Context(key, iv, 0, exporter_secret)
 ~~~~~
 
 See {{hpke-dem}} for a description of the `Context()` output.
@@ -762,23 +752,22 @@ that stores the AEAD and Secret Export parameters. The AEAD parameters
 consist of:
 
 * The AEAD algorithm in use
-* The key to be used with the AEAD algorithm
-* A base nonce value
+* A secret `key`
+* An initialization vector `iv`
 * A sequence number (initially 0)
 
 The Secret Export parameters consist of:
 
-* The ciphersuite in use
-* The exporter secret used for the Secret Export interface; see {{hpke-export}}
+* The HPKE ciphersuite in use
+* An `exporter_secret` used for the Secret Export interface; see {{hpke-export}}
 
 All of these parameters except the AEAD sequence number are constant.
 The sequence number is used to provide nonce uniqueness: The nonce used
 for each encryption or decryption operation is the result of XORing
-the base nonce with the current sequence number, encoded as a
-big-endian integer of the same length as the nonce.  Implementations
-MAY use a sequence number that is shorter than the nonce (padding on
-the left with zero), but MUST raise an error if the sequence number
-overflows.
+`iv` with the current sequence number, encoded as a big-endian integer
+of the same length as `iv`.  Implementations MAY use a sequence number
+that is shorter than the nonce length (padding on the left with zero),
+but MUST raise an error if the sequence number overflows.
 
 Encryption is unidirectional from sender to recipient. Each encryption
 or decryption operation increments the sequence number for the context
@@ -800,7 +789,7 @@ algorithm.
 ~~~~~
 def Context.ComputeNonce(seq):
   seq_bytes = I2OSP(seq, Nn)
-  return xor(self.nonce, seq_bytes)
+  return xor(self.iv, seq_bytes)
 
 def Context.IncrementSeq():
   if self.seq >= (1 << (8*Nn)) - 1:
@@ -950,11 +939,16 @@ def DeriveKeyPair(ikm):
   return (sk, pk(sk))
 ~~~
 
-where `order` is the order of the curve being used (this can be found in
-section D.1.2 of {{NISTCurves}}), and `bitmask` is defined to be 0xFF for P-256
-and P-384, and 0x01 for P-521. The precise likelihood of `DeriveKeyPair()`
-failing with DeriveKeyPairError depends on the group being used, but it
-is negligibly small in all cases.
+`order` is the order of the curve being used (see section D.1.2 of {{NISTCurves}}), and
+is listed below for completeness.
+
+- P-256: 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+- P-384: 0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973
+- P-521: 0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409
+
+`bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
+The precise likelihood of `DeriveKeyPair()` failing with DeriveKeyPairError
+depends on the group being used, but it is negligibly small in all cases.
 
 For X25519 and X448, the `DeriveKeyPair()` function applies a KDF to the input:
 
@@ -1034,11 +1028,11 @@ max_size_hash_input - Nb - Nh - size_label_rfcXXXX - size_suite_id - size_input_
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "HPKE-05 " in bytes and equals 8, `size_suite_id` is the size of the
-`suite_id` and equals 9, and `size_input_label` is the size
+of "HPKE-06" in bytes and equals 7, `size_suite_id` is the size of the
+`suite_id` and equals 10, and `size_input_label` is the size
 of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 
-\[\[RFC editor: please change "HPKE-05" to "RFCXXXX", where XXXX is the final number, before publication.]]
+\[\[RFC editor: please change "HPKE-06" to "RFCXXXX", where XXXX is the final number, before publication.]]
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
@@ -1227,7 +1221,7 @@ Future KEM instantiations MUST ensure that all internal invocations of
 `Extract()` and `Expand()` can be modeled as functions independent from the
 invocations of `Extract()` and `Expand()` in the remainder of HPKE. One way to
 ensure this is by using an equal or similar prefixing scheme with
-an identifier different from "HPKE-05 ". Particular attention needs to
+an identifier different from "HPKE-06". Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case of HKDF.
 It MUST be ensured that inputs to these invocations cannot collide with
@@ -1235,7 +1229,7 @@ inputs to the internal invocations of these functions inside Extract or
 Expand. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
 `Hash()` on the arbitrary-length inputs `info` and `psk_id`.
 
-The string literal "HPKE-05 " used in `LabeledExtract()` and `LabeledExpand()`
+The string literal "HPKE-06" used in `LabeledExtract()` and `LabeledExpand()`
 ensures that any secrets derived in HPKE are bound to the scheme's name,
 even when possibly derived from the same Diffie-Hellman or KEM shared
 secret as in another scheme.
@@ -1345,7 +1339,7 @@ Template:
 * Value: The two-byte identifier for the algorithm
 * AEAD: The name of the algorithm
 * Nk: The length in bytes of a key for this algorithm
-* Nn: The length in bytes of a nonce for this algorithm
+* Nn: The length in bytes of a nonce (and initialization vector) for this algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{aead-ids}}
