@@ -1053,11 +1053,9 @@ does not provide them, only the Base and PSK modes of HPKE are supported.
 Future specifications which define new KEMs MUST indicate whether or not
 Auth and AuthPSK modes are supported.
 
-A KEM algorithm MAY define multiple different equivalent encoding
-algorithms for KEM public keys, with different output lengths. In this
-case `Npk` MUST indicate the maximum output length. It is left to the
-application using HPKE to define how entities communicate which encoding
-is used.
+A KEM algorithm may support different encoding algorithms, with different output
+lengths, for KEM public keys. Such KEM algorithms MUST specify only one encoding
+algorithm whose output length is `Npk`.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
