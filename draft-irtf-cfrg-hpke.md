@@ -367,7 +367,7 @@ HPKE variants rely on the following primitives:
     the private key `skS`.
   - `Nsecret`: The length in bytes of a KEM shared secret produced by this KEM
   - `Nenc`: The length in bytes of an encapsulated key produced by this KEM
-  - `Npk`: The maximum length in bytes of an encoded public key for this KEM
+  - `Npk`: The length in bytes of an encoded public key for this KEM
   - `Nsk`: The length in bytes of an encoded private key for this KEM
 
 * A Key Derivation Function (KDF):
@@ -1053,11 +1053,9 @@ does not provide them, only the Base and PSK modes of HPKE are supported.
 Future specifications which define new KEMs MUST indicate whether or not
 Auth and AuthPSK modes are supported.
 
-A KEM algorithm MAY define multiple different equivalent encoding
-algorithms for KEM public keys, with different output lengths. In this
-case `Npk` MUST indicate the maximum output length. It is left to the
-application using HPKE to define how entities communicate which encoding
-is used.
+A KEM algorithm may support different encoding algorithms, with different output
+lengths, for KEM public keys. Such KEM algorithms MUST specify only one encoding
+algorithm whose output length is `Npk`.
 
 ## Key Derivation Functions (KDFs) {#kdf-ids}
 
@@ -1476,7 +1474,7 @@ Template:
 * KEM: The name of the algorithm
 * Nsecret: The length in bytes of a KEM shared secret produced by the algorithm
 * Nenc: The length in bytes of an encoded encapsulated key produced by the algorithm
-* Npk: The maximum length in bytes of an encoded public key for the algorithm
+* Npk: The length in bytes of an encoded public key for the algorithm
 * Nsk: The length in bytes of an encoded private key for the algorithm.
 * Reference: Where this algorithm is defined
 
