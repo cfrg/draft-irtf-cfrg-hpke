@@ -348,9 +348,7 @@ HPKE variants rely on the following primitives:
     `(skX, pkX)` from the byte string `ikm`, where `ikm` SHOULD have at
     least `Nsk` bytes of entropy (see {{derive-key-pair}} for discussion)
   - `SerializePublicKey(pkX)`: Produce a byte string of length `Npk` encoding the
-    public key `pkX`. A KEM MAY provide multiple
-    different equivalent encoding algorithms for public keys, with
-    different output lengths.
+    public key `pkX`.
   - `Encap(pk)`: Randomized algorithm to generate an ephemeral,
     fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
@@ -1475,7 +1473,7 @@ Template:
 * Nsecret: The length in bytes of a KEM shared secret produced by the algorithm
 * Nenc: The length in bytes of an encoded encapsulated key produced by the algorithm
 * Npk: The length in bytes of an encoded public key for the algorithm
-* Nsk: The length in bytes of an encoded private key for the algorithm.
+* Nsk: The length in bytes of an encoded private key for the algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kem-ids}}
