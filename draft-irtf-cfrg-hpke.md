@@ -1300,9 +1300,9 @@ oracle model.
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
 properties described in {{sec-properties}}. In particular, the KEM
 shared secret MUST be a uniformly random byte string of length `Nsecret`.
-(This means, for instance, that it would not be sufficient if the KEM
+This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
-to its encoding as byte string.)
+to its encoding as byte string.
 
 ### The KEM `Encap()`/`Decap()` interface
 
