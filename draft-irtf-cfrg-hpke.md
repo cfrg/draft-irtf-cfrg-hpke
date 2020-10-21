@@ -1262,13 +1262,13 @@ and indicates exact security bounds, under the assumption that the
 gap Diffie-Hellman (GDH) problem is hard in the appropriate subgroup {{GAP}},
 and that HKDF can be modeled as a random oracle.
 
-Further, the paper proves composition theorems, showing that HPKE's
+Further, {{ABHKLR20}} proves composition theorems, showing that HPKE's
 Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
 for authenticated KEMs. The assumptions on the KDF are that `Extract()`
 and `Expand()` can be modeled as pseudorandom functions wherein the first
-argument is the key, respectively; the assumption for the AEAD is
+argument is the key, respectively. The assumption for the AEAD is
 IND-CCA2 security.
 
 In summary, the analysis in {{ABHKLR20}} proves that the single-shot encryption API of HPKE's
@@ -1287,8 +1287,7 @@ the composition theorems from {{ABHKLR20}} for HPKE's Auth mode only make
 standard assumptions (i.e., no random oracle assumption) that are expected
 to hold against quantum adversaries (although with slightly worse bounds).
 Thus, these composition theorems, in combination with a post-quantum-secure
-authenticated KEM, guarantee the post-quantum security of HPKE's Auth mode
-(as a reminder, DHKEM is not post-quantum-secure).
+authenticated KEM, guarantee the post-quantum security of HPKE's Auth mode.
 In future work, the analysis from {{ABHKLR20}} can be extended to cover
 HPKE's other modes and desired security properties.
 The hybrid quantum-resistance property described above, which is achieved
@@ -1302,9 +1301,9 @@ oracle model.
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
 properties described in {{sec-properties}}. In particular, the KEM
 shared secret MUST be a uniformly random byte string of length `Nsecret`.
-(This means, for instance, that it would not be sufficient if the KEM
+This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
-to its encoding as byte string.)
+to its encoding as byte string.
 
 ### The KEM `Encap()`/`Decap()` interface
 
