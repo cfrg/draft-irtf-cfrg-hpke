@@ -42,6 +42,21 @@ informative:
         ins: V. Shoup
         name: Victor Shoup
 
+  HHK06:
+    title: "Some (in)sufficient conditions for secure hybrid encryption"
+    target: https://eprint.iacr.org/2006/265
+    date: 2006
+    author:
+      -
+        ins: J. Herranz
+        name: Javier Herranz
+      -
+        ins: D. Hofheinz
+        name: Dennis Hofheinz
+      -
+        ins: E. Kiltz
+        name: Eike Kiltz
+
   S01:
     title: "A proposal for an ISO standard for public key encryption (version 2.1)"
     target: https://eprint.iacr.org/2001/112
@@ -1193,7 +1208,10 @@ compromised, as described in {{WireGuard}}.
 It is shown in {{CS01}} that a hybrid public-key encryption scheme of
 essentially the same form as the Base mode described here is
 IND-CCA2-secure as long as the underlying KEM and AEAD schemes are
-IND-CCA2-secure. The main difference between the scheme proposed there
+IND-CCA2-secure. Moreover, it is shown in {{HHK06}} that IND-CCA2 security
+of the KEM and the data encapsulation mechanism are necessary conditions
+to achieve IND-CCA2 security for hybrid public-key encryption.
+The main difference between the scheme proposed in {{CS01}}
 and the Base mode in this document (both named HPKE) is that we interpose
 some KDF calls between the KEM and the AEAD. Analyzing the HPKE Base mode
 instantiation in this document therefore requires verifying that the
