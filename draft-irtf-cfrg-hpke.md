@@ -1261,7 +1261,7 @@ and indicates exact security bounds, under the assumption that the
 gap Diffie-Hellman (GDH) problem is hard in the appropriate subgroup {{GAP}},
 and that HKDF can be modeled as a random oracle.
 
-Further, the paper proves composition theorems, showing that HPKE's
+Further, {{ABHKLR20}} proves composition theorems, showing that HPKE's
 Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
