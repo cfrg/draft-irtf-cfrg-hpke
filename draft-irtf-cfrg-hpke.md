@@ -367,7 +367,7 @@ HPKE variants rely on the following primitives:
     the private key `skS`.
   - `Nsecret`: The length in bytes of a KEM shared secret produced by this KEM
   - `Nenc`: The length in bytes of an encapsulated key produced by this KEM
-  - `Npk`: The maximum length in bytes of an encoded public key for this KEM
+  - `Npk`: The length in bytes of an encoded public key for this KEM
   - `Nsk`: The length in bytes of an encoded private key for this KEM
 
 * A Key Derivation Function (KDF):
