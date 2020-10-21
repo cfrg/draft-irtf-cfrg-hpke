@@ -1168,19 +1168,20 @@ AuthPSK mode if the pre-shared key and the recipient private key `skR` are
 both compromised. NaCl's `box` interface {{NaCl}} has the same issue. At
 the same time, this enables repudiability.
 
-As shown by {{ABHKLR20}}, key-compromise impersonation attacks are possible
-because KEM ciphertexts are not bound to HPKE messages. An adversary who 
-knows a recipients private key, can decapsulate an observed KEM ciphertext, 
-compute the key schedule, and encrypt an arbitrary message that the recipient 
-will accept as coming from the original sender. Importantly, this is possible even 
+As shown by {{ABHKLR20}}, key-compromise impersonation attacks are generally possible on HPKE
+because KEM ciphertexts are not bound to HPKE messages. An adversary who
+knows a recipients private key, can decapsulate an observed KEM ciphertext,
+compute the key schedule, and encrypt an arbitrary message that the recipient
+will accept as coming from the original sender. Importantly, this is possible even
 with a KEM that is resistant to key-compromise impersonation attacks. As a
-result, mitigating this issue requires fundamental changes that are out-of-scope 
+result, mitigating this issue requires fundamental changes that are out-of-scope
 of this specification.
 
 Applications that require resistance against key-compromise impersonation
 SHOULD take extra steps to prevent this attack. One possibility is to
-produce a digital signature over the entire HPKE message using a sender's private key,
-as a proof of possession.
+produce a digital signature over `(enc, ct)` tuples using a sender's
+private key -- where `ct` is an AEAD ciphertext produced by the single-shot
+or multi-shot API, and `enc` the corresponding KEM encapsulated key.
 
 
 Given these properties, pre-shared keys strengthen both the authentication and the
