@@ -1160,8 +1160,7 @@ key skS and the pre-shared key are not both compromised.
 
 ### Key-Compromise Impersonation
 
-However, it is
-important to note that the DHKEM variants defined in this document are
+The DHKEM variants defined in this document are
 vulnerable to key-compromise impersonation attacks {{?BJM97=DOI.10.1007/BFb0024447}},
 which means that sender authentication cannot be expected to hold in the
 Auth mode if the recipient private key `skR` is compromised, and in the
