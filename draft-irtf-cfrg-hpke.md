@@ -1168,15 +1168,14 @@ AuthPSK mode if the pre-shared key and the recipient private key `skR` are
 both compromised. NaCl's `box` interface {{NaCl}} has the same issue. At
 the same time, this enables repudiability.
 
-Even though it is possible to construct an authenticated
-KEM that is resistant against key-compromise impersonation, a key-compromise
-impersonation stays generally possible on the level of HPKE, as shown by {{ABHKLR20}}.
-That is because the KEM ciphertext is not bound to the HPKE message.
-Thus, an adversary who knows a recipients private key, can decapsulate an
-observed KEM ciphertext, compute the key schedule, and encrypt an arbitrary
-message that the recipient will accept as coming from the original sender.
-Mitigating this issue would require fundamental changes, which are
-out-of-scope of this document.
+As shown by {{ABHKLR20}}, key-compromise impersonation attacks are possible
+because KEM ciphertexts are not bound to HPKE messages. An adversary who 
+knows a recipients private key, can decapsulate an observed KEM ciphertext, 
+compute the key schedule, and encrypt an arbitrary message that the recipient 
+will accept as coming from the original sender. Importantly, this is possible even 
+with a KEM that is resistant to key-compromise impersonation attacks. As a
+result, mitigating this issue requires fundamental changes that are out-of-scope 
+of this specification.
 
 Applications that require resistance against key-compromise impersonation
 SHOULD take extra steps to prevent this attack. One possibility is to
