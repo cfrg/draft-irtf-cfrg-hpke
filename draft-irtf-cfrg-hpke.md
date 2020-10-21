@@ -1286,8 +1286,7 @@ the composition theorems from {{ABHKLR20}} for HPKE's Auth mode only make
 standard assumptions (i.e., no random oracle assumption) that are expected
 to hold against quantum adversaries (although with slightly worse bounds).
 Thus, these composition theorems, in combination with a post-quantum-secure
-authenticated KEM, guarantee the post-quantum security of HPKE's Auth mode
-(as a reminder, DHKEM is not post-quantum-secure).
+authenticated KEM, guarantee the post-quantum security of HPKE's Auth mode.
 In future work, the analysis from {{ABHKLR20}} can be extended to cover
 HPKE's other modes and desired security properties.
 The hybrid quantum-resistance property described above, which is achieved
