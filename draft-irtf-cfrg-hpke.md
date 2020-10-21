@@ -1182,7 +1182,6 @@ SHOULD take extra steps to prevent this attack. One possibility is to
 produce a digital signature over the entire HPKE message using a sender's private key,
 as a proof of possession.
 
-### The Pre-Shared Key
 
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
