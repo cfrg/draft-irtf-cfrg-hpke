@@ -1051,7 +1051,7 @@ the Diffie-Hellman shared secret is the all-zero value and abort if so.
 The `AuthEncap()` and `AuthDecap()` functions are OPTIONAL. If a KEM algorithm
 does not provide them, only the Base and PSK modes of HPKE are supported.
 Future specifications which define new KEMs MUST indicate whether or not
-these modes are supported.
+Auth and AuthPSK modes are supported.
 
 A KEM algorithm MAY define multiple different equivalent encoding
 algorithms for KEM public keys, with different output lengths. In this
