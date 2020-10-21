@@ -1473,7 +1473,7 @@ Template:
 * KEM: The name of the algorithm
 * Nsecret: The length in bytes of a KEM shared secret produced by the algorithm
 * Nenc: The length in bytes of an encoded encapsulated key produced by the algorithm
-* Npk: The maximum length in bytes of an encoded public key for the algorithm
+* Npk: The length in bytes of an encoded public key for the algorithm
 * Nsk: The length in bytes of an encoded private key for the algorithm.
 * Reference: Where this algorithm is defined
 
