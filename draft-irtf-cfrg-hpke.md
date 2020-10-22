@@ -972,14 +972,14 @@ be empty.
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
-| Value  | KEM                        | Nsecret  | Nenc | Npk | Nsk | Reference                    |
-|:-------|:---------------------------|:---------|:-----|:----|:----|:-----------------------------|
-| 0x0000 | (reserved)                 | N/A      | N/A  | N/A | N/A | N/A                          |
-| 0x0010 | DHKEM(P-256, HKDF-SHA256)  | 32       | 65   | 65  | 32  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0011 | DHKEM(P-384, HKDF-SHA384)  | 48       | 97   | 97  | 48  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64       | 133  | 133 | 66  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | {{?RFC7748}}, {{?RFC5869}}   |
+| Value  | KEM                        | Nsecret  | Nenc | Npk | Nsk | Auth | Reference                    |
+|:-------|:---------------------------|:---------|:-----|:----|:----|:-----|:-----------------------------|
+| 0x0000 | (reserved)                 | N/A      | N/A  | N/A | N/A | yes  | N/A                          |
+| 0x0010 | DHKEM(P-256, HKDF-SHA256)  | 32       | 65   | 65  | 32  | yes  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0011 | DHKEM(P-384, HKDF-SHA384)  | 48       | 97   | 97  | 48  | yes  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64       | 133  | 133 | 66  | yes  | {{NISTCurves}}, {{?RFC5869}} |
+| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
 
 ### Serialize and Deserialize
 
@@ -1492,6 +1492,7 @@ Template:
 * Nenc: The length in bytes of an encoded encapsulated key produced by the algorithm
 * Npk: The length in bytes of an encoded public key for the algorithm
 * Nsk: The length in bytes of an encoded private key for the algorithm
+* Auth: A boolean indicating if this algorithm provides the `AuthEncap()`/`AuthDecap()` interface
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{kem-ids}}
