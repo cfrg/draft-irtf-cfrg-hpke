@@ -1181,7 +1181,7 @@ the same time, this enables repudiability.
 
 As shown by {{ABHKLR20}}, key-compromise impersonation attacks are generally possible on HPKE
 because KEM ciphertexts are not bound to HPKE messages. An adversary who
-knows a recipients private key, can decapsulate an observed KEM ciphertext,
+knows a recipient's private key can decapsulate an observed KEM ciphertext,
 compute the key schedule, and encrypt an arbitrary message that the recipient
 will accept as coming from the original sender. Importantly, this is possible even
 with a KEM that is resistant to key-compromise impersonation attacks. As a
