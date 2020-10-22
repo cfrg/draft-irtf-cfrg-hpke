@@ -942,9 +942,18 @@ def DeriveKeyPair(ikm):
 `order` is the order of the curve being used (see section D.1.2 of {{NISTCurves}}), and
 is listed below for completeness.
 
-- P-256: 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
-- P-384: 0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973
-- P-521: 0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409
+~~~~~
+P-256:
+0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+
+P-384: 
+0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf
+  581a0db248b0a77aecec196accc52973
+
+P-521:
+0x01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  fa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409
+~~~~~
 
 `bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
 The precise likelihood of `DeriveKeyPair()` failing with DeriveKeyPairError
