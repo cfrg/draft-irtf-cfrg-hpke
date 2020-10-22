@@ -981,6 +981,10 @@ be empty.
 | 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
 | 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
 
+The `Auth` column indicates if the KEM algorithm provides the
+`AuthEncap()`/`AuthDecap()` interface. The meaning of the other columns
+is explained in {{kem-ids}}.
+
 ### Serialize and Deserialize
 
 For P-256, P-384 and P-521, the `Serialize()` function of the
@@ -1467,7 +1471,7 @@ multiple), and any info values that are not implicit. One example of a non-impli
 is the recipient public key used for encapsulation, which may be needed if a recipient
 has more than one public key.
 
-# IANA Considerations
+# IANA Considerations {#iana}
 
 This document requests the creation of three new IANA registries:
 
@@ -1478,7 +1482,7 @@ This document requests the creation of three new IANA registries:
 All of these registries should be under a heading of "Hybrid Public Key
 Encryption", and administered under a Specification Required policy {{!RFC8126}}
 
-## KEM Identifiers
+## KEM Identifiers {#kem-ids}
 
 The "HPKE KEM Identifiers" registry lists identifiers for key encapsulation
 algorithms defined for use with HPKE.  These are two-byte values, so the
@@ -1497,7 +1501,7 @@ Template:
 
 Initial contents: Provided in {{kem-ids}}
 
-## KDF Identifiers
+## KDF Identifiers {#kdf-ids}
 
 The "HPKE KDF Identifiers" registry lists identifiers for key derivation
 functions defined for use with HPKE.  These are two-byte values, so the maximum
@@ -1512,7 +1516,7 @@ Template:
 
 Initial contents: Provided in {{kdf-ids}}
 
-## AEAD Identifiers
+## AEAD Identifiers {#aead-ids}
 
 The "HPKE AEAD Identifiers" registry lists identifiers for authenticated
 encryption with associated data (AEAD) algorithms defined for use with HPKE.
