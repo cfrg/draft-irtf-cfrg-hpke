@@ -1018,7 +1018,7 @@ found in section D.1.2 of {{NISTCurves}}. `DeserializeSk()` performs the
 Octet-String-to-Field-Element conversion according to {{SECG}}.
 
 For X25519 and X448, private keys are identical to their byte string
-representation, so little processing has to be done. The `SerializeSk()`
+representation, so little processing has to be done. The `SerializePrivateKey()`
 function MUST clamp the private key before returning it, where _clamping_
 refers to the bitwise operations performed on `k` in the `decodeScalar25519()`
 and `decodeScalar448()` functions defined in section 5 of {{?RFC7748}}. The
