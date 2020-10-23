@@ -334,7 +334,7 @@ HPKE variants rely on the following primitives:
     returning plaintext message `pt`. This function can raise an
     `OpenError` or `NonceOverflowError` upon failure.
   - `Nk`: The length in bytes of a key for this algorithm
-  - `Nn`: The length in bytes of a nonce (and initialization vector) for this algorithm
+  - `Nn`: The length in bytes of a nonce for this algorithm
 
 A _ciphersuite_ is a triple (KEM, KDF, AEAD) containing a choice of algorithm
 for each primitive.
@@ -560,9 +560,10 @@ on the KDF itself, on the definition of `LabeledExtract()`, and on the
 constant labels used together with them. See {{kdf-input-length}} for
 precise limits on these lengths.
 
-The `key`, `iv`, and `exporter_secret` computed by the key schedule have the
-property that they are only known to the holder of the recipient private
-key, and the entity that used the KEM to generate `shared_secret` and `enc`.
+The `key`, `base_nonce`, and `exporter_secret` computed by the key schedule
+have the property that they are only known to the holder of the recipient
+private key, and the entity that used the KEM to generate `shared_secret` and
+`enc`.
 
 In the Auth and AuthPSK modes, the recipient is assured that the sender
 held the private key `skS`. This assurance is limited for the DHKEM
@@ -612,10 +613,10 @@ def KeySchedule(mode, shared_secret, info, psk, psk_id):
   secret = LabeledExtract(shared_secret, "secret", psk)
 
   key = LabeledExpand(secret, "key", key_schedule_context, Nk)
-  iv = LabeledExpand(secret, "iv", key_schedule_context, Nn)
+  base_nonce = LabeledExpand(secret, "base_nonce", key_schedule_context, Nn)
   exporter_secret = LabeledExpand(secret, "exp", key_schedule_context, Nh)
 
-  return Context(key, iv, 0, exporter_secret)
+  return Context(key, base_nonce, 0, exporter_secret)
 ~~~~~
 
 See {{hpke-dem}} for a description of the `Context()` output.
@@ -753,7 +754,7 @@ consist of:
 
 * The AEAD algorithm in use
 * A secret `key`
-* An initialization vector `iv`
+* A base nonce `base_nonce`
 * A sequence number (initially 0)
 
 The Secret Export parameters consist of:
@@ -764,10 +765,10 @@ The Secret Export parameters consist of:
 All of these parameters except the AEAD sequence number are constant.
 The sequence number is used to provide nonce uniqueness: The nonce used
 for each encryption or decryption operation is the result of XORing
-`iv` with the current sequence number, encoded as a big-endian integer
-of the same length as `iv`.  Implementations MAY use a sequence number
-that is shorter than the nonce length (padding on the left with zero),
-but MUST raise an error if the sequence number overflows.
+`base_nonce` with the current sequence number, encoded as a big-endian
+integer of the same length as `base_nonce`.  Implementations MAY use a
+sequence number that is shorter than the nonce length (padding on the left
+with zero), but MUST raise an error if the sequence number overflows.
 
 Encryption is unidirectional from sender to recipient. Each encryption
 or decryption operation increments the sequence number for the context
@@ -789,7 +790,7 @@ algorithm.
 ~~~~~
 def Context.ComputeNonce(seq):
   seq_bytes = I2OSP(seq, Nn)
-  return xor(self.iv, seq_bytes)
+  return xor(self.base_nonce, seq_bytes)
 
 def Context.IncrementSeq():
   if self.seq >= (1 << (8*Nn)) - 1:
@@ -946,7 +947,7 @@ is listed below for completeness.
 P-256:
 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 
-P-384: 
+P-384:
 0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf
   581a0db248b0a77aecec196accc52973
 
@@ -1348,7 +1349,7 @@ Template:
 * Value: The two-byte identifier for the algorithm
 * AEAD: The name of the algorithm
 * Nk: The length in bytes of a key for this algorithm
-* Nn: The length in bytes of a nonce (and initialization vector) for this algorithm
+* Nn: The length in bytes of a nonce for this algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{aead-ids}}
