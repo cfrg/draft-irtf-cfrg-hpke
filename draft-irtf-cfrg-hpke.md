@@ -1014,7 +1014,7 @@ the Field-Element-to-Octet-String conversion according to {{SECG}}. If the
 private key is an integer outside the range `[0, order-1]`, where `order` is
 the order of the curve being used, the private key is reduced to its
 representative in `[0, order-1]` before being serialized. Curve orders can be
-found in section D.1.2 of {{NISTCurves}}. `DeserializeSk()` performs the
+found in section D.1.2 of {{NISTCurves}}. `DeserializePrivateKey()` performs the
 Octet-String-to-Field-Element conversion according to {{SECG}}.
 
 For X25519 and X448, private keys are identical to their byte string
