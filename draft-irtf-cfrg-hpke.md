@@ -983,7 +983,7 @@ be empty.
 The `Auth` column indicates if the KEM algorithm provides the `AuthEncap()`/`AuthDecap()`
 interface. The meaning of all other columns is explained in {{kem-template}}.
 
-### Serialize and Deserialize
+### SerializePublicKey and DeserializePublicKey
 
 For P-256, P-384 and P-521, the `Serialize()` function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
@@ -997,7 +997,7 @@ strings for public keys.
 Some deserialized public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
 
-### SerializePrivateKey/DeserializePrivateKey {#serializeprivatekey}
+### SerializePrivateKey and DeserializePrivateKey {#serializeprivatekey}
 
 For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM
 performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
