@@ -1085,7 +1085,7 @@ correct range, that the point is on the curve, and that the point is not the
 point at infinity. Additionally, senders and recipients MUST ensure the
 Diffie-Hellman shared secret is not the point at infinity.
 
-For P-256, P-384 and P-521, `DeserializeSk()` MUST check that the given integer
+For P-256, P-384 and P-521, `DeserializePrivateKey()` MUST check that the given integer
 is not 0 (mod `order`), where `order` is the order of the curve being used.
 
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
