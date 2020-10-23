@@ -395,7 +395,7 @@ HPKE variants rely on the following primitives:
   - `Nn`: The length in bytes of a nonce for this algorithm
 
 Beyond the above, a KEM MAY also expose the following functions, whose behavior
-is detailed in {{serialize-sk}}:
+is detailed in {{serializeprivatekey}}:
 
 - `SerializePrivateKey(sk)`: Produce a byte string of length `Nsk` encoding the private
   key `sk`
@@ -997,25 +997,26 @@ strings for public keys.
 Some deserialized public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
 
-### SerializePrivateKey/DeserializePrivateKey {#serialize-sk}
+### SerializePrivateKey/DeserializePrivateKey {#serializeprivatekey}
 
-For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM performs
-the Field-Element-to-Octet-String conversion according to {{SECG}}. If the
-private key is an integer outside the range `[0, order-1]`, where `order` is
-the order of the curve being used, the private key is reduced to its
-representative in `[0, order-1]` before being serialized. Curve orders can be
-found in section D.1.2 of {{NISTCurves}}. `DeserializePrivateKey()` performs the
-Octet-String-to-Field-Element conversion according to {{SECG}}.
+For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM
+performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
+the private key is an integer outside the range `[0, order-1]`, where `order`
+is the order of the curve being used, the private key MUST be reduced to its
+representative in `[0, order-1]` before being serialized.
+`DeserializePrivateKey()` performs the Octet-String-to-Field-Element conversion
+according to {{SECG}}.
 
 For X25519 and X448, private keys are identical to their byte string
-representation, so little processing has to be done. The `SerializePrivateKey()`
-function MUST clamp the private key before returning it, where _clamping_
-refers to the bitwise operations performed on `k` in the `decodeScalar25519()`
-and `decodeScalar448()` functions defined in section 5 of {{?RFC7748}}. The
-`DeserializePrivateKey()` function is the identity function.
+representation, so little processing has to be done. The
+`SerializePrivateKey()` function MUST clamp its output and
+`DeserializePrivateKey()` MUST clamp its input, where _clamping_ refers to the
+bitwise operations performed on `k` in the `decodeScalar25519()` and
+`decodeScalar448()` functions defined in section 5 of {{?RFC7748}}.
 
-In all cases, deserialized private keys MUST be validated before they can be
-used. See {{validation}} for specifics.
+To catch invalid keys early on, implementors of DHKEMs SHOULD check that
+deserialized private keys are not equivalent to 0 (mod `order`), where `order`
+is the order of the DH group.
 
 ### DeriveKeyPair {#derive-key-pair}
 
@@ -1089,18 +1090,9 @@ correct range, that the point is on the curve, and that the point is not the
 point at infinity. Additionally, senders and recipients MUST ensure the
 Diffie-Hellman shared secret is not the point at infinity.
 
-For P-256, P-384 and P-521, `DeserializePrivateKey()` MUST check that the given integer
-is not 0 (mod `order`), where `order` is the order of the curve being used.
-
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
-
-For X25519 and X448, `DeserializePrivateKey()` MUST check that the given integer, after
-clamping, is not 0 (mod `order`), where `order` is the order of the curve being
-used. _Clamping_ refers to the bitwise operations performed on `k` in the
-`decodeScalar25519()` and `decodeScalar448()` functions defined in section 5 of
-{{?RFC7748}}.
 
 ### Future KEMs {#future-kems}
 
