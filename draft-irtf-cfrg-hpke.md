@@ -1442,7 +1442,8 @@ several features that a more high-level protocol might provide, for example:
 
 * Hiding of plaintext length - AEAD ciphertexts produced by HPKE do not
   hide the length of the plaintext. Applications requiring this level of
-  privacy should employ a suitable padding mechanism.
+  privacy should employ a suitable padding mechanism, see also
+  {{?I-D.ietf-tls-esni}} and {{?RFC8467}}.
 
 ## Metadata Protection
 
