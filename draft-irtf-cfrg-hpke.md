@@ -1137,10 +1137,10 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 
 | Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
 |:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 89  | 2^{125} - 153 | 2^{125} - 153 |
+| psk              | 2^{61} - 88  | 2^{125} - 152 | 2^{125} - 152 |
 | psk_id           | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
-| info             | 2^{61} - 92  | 2^{125} - 156 | 2^{125} - 156 |
-| exporter_context | 2^{61} - 121 | 2^{125} - 201 | 2^{125} - 217 |
+| info             | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| exporter_context | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
 
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
