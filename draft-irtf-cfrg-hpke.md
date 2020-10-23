@@ -321,8 +321,8 @@ of the functions provided by the collection of schemes above, but
 specified with sufficient clarity that they can be interoperably
 implemented. The HPKE construction defined herein is secure against (adaptive)
 chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions about
-the underlying primitives {{HPKEAnalysis, ABHKLR20}}. A summary of this analysis is in
-{{sec-properties}}.
+the underlying primitives {{HPKEAnalysis}}, {{ABHKLR20}}. A summary of
+these analyses is in {{sec-properties}}.
 
 # Requirements Notation
 
@@ -1322,7 +1322,7 @@ This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
 to its encoding as byte string.
 
-### The KEM `Encap()`/`Decap()` interface
+### Encap/Decap Interface
 
 As mentioned in {{sec-considerations}}, {{CS01}} provides some indications
 that if the KEM's `Encap()`/`Decap()` interface (which is used in the Base
@@ -1330,7 +1330,7 @@ and PSK modes), is IND-CCA2-secure, HPKE is able to satisfy its desired
 security properties. An appropriate definition of IND-CCA2-security for
 KEMs can be found in {{CS01}} and {{BHK09}}.
 
-### The KEM `AuthEncap()`/`AuthDecap()` interface
+### AuthEncap/AuthDecap Interface
 
 The analysis of HPKE's Auth mode single-shot encryption API in {{ABHKLR20}}
 provides composition theorems that guarantee that HPKE's Auth mode achieves
@@ -1439,6 +1439,12 @@ several features that a more high-level protocol might provide, for example:
   encryption key is compromised. In the PSK and AuthPSK modes, a given
   ciphertext can be decrypted if the recipient's public encryption key and the
   PSK are compromised.
+
+* Hiding plaintext length - AEAD ciphertexts produced by HPKE do not
+  hide the plaintext length. Applications requiring this level of
+  privacy should use a suitable padding mechanism. See
+  {{?I-D.ietf-tls-esni}} and {{?RFC8467}} for examples of protocol-specific
+  padding policies.
 
 ## Metadata Protection
 
