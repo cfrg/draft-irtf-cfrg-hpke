@@ -1440,6 +1440,10 @@ several features that a more high-level protocol might provide, for example:
   ciphertext can be decrypted if the recipient's public encryption key and the
   PSK are compromised.
 
+* Hiding of plaintext length - AEAD ciphertexts produced by HPKE do not
+  hide the length of the plaintext. Applications requiring this level of
+  privacy should employ a suitable padding mechanism.
+
 ## Metadata Protection
 
 The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the recipient
