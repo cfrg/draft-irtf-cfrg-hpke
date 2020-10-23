@@ -1007,7 +1007,7 @@ strings for public keys.
 Some deserialized public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
 
-### SerializeSk/DeserializeSk {#serialize-sk}
+### SerializePrivateKey/DeserializePrivateKey {#serialize-sk}
 
 For P-256, P-384 and P-521, the `SerializeSk()` function of the KEM performs
 the Field-Element-to-Octet-String conversion according to {{SECG}}. If the
