@@ -408,7 +408,7 @@ is detailed in {{serialize-sk}}:
 
 - `SerializePrivateKey(sk)`: Produce a byte string of length `Nsk` encoding the private
   key `sk`
-- `DeserializeSk(enc)`: Parse a byte string of length `Nsk` to recover a
+- `DeserializePrivateKey(enc)`: Parse a byte string of length `Nsk` to recover a
   private key. This function can raise a `DeserializeError` error upon `enc`
   deserialization failure.
 
