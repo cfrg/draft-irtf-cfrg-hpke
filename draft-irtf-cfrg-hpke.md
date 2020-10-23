@@ -1022,7 +1022,7 @@ representation, so little processing has to be done. The `SerializePrivateKey()`
 function MUST clamp the private key before returning it, where _clamping_
 refers to the bitwise operations performed on `k` in the `decodeScalar25519()`
 and `decodeScalar448()` functions defined in section 5 of {{?RFC7748}}. The
-`DeserializeSk()` function is the identity function.
+`DeserializePrivateKey()` function is the identity function.
 
 In all cases, deserialized private keys MUST be validated before they can be
 used. See {{validation}} for specifics.
