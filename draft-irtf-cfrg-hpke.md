@@ -1009,7 +1009,7 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 ### SerializePrivateKey/DeserializePrivateKey {#serialize-sk}
 
-For P-256, P-384 and P-521, the `SerializeSk()` function of the KEM performs
+For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM performs
 the Field-Element-to-Octet-String conversion according to {{SECG}}. If the
 private key is an integer outside the range `[0, order-1]`, where `order` is
 the order of the curve being used, the private key is reduced to its
