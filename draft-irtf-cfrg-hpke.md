@@ -1092,7 +1092,7 @@ For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
-For X25519 and X448, `DeserializeSk()` MUST check that the given integer, after
+For X25519 and X448, `DeserializePrivateKey()` MUST check that the given integer, after
 clamping, is not 0 (mod `order`), where `order` is the order of the curve being
 used. _Clamping_ refers to the bitwise operations performed on `k` in the
 `decodeScalar25519()` and `decodeScalar448()` functions defined in section 5 of
