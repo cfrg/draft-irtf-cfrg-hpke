@@ -21,8 +21,9 @@ This requires that you have the necessary software installed.  See
 
 | Implementation                                     | Language | Version  | Modes  |
 | -------------------------------------------------- |:---------|:---------|:-------|
-| [https://github.com/cisco/go-hpke](go-hpke)        | Go       | draft-06 | All    | 
-| [https://github.com/rozbb/rust-hpke](rust-hpke)    | Rust     | draft-06 | All    | 
+| [go-hpke](https://github.com/cisco/go-hpke)        | Go       | draft-06 | All    |
+| [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-06 | All    |
+| [BoringSSL](https://boringssl.googlesource.com/boringssl/+/HEAD/crypto/hpke/) | C | draft-05 | Base, PSK |
 
 Submit a PR if you would like your implementation to be added!
 
