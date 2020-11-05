@@ -17,6 +17,14 @@ $ make
 This requires that you have the necessary software installed.  See
 [the instructions](https://github.com/martinthomson/i-d-template/blob/master/doc/SETUP.md).
 
+# Existing HPKE implementations
+
+| Implementation                                     | Language | Version  | Modes  |
+| -------------------------------------------------- |:---------|:---------|:-------|
+| [https://github.com/cisco/go-hpke](go-hpke)        | Go       | draft-06 | All    | 
+| [https://github.com/rozbb/rust-hpke](rust-hpke)    | Rust     | draft-06 | All    | 
+
+Submit a PR if you would like your implementation to be added!
 
 ## Contributing
 
