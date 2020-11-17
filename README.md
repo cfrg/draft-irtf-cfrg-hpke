@@ -25,6 +25,7 @@ This requires that you have the necessary software installed.  See
 | [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-06 | All    |
 | [BoringSSL](https://boringssl.googlesource.com/boringssl/+/HEAD/crypto/hpke/) | C | draft-05 | Base, PSK |
 | [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-05 | Base, PSK |
+| [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-06 | All |
 
 Submit a PR if you would like your implementation to be added!
 
