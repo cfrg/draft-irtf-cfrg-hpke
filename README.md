@@ -27,6 +27,7 @@ This requires that you have the necessary software installed.  See
 | [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-05 | Base, PSK |
 | [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | draft-06 | All    |
 | [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-06 | All |
+| [hpke-wrap](https://github.com/danharkins/hpke-wrap) | C/OpenSSL | draft-06 | All |
 
 Submit a PR if you would like your implementation to be added!
 
