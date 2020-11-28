@@ -334,8 +334,9 @@ operations, roles, and behaviors of HPKE:
 - Sender (S): Role of entity which sends an encrypted message.
 - Recipient (R): Role of entity which receives an encrypted message.
 - Ephemeral (E): Role of a fresh random value meant for one-time use.
-- I2OSP and OS2IP: Convert a byte string to and from a non-negative integer as
-  described in {{!RFC8017}}. Note that these functions operate on byte strings
+- `I2OSP(n)` and `OS2IP(x)`: Convert a byte string to and from a non-negative
+  integer as described in {{!RFC8017}}. Note that these functions operate on
+  byte strings
   in big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
@@ -999,6 +1000,12 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 ### SerializePrivateKey and DeserializePrivateKey {#serializeprivatekey}
 
+As per {{SECG}}, P-256, P-384 and P-521 private keys are field elements in the
+scalar field of the curve being used. For this section, and for
+{{derive-key-pair}}, it is assumed that implementors of ECDH over these curves
+use an integer representation of private keys that is compatible with the
+`OS2IP()` function.
+
 For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM
 performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
 the private key is an integer outside the range `[0, order-1]`, where `order`
@@ -1016,7 +1023,8 @@ bitwise operations performed on `k` in the `decodeScalar25519()` and
 
 To catch invalid keys early on, implementors of DHKEMs SHOULD check that
 deserialized private keys are not equivalent to 0 (mod `order`), where `order`
-is the order of the DH group.
+is the order of the DH group. Note that property is trivially true for X25519
+and X448 groups, since clamped values can never be 0 (mod `order`).
 
 ### DeriveKeyPair {#derive-key-pair}
 
@@ -1091,7 +1099,7 @@ point at infinity. Additionally, senders and recipients MUST ensure the
 Diffie-Hellman shared secret is not the point at infinity.
 
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
-as described in {{RFC7748}}. In particular, recipients MUST check whether
+as described in {{?RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 ### Future KEMs {#future-kems}
