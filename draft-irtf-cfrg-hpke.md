@@ -999,7 +999,7 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 ### SerializePrivateKey and DeserializePrivateKey {#serializeprivatekey}
 
-As per {{SECG}}, P-256, P-384 and P-521 private keys are field elements in the
+As per {{SECG}}, P-256, P-384, and P-521 private keys are field elements in the
 scalar field of the curve being used. For this section, and for
 {{derive-key-pair}}, it is assumed that implementors of ECDH over these curves
 use an integer representation of private keys that is compatible with the
