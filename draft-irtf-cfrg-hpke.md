@@ -336,8 +336,7 @@ operations, roles, and behaviors of HPKE:
 - Ephemeral (E): Role of a fresh random value meant for one-time use.
 - `I2OSP(n)` and `OS2IP(x)`: Convert a byte string to and from a non-negative
   integer as described in {{!RFC8017}}. Note that these functions operate on
-  byte strings
-  in big-endian byte order.
+  byte strings in big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `random(n)`: A pseudorandom byte string of length `n` bytes
@@ -3193,4 +3192,3 @@ ciphertext: cf5d16f80af79584cb3333c2bc86fe2e5ef33d4abc3292c45f6481c85af8
 6ddeb62ca7cb5a2dd32c59e9a6ecfa
 
 ~~~
-
