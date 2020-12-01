@@ -355,6 +355,9 @@ HPKE variants rely on the following primitives:
     least `Nsk` bytes of entropy (see {{derive-key-pair}} for discussion)
   - `SerializePublicKey(pkX)`: Produce a byte string of length `Npk` encoding the
     public key `pkX`.
+  - `DeserializePublicKey(enc)`: Parse a byte string of length `Npk` to recover a
+    public key. This function can raise a `DeserializeError` error upon `enc`
+    deserialization failure.
   - `Encap(pk)`: Randomized algorithm to generate an ephemeral,
     fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
