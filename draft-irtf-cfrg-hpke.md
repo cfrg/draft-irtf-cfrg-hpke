@@ -397,10 +397,10 @@ HPKE variants rely on the following primitives:
 Beyond the above, a KEM MAY also expose the following functions, whose behavior
 is detailed in {{serializeprivatekey}}:
 
-- `SerializePrivateKey(sk)`: Produce a byte string of length `Nsk` encoding the private
-  key `sk`
-- `DeserializePrivateKey(enc)`: Parse a byte string of length `Nsk` to recover a
-  private key. This function can raise a `DeserializeError` error upon `enc`
+- `SerializePrivateKey(skX)`: Produce a byte string of length `Nsk` encoding the private
+  key `skX`
+- `DeserializePrivateKey(skXm)`: Parse a byte string of length `Nsk` to recover a
+  private key. This function can raise a `DeserializeError` error upon `skXm`
   deserialization failure.
 
 A _ciphersuite_ is a triple (KEM, KDF, AEAD) containing a choice of algorithm
