@@ -137,7 +137,8 @@ informative:
         org: Inria Paris
 
   ABHKLR20:
-    title: "A Formal Analysis of the HPKE Standard"
+    title: "Analysing the HPKE Standard"
+    target: https://eprint.iacr.org/2020/1499
     date: 2020
     author:
       -
