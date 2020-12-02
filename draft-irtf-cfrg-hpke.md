@@ -397,10 +397,10 @@ HPKE variants rely on the following primitives:
 Beyond the above, a KEM MAY also expose the following functions, whose behavior
 is detailed in {{serializeprivatekey}}:
 
-- `SerializePrivateKey(sk)`: Produce a byte string of length `Nsk` encoding the private
-  key `sk`
-- `DeserializePrivateKey(enc)`: Parse a byte string of length `Nsk` to recover a
-  private key. This function can raise a `DeserializeError` error upon `enc`
+- `SerializePrivateKey(skX)`: Produce a byte string of length `Nsk` encoding the private
+  key `skX`.
+- `DeserializePrivateKey(skXm)`: Parse a byte string of length `Nsk` to recover a
+  private key. This function can raise a `DeserializeError` error upon `skXm`
   deserialization failure.
 
 A _ciphersuite_ is a triple (KEM, KDF, AEAD) containing a choice of algorithm
@@ -726,8 +726,8 @@ The KEM shared secret is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
-The parameter `pkR` is a public key, and `enc` is a
-serialized public key.
+The parameter `pkR` is a public key, and `enc` is an encapsulated
+KEM shared secret.
 
 ~~~~~
 def SetupBaseS(pkR, info):
@@ -780,7 +780,7 @@ The primary difference from the base case is that the calls to
 `Encap()` and `Decap()` are replaced with calls to `AuthEncap()` and
 `AuthDecap()`, which add the sender public key to their internal
 context string. The function parameters `pkR` and `pkS` are
-public keys, and `enc` is a serialized public key.
+public keys, and `enc` is an encapsulated KEM shared secret.
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
