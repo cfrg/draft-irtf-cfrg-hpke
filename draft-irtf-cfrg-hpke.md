@@ -1558,7 +1558,7 @@ Initial contents: Provided in {{aead-ids}}
 # Acknowledgements
 
 The authors would like to thank
-Joel Alwen,
+Joël Alwen,
 Jean-Philippe Aumasson,
 David Benjamin,
 Benjamin Beurdouche,
@@ -3179,4 +3179,3 @@ ciphertext: cf5d16f80af79584cb3333c2bc86fe2e5ef33d4abc3292c45f6481c85af8
 6ddeb62ca7cb5a2dd32c59e9a6ecfa
 
 ~~~
-
