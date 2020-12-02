@@ -129,7 +129,8 @@ informative:
         org: Inria Paris
 
   ABHKLR20:
-    title: "A Formal Analysis of the HPKE Standard"
+    title: "Analysing the HPKE Standard"
+    target: https://eprint.iacr.org/2020/1499
     date: 2020
     author:
       -
@@ -304,9 +305,9 @@ operations, roles, and behaviors of HPKE:
 - Sender (S): Role of entity which sends an encrypted message.
 - Recipient (R): Role of entity which receives an encrypted message.
 - Ephemeral (E): Role of a fresh random value meant for one-time use.
-- I2OSP and OS2IP: Convert a byte string to and from a non-negative integer as
-  described in {{!RFC8017}}. Note that these functions operate on byte strings
-  in big-endian byte order.
+- `I2OSP(n)` and `OS2IP(x)`: Convert a byte string to and from a non-negative
+  integer as described in {{!RFC8017}}. Note that these functions operate on
+  byte strings in big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `random(n)`: A pseudorandom byte string of length `n` bytes
@@ -325,6 +326,9 @@ HPKE variants rely on the following primitives:
     least `Nsk` bytes of entropy (see {{derive-key-pair}} for discussion)
   - `SerializePublicKey(pkX)`: Produce a byte string of length `Npk` encoding the
     public key `pkX`.
+  - `DeserializePublicKey(pkXm)`: Parse a byte string of length `Npk` to recover a
+    public key. This function can raise a `DeserializeError` error upon `pkXm`
+    deserialization failure.
   - `Encap(pkR)`: Randomized algorithm to generate an ephemeral,
     fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
@@ -367,10 +371,10 @@ HPKE variants rely on the following primitives:
 Beyond the above, a KEM MAY also expose the following functions, whose behavior
 is detailed in {{serializeprivatekey}}:
 
-- `SerializePrivateKey(sk)`: Produce a byte string of length `Nsk` encoding the private
-  key `sk`
-- `DeserializePrivateKey(enc)`: Parse a byte string of length `Nsk` to recover a
-  private key. This function can raise a `DeserializeError` error upon `enc`
+- `SerializePrivateKey(skX)`: Produce a byte string of length `Nsk` encoding the private
+  key `skX`.
+- `DeserializePrivateKey(skXm)`: Parse a byte string of length `Nsk` to recover a
+  private key. This function can raise a `DeserializeError` error upon `skXm`
   deserialization failure.
 
 A _ciphersuite_ is a triple (KEM, KDF, AEAD) containing a choice of algorithm
@@ -700,8 +704,8 @@ The KEM shared secret is combined via the KDF
 with information describing the key exchange, as well as the
 explicit `info` parameter provided by the caller.
 
-The parameter `pkR` is a public key, and `enc` is a
-serialized public key.
+The parameter `pkR` is a public key, and `enc` is an encapsulated
+KEM shared secret.
 
 ~~~~~
 def SetupBaseS(pkR, info):
@@ -756,7 +760,7 @@ The primary difference from the base case is that the calls to
 `Encap()` and `Decap()` are replaced with calls to `AuthEncap()` and
 `AuthDecap()`, which add the sender public key to their internal
 context string. The function parameters `pkR` and `pkS` are
-public keys, and `enc` is a serialized public key.
+public keys, and `enc` is an encapsulated KEM shared secret.
 
 Obviously, this variant can only be used with a KEM that provides
 `AuthEncap()` and `AuthDecap()` procedures.
@@ -980,6 +984,12 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 ### SerializePrivateKey and DeserializePrivateKey {#serializeprivatekey}
 
+As per {{SECG}}, P-256, P-384, and P-521 private keys are field elements in the
+scalar field of the curve being used. For this section, and for
+{{derive-key-pair}}, it is assumed that implementors of ECDH over these curves
+use an integer representation of private keys that is compatible with the
+`OS2IP()` function.
+
 For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM
 performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
 the private key is an integer outside the range `[0, order-1]`, where `order`
@@ -997,7 +1007,8 @@ bitwise operations performed on `k` in the `decodeScalar25519()` and
 
 To catch invalid keys early on, implementors of DHKEMs SHOULD check that
 deserialized private keys are not equivalent to 0 (mod `order`), where `order`
-is the order of the DH group.
+is the order of the DH group. Note that property is trivially true for X25519
+and X448 groups, since clamped values can never be 0 (mod `order`).
 
 ### DeriveKeyPair {#derive-key-pair}
 
@@ -1073,7 +1084,7 @@ point at infinity. Additionally, senders and recipients MUST ensure the
 Diffie-Hellman shared secret is not the point at infinity.
 
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
-as described in {{RFC7748}}. In particular, recipients MUST check whether
+as described in {{?RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 ### Future KEMs {#future-kems}
