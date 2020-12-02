@@ -398,7 +398,7 @@ Beyond the above, a KEM MAY also expose the following functions, whose behavior
 is detailed in {{serializeprivatekey}}:
 
 - `SerializePrivateKey(skX)`: Produce a byte string of length `Nsk` encoding the private
-  key `skX`
+  key `skX`.
 - `DeserializePrivateKey(skXm)`: Parse a byte string of length `Nsk` to recover a
   private key. This function can raise a `DeserializeError` error upon `skXm`
   deserialization failure.
