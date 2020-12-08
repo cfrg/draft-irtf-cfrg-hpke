@@ -28,6 +28,7 @@ This requires that you have the necessary software installed.  See
 | [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | draft-06 | All    |
 | [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-06 | All |
 | [hpke-wrap](https://github.com/danharkins/hpke-wrap) | C/OpenSSL | draft-06 | All |
+| [hacl-star-hpke](https://github.com/project-everest/hacl-star/blob/_blipp_hpke/specs/Spec.Agile.HPKE.fsti) | F\* | draft-05 | All |
 
 Submit a PR if you would like your implementation to be added!
 
