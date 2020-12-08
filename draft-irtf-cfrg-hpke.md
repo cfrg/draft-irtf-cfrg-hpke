@@ -250,7 +250,7 @@ arbitrary-sized plaintexts for a recipient public key. HPKE works
 for any combination of an asymmetric key encapsulation mechanism
 (KEM), key derivation function (KDF), and authenticated encryption
 with additional data (AEAD) encryption function. We provide
-instantiations of the scheme using widely-used and efficient
+instantiations of the scheme using widely used and efficient
 primitives, such as Elliptic Curve Diffie-Hellman key agreement,
 HKDF, and SHA2.
 
@@ -276,7 +276,7 @@ TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}.
 Currently, there are numerous competing and non-interoperable standards and
 variants for hybrid encryption, mostly based on ECIES, including ANSI X9.63
 (ECIES) {{ANSI}}, IEEE 1363a {{IEEE1363}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
-{{SECG}}.  See {{MAEA10}} for a thorough comparison.  All of these existing
+{{SECG}}.  See {{MAEA10}} for a thorough comparison.  All these existing
 schemes have problems, e.g., because they rely on outdated primitives, lack
 proofs of IND-CCA2 security, or fail to provide test vectors.
 
@@ -541,7 +541,7 @@ In this section, we define a few HPKE variants.  All variants take a
 recipient public key and a sequence of plaintexts `pt`, and produce an
 encapsulated key `enc` and a sequence of ciphertexts `ct`.  These outputs are
 constructed so that only the holder of `skR` can decapsulate the key from
-`enc` and decrypt the ciphertexts.  All of the algorithms also take an
+`enc` and decrypt the ciphertexts.  All the algorithms also take an
 `info` parameter that can be used to influence the generation of keys
 (e.g., to fold in identity information) and an `aad` parameter that
 provides Additional Authenticated Data to the AEAD algorithm in use.
@@ -561,7 +561,7 @@ values will be used to distinguish between modes:
 | mode_auth     | 0x02  |
 | mode_auth_psk | 0x03  |
 
-All of these cases follow the same basic two-step pattern:
+All these cases follow the same basic two-step pattern:
 
 1. Set up an encryption context that is shared between the sender
    and the recipient
@@ -585,7 +585,7 @@ details.
 
 Note that some KEMs may not support `AuthEncap()` or `AuthDecap()`.
 For such KEMs, only `mode_base` or `mode_psk` are supported. Future specifications
-which define new KEMs MUST indicate whether or not these modes are supported.
+which define new KEMs MUST indicate whether these modes are supported.
 See {{future-kems}} for more details.
 
 The procedures described in this session are laid out in a
@@ -828,7 +828,7 @@ The Secret Export parameters consist of:
 * The HPKE ciphersuite in use
 * An `exporter_secret` used for the Secret Export interface; see {{hpke-export}}
 
-All of these parameters except the AEAD sequence number are constant.
+All these parameters except the AEAD sequence number are constant.
 The sequence number is used to provide nonce uniqueness: The nonce used
 for each encryption or decryption operation is the result of XORing
 `base_nonce` with the current sequence number, encoded as a big-endian
@@ -986,7 +986,7 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 As per {{SECG}}, P-256, P-384, and P-521 private keys are field elements in the
 scalar field of the curve being used. For this section, and for
-{{derive-key-pair}}, it is assumed that implementors of ECDH over these curves
+{{derive-key-pair}}, it is assumed that implementers of ECDH over these curves
 use an integer representation of private keys that is compatible with the
 `OS2IP()` function.
 
@@ -1005,9 +1005,9 @@ representation, so little processing has to be done. The
 bitwise operations performed on `k` in the `decodeScalar25519()` and
 `decodeScalar448()` functions defined in section 5 of {{?RFC7748}}.
 
-To catch invalid keys early on, implementors of DHKEMs SHOULD check that
+To catch invalid keys early on, implementers of DHKEMs SHOULD check that
 deserialized private keys are not equivalent to 0 (mod `order`), where `order`
-is the order of the DH group. Note that property is trivially true for X25519
+is the order of the DH group. Note that this property is trivially true for X25519
 and X448 groups, since clamped values can never be 0 (mod `order`).
 
 ### DeriveKeyPair {#derive-key-pair}
@@ -1513,7 +1513,7 @@ This document requests the creation of three new IANA registries:
 * HPKE KDF Identifiers
 * HPKE AEAD Identifiers
 
-All of these registries should be under a heading of "Hybrid Public Key
+All these registries should be under a heading of "Hybrid Public Key
 Encryption", and administered under a Specification Required policy {{!RFC8126}}
 
 ## KEM Identifiers {#kem-template}
