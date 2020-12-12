@@ -1487,10 +1487,8 @@ sender, it can derive a key and nonce from the corresponding HPKE context
 as follows:
 
 ~~~
-secret = context.Export("response", Nh)
-prk = Extract("", secret)
-key = Expand(prk, "key", Nk)
-nonce = Expand(prk, "nonce", Nn)
+key = context.Export("response key", Nk)
+nonce = context.Export("response nonce", Nn)
 ~~~
 
 In this example, the length of each secret is based on the AEAD algorithm
