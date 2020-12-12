@@ -842,7 +842,7 @@ in use.  The sender's context MUST NOT be used for decryption. Similarly,
 the recipient's context MUST NOT be used for encryption. Higher-level
 protocols re-using the HPKE key exchange for more general purposes can
 derive separate keying material as needed using use the Export interface;
-see {{hpke-export}} for more details.
+see {{hpke-export}} and {{bidirectional}} for more details.
 
 It is up to the application to ensure that encryptions and
 decryptions are done in the proper sequence, so that encryption
@@ -1226,7 +1226,6 @@ produce a digital signature over `(enc, ct)` tuples using a sender's
 private key -- where `ct` is an AEAD ciphertext produced by the single-shot
 or multi-shot API, and `enc` the corresponding KEM encapsulated key.
 
-
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
@@ -1474,6 +1473,28 @@ several features that a more high-level protocol might provide, for example:
   privacy should use a suitable padding mechanism. See
   {{?I-D.ietf-tls-esni}} and {{?RFC8467}} for examples of protocol-specific
   padding policies.
+
+## Bidirectional Encryption {#bidirectional}
+
+As discussed in {{hpke-dem}}, HPKE encryption is unidirectional from sender
+to receiver. Applications that require bidirectional encryption can derive
+necessary keying material with the Secret Export interface {{hpke-export}}.
+The type and length of such keying material depends on the application use
+case.
+
+As an example, if an application needs AEAD encryption from receiver to
+sender, it can derive a key and nonce from the corresponding HPKE context
+as follows:
+
+~~~
+secret = context.Export("response", Nh)
+prk = Extract("", secret)
+key = Expand(prk, "key", Nk)
+nonce = Expand(prk, "nonce", Nn)
+~~~
+
+In this example, the length of each secret is based on the AEAD algorithm
+used for the corresponding HPKE context.
 
 ## Metadata Protection
 
