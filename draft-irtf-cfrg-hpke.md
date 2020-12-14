@@ -1171,7 +1171,7 @@ of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 | 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
-| 0xFFFF | (reserved)       | N/A | N/A | N/A          |
+| 0xFFFF | Export-only      | N/A | N/A | [[RFCXXXX]] |
 
 The `0xFFFF` AEAD ID is reserved for applications which only use the Export
 interface; see {{hpke-export}} for more details.
