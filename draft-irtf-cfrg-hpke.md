@@ -897,6 +897,11 @@ def Context.Export(exporter_context, L):
                        exporter_context, L)
 ~~~~~
 
+Applications that do not use the encryption API in {{hpke-dem}} can use
+the reserved AEAD `0xFFFF` when computing the key schedule. Such applications
+can avoid computing the `key` and `base_nonce` values in the key schedule,
+as they are not used by the Export interface described above.
+
 # Single-Shot APIs
 
 ## Encryption and Decryption {#single-shot-encryption}
@@ -1166,6 +1171,10 @@ of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 | 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
+| 0xFFFF | (reserved)       | N/A | N/A | N/A          |
+
+The `0xFFFF` AEAD ID is reserved for applications which only use the Export
+interface; see {{hpke-export}} for more details.
 
 # Security Considerations {#sec-considerations}
 
