@@ -879,7 +879,8 @@ def Context<ROLE>.IncrementSeq():
 The sender's context MUST NOT be used for decryption. Similarly, the recipient's
 context MUST NOT be used for encryption. Higher-level protocols re-using the HPKE
 key exchange for more general purposes can derive separate keying material as
-needed using use the Export interface; see {{hpke-export}} for more details.
+needed using use the Export interface; see {{hpke-export}} and {{bidirectional}} 
+for more details.
 
 It is up to the application to ensure that encryptions and decryptions are
 done in the proper sequence, so that encryption and decryption nonces align.
@@ -910,6 +911,11 @@ def Context.Export(exporter_context, L):
   return LabeledExpand(self.exporter_secret, "sec",
                        exporter_context, L)
 ~~~~~
+
+Applications that do not use the encryption API in {{hpke-dem}} can use
+the reserved AEAD `0xFFFF` when computing the key schedule. Such applications
+can avoid computing the `key` and `base_nonce` values in the key schedule,
+as they are not used by the Export interface described above.
 
 # Single-Shot APIs
 
@@ -1180,6 +1186,10 @@ of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 | 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
+| 0xFFFF | Export-only      | N/A | N/A | [[RFCXXXX]] |
+
+The `0xFFFF` AEAD ID is reserved for applications which only use the Export
+interface; see {{hpke-export}} for more details.
 
 # Security Considerations {#sec-considerations}
 
@@ -1239,7 +1249,6 @@ SHOULD take extra steps to prevent this attack. One possibility is to
 produce a digital signature over `(enc, ct)` tuples using a sender's
 private key -- where `ct` is an AEAD ciphertext produced by the single-shot
 or multi-shot API, and `enc` the corresponding KEM encapsulated key.
-
 
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
@@ -1488,6 +1497,33 @@ several features that a more high-level protocol might provide, for example:
   privacy should use a suitable padding mechanism. See
   {{?I-D.ietf-tls-esni}} and {{?RFC8467}} for examples of protocol-specific
   padding policies.
+
+## Bidirectional Encryption {#bidirectional}
+
+As discussed in {{hpke-dem}}, HPKE encryption is unidirectional from sender
+to receiver. Applications that require bidirectional encryption can derive
+necessary keying material with the Secret Export interface {{hpke-export}}.
+The type and length of such keying material depends on the application use
+case.
+
+As an example, if an application needs AEAD encryption from receiver to
+sender, it can derive a key and nonce from the corresponding HPKE context
+as follows:
+
+~~~
+key = context.Export("response key", Nk)
+nonce = context.Export("response nonce", Nn)
+~~~
+
+In this example, the length of each secret is based on the AEAD algorithm
+used for the corresponding HPKE context.
+
+Note that HPKE's limitations with regard to sender authentication become limits
+on receiver authentication in this context. In particular, in the base mode,
+there is no authentication of the remote party at all. Even in the Auth mode,
+where the remote party has proven that they hold a specific private key, this
+authentication is still subject to Key-Compromise Impersonation, as discussed
+in {{key-compromise-impersonation}}.
 
 ## Metadata Protection
 

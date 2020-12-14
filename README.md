@@ -23,6 +23,7 @@ This requires that you have the necessary software installed.  See
 | -------------------------------------------------- |:---------|:---------|:-------|
 | [go-hpke](https://github.com/cisco/go-hpke)        | Go       | draft-06 | All    |
 | [CIRCL](https://github.com/cloudflare/circl/tree/master/hpke) | Go       | draft-06 | All    |
+| [hpke-compact](https://github.com/jedisct1/go-hpke-compact)   | Go       | draft-06 | All    |
 | [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-06 | All    |
 | [BoringSSL](https://boringssl.googlesource.com/boringssl/+/HEAD/crypto/hpke/) | C | draft-05 | Base, PSK |
 | [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-05 | Base, PSK |
