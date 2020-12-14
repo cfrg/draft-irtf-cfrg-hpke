@@ -661,7 +661,7 @@ def VerifyPSKInputs(mode, psk, psk_id):
   if (not got_psk) and (mode in [mode_psk, mode_auth_psk]):
     raise Exception("Missing required PSK input")
 
-def KeySchedule(mode, shared_secret, info, psk, psk_id):
+def KeySchedule<ROLE>(mode, shared_secret, info, psk, psk_id):
   VerifyPSKInputs(mode, psk, psk_id)
 
   psk_id_hash = LabeledExtract("", "psk_id_hash", psk_id)
@@ -676,10 +676,12 @@ def KeySchedule(mode, shared_secret, info, psk, psk_id):
   exporter_secret = LabeledExpand(secret, "exp",
                                   key_schedule_context, Nh)
 
-  return Context(key, base_nonce, 0, exporter_secret)
+  return Context<ROLE>(key, base_nonce, 0, exporter_secret)
 ~~~~~
 
-See {{hpke-dem}} for a description of the `Context()` output.
+The `ROLE` template parameter is either S or R, depending on the role of
+sender or receiver, respectively. See {{hpke-dem}} for a discussion of the
+key schedule output, including the role-specific `Context` structure and its API.
 
 Note that the `key_schedule_context` construction in `KeySchedule()` is
 equivalent to serializing a structure of the following form in the TLS presentation
@@ -710,13 +712,13 @@ KEM shared secret.
 ~~~~~
 def SetupBaseS(pkR, info):
   shared_secret, enc = Encap(pkR)
-  return enc, KeySchedule(mode_base, shared_secret, info,
-                          default_psk, default_psk_id)
+  return enc, KeyScheduleS(mode_base, shared_secret, info,
+                           default_psk, default_psk_id)
 
 def SetupBaseR(enc, skR, info):
   shared_secret = Decap(enc, skR)
-  return KeySchedule(mode_base, shared_secret, info,
-                     default_psk, default_psk_id)
+  return KeyScheduleR(mode_base, shared_secret, info,
+                      default_psk, default_psk_id)
 ~~~~~
 
 ### Authentication using a Pre-Shared Key {#mode-psk}
@@ -737,11 +739,11 @@ bytes or longer. See {{security-psk}} for a more detailed discussion.
 ~~~~~
 def SetupPSKS(pkR, info, psk, psk_id):
   shared_secret, enc = Encap(pkR)
-  return enc, KeySchedule(mode_psk, shared_secret, info, psk, psk_id)
+  return enc, KeyScheduleS(mode_psk, shared_secret, info, psk, psk_id)
 
 def SetupPSKR(enc, skR, info, psk, psk_id):
   shared_secret = Decap(enc, skR)
-  return KeySchedule(mode_psk, shared_secret, info, psk, psk_id)
+  return KeyScheduleR(mode_psk, shared_secret, info, psk, psk_id)
 ~~~~~
 
 ### Authentication using an Asymmetric Key {#mode-auth}
@@ -774,13 +776,13 @@ included in the `info` parameter to avoid identity mis-binding issues {{IMB}}.
 ~~~~~
 def SetupAuthS(pkR, info, skS):
   shared_secret, enc = AuthEncap(pkR, skS)
-  return enc, KeySchedule(mode_auth, shared_secret, info,
-                          default_psk, default_psk_id)
+  return enc, KeyScheduleS(mode_auth, shared_secret, info,
+                           default_psk, default_psk_id)
 
 def SetupAuthR(enc, skR, info, pkS):
   shared_secret = AuthDecap(enc, skR, pkS)
-  return KeySchedule(mode_auth, shared_secret, info,
-                     default_psk, default_psk_id)
+  return KeyScheduleR(mode_auth, shared_secret, info,
+                      default_psk, default_psk_id)
 ~~~~~
 
 ### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
@@ -793,13 +795,13 @@ variants.
 ~~~~~
 def SetupAuthPSKS(pkR, info, psk, psk_id, skS):
   shared_secret, enc = AuthEncap(pkR, skS)
-  return enc, KeySchedule(mode_auth_psk, shared_secret, info,
-                          psk, psk_id)
+  return enc, KeyScheduleS(mode_auth_psk, shared_secret, info,
+                           psk, psk_id)
 
 def SetupAuthPSKR(enc, skR, info, psk, psk_id, pkS):
   shared_secret = AuthDecap(enc, skR, pkS)
-  return KeySchedule(mode_auth_psk, shared_secret, info,
-                     psk, psk_id)
+  return KeyScheduleR(mode_auth_psk, shared_secret, info,
+                      psk, psk_id)
 ~~~~~
 
 The PSK MUST have at least 32 bytes of entropy and SHOULD be of length `Nh`
@@ -814,9 +816,9 @@ decryption, this allows applications to amortize the cost of the
 public-key operations, reducing the overall overhead.
 
 In order to avoid nonce reuse, however, this encryption must be
-stateful. Each of the setup procedures above produces a context object
-that stores the AEAD and Secret Export parameters. The AEAD parameters
-consist of:
+stateful. Each of the setup procedures above produces a role-specific
+context object that stores the AEAD and Secret Export parameters.
+The AEAD parameters consist of:
 
 * The AEAD algorithm in use
 * A secret `key`
@@ -829,52 +831,65 @@ The Secret Export parameters consist of:
 * An `exporter_secret` used for the Secret Export interface; see {{hpke-export}}
 
 All these parameters except the AEAD sequence number are constant.
-The sequence number is used to provide nonce uniqueness: The nonce used
-for each encryption or decryption operation is the result of XORing
+The sequence number provides nonce uniqueness: The nonce used for
+each encryption or decryption operation is the result of XORing
 `base_nonce` with the current sequence number, encoded as a big-endian
-integer of the same length as `base_nonce`.  Implementations MAY use a
+integer of the same length as `base_nonce`. Implementations MAY use a
 sequence number that is shorter than the nonce length (padding on the left
 with zero), but MUST raise an error if the sequence number overflows.
 
-Encryption is unidirectional from sender to recipient. Each encryption
-or decryption operation increments the sequence number for the context
-in use.  The sender's context MUST NOT be used for decryption. Similarly,
-the recipient's context MUST NOT be used for encryption. Higher-level
-protocols re-using the HPKE key exchange for more general purposes can
-derive separate keying material as needed using use the Export interface;
-see {{hpke-export}} and {{bidirectional}} for more details.
-
-It is up to the application to ensure that encryptions and
-decryptions are done in the proper sequence, so that encryption
-and decryption nonces align. If `Context.Seal()` or `Context.Open()` would cause
-the `seq` field to overflow, then the implementation MUST fail with an error.
-(In the pseudocode below, `Context.IncrementSeq()` fails with an error when `seq` overflows,
-which causes `Context.Seal()` and `Context.Open()` to fail accordingly.) Note that
-the internal `Seal()` and `Open()` calls inside correspond to the context's AEAD
-algorithm.
+Encryption is unidirectional from sender to recipient. The sender's
+context can encrypt a plaintext `pt` with associated data `aad` as
+follows:
 
 ~~~~~
-def Context.ComputeNonce(seq):
-  seq_bytes = I2OSP(seq, Nn)
-  return xor(self.base_nonce, seq_bytes)
-
-def Context.IncrementSeq():
-  if self.seq >= (1 << (8*Nn)) - 1:
-    raise NonceOverflowError
-  self.seq += 1
-
-def Context.Seal(aad, pt):
+def ContextS.Seal(aad, pt):
   ct = Seal(self.key, self.ComputeNonce(self.seq), aad, pt)
   self.IncrementSeq()
   return ct
+~~~~~
 
-def Context.Open(aad, ct):
+The receiver's context can decrypt a ciphertext `ct` with assciated
+data `aad` as follows:
+
+~~~~~
+def ContextR.Open(aad, ct):
   pt = Open(self.key, self.ComputeNonce(self.seq), aad, ct)
   if pt == OpenError:
     raise OpenError
   self.IncrementSeq()
   return pt
 ~~~~~
+
+Each encryption or decryption operation increments the sequence number for
+the context in use. The per-message nonce and sequence number increment
+details are as follows:
+
+~~~~~
+def Context<ROLE>.ComputeNonce(seq):
+  seq_bytes = I2OSP(seq, Nn)
+  return xor(self.base_nonce, seq_bytes)
+
+def Context<ROLE>.IncrementSeq():
+  if self.seq >= (1 << (8*Nn)) - 1:
+    raise NonceOverflowError
+  self.seq += 1
+~~~~~
+
+The sender's context MUST NOT be used for decryption. Similarly, the recipient's
+context MUST NOT be used for encryption. Higher-level protocols re-using the HPKE
+key exchange for more general purposes can derive separate keying material as
+needed using use the Export interface; see {{hpke-export}} and {{bidirectional}} 
+for more details.
+
+It is up to the application to ensure that encryptions and decryptions are
+done in the proper sequence, so that encryption and decryption nonces align.
+If `ContextS.Seal()` or `ContextR.Open()` would cause the `seq` field to
+overflow, then the implementation MUST fail with an error. (In the pseudocode
+below, `Context<ROLE>.IncrementSeq()` fails with an error when `seq` overflows,
+which causes `ContextS.Seal()` and `ContextR.Open()` to fail accordingly.)
+Note that the internal `Seal()` and `Open()` calls inside correspond to the
+context's AEAD algorithm.
 
 ## Secret Export {#hpke-export}
 
@@ -907,8 +922,8 @@ as they are not used by the Export interface described above.
 ## Encryption and Decryption {#single-shot-encryption}
 
 In many cases, applications encrypt only a single message to a recipient's public key.
-This section provides templates for HPKE APIs that implement stateless "single-shot" encryption
-and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
+This section provides templates for HPKE APIs that implement stateless "single-shot"
+encryption and decryption using APIs specified in {{hpke-kem}} and {{hpke-dem}}:
 
 ~~~~~
 def Seal<MODE>(pkR, info, aad, pt, ...):
@@ -1467,9 +1482,9 @@ several features that a more high-level protocol might provide, for example:
   suboptimal algorithms.
 
 * Replay protection - The requirement that ciphertexts be presented to the
-  `Context.Open()` function in the same order they were generated by `Context.Seal()`
+  `ContextR.Open()` function in the same order they were generated by `ContextS.Seal()`
   provides a degree of replay protection within a stream of ciphertexts
-  resulting from a given `Context`.  HPKE provides no other replay protection.
+  resulting from a given context.  HPKE provides no other replay protection.
 
 * Forward secrecy - HPKE ciphertexts are not forward-secure. In the Base and
   Auth modes, a given ciphertext can be decrypted if the recipient's public
