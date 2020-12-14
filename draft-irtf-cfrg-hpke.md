@@ -1494,7 +1494,7 @@ nonce = context.Export("response nonce", Nn)
 In this example, the length of each secret is based on the AEAD algorithm
 used for the corresponding HPKE context.
 
-DISCLAIMER: Note that HPKE's limitations with regard to sender authentication
+Note that HPKE's limitations with regard to sender authentication
 become limits on receiver authentication in this context. In particular, in
 the base mode, there is no authentication of the remote party at all. Even in
 the Auth mode, where the remote party has proven that they hold a specific
