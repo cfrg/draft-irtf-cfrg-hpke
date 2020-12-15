@@ -397,16 +397,16 @@ KDF calls as well as context binding:
 
 ~~~
 def LabeledExtract(salt, label, ikm):
-  labeled_ikm = concat("HPKE-06", suite_id, label, ikm)
+  labeled_ikm = concat("HPKE-07", suite_id, label, ikm)
   return Extract(salt, labeled_ikm)
 
 def LabeledExpand(prk, label, info, L):
-  labeled_info = concat(I2OSP(L, 2), "HPKE-06", suite_id,
+  labeled_info = concat(I2OSP(L, 2), "HPKE-07", suite_id,
                         label, info)
   return Expand(prk, labeled_info, L)
 ~~~
 
-\[\[RFC editor: please change "HPKE-06" to "RFCXXXX", where XXXX is the final number, before publication.]]
+\[\[RFC editor: please change "HPKE-07" to "RFCXXXX", where XXXX is the final number, before publication.]]
 
 The value of `suite_id` depends on where the KDF is used; it is assumed
 implicit from the implementation and not passed as a parameter. If used
@@ -1173,11 +1173,11 @@ max_size_hash_input - Nb - Nh - size_label_rfcXXXX -
 In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_label_rfcXXXX` is the size
-of "HPKE-06" in bytes and equals 7, `size_suite_id` is the size of the
+of "HPKE-07" in bytes and equals 7, `size_suite_id` is the size of the
 `suite_id` and equals 10, and `size_input_label` is the size
 of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 
-\[\[RFC editor: please change "HPKE-06" to "RFCXXXX", where XXXX is the final number, before publication.]]
+\[\[RFC editor: please change "HPKE-07" to "RFCXXXX", where XXXX is the final number, before publication.]]
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
@@ -1459,7 +1459,7 @@ Future KEM instantiations MUST ensure that all internal invocations of
 `Extract()` and `Expand()` can be modeled as functions independent from the
 invocations of `Extract()` and `Expand()` in the remainder of HPKE. One way to
 ensure this is by using an equal or similar prefixing scheme with
-an identifier different from "HPKE-06". Particular attention needs to
+an identifier different from "HPKE-07". Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case of HKDF.
 It MUST be ensured that inputs to these invocations cannot collide with
@@ -1467,7 +1467,7 @@ inputs to the internal invocations of these functions inside Extract or
 Expand. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
 `Hash()` on the arbitrary-length inputs `info` and `psk_id`.
 
-The string literal "HPKE-06" used in `LabeledExtract()` and `LabeledExpand()`
+The string literal "HPKE-07" used in `LabeledExtract()` and `LabeledExpand()`
 ensures that any secrets derived in HPKE are bound to the scheme's name,
 even when possibly derived from the same Diffie-Hellman or KEM shared
 secret as in another scheme.
