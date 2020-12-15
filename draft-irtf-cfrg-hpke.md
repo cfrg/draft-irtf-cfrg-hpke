@@ -849,7 +849,7 @@ def ContextS.Seal(aad, pt):
   return ct
 ~~~~~
 
-The receiver's context can decrypt a ciphertext `ct` with assciated
+The receiver's context can decrypt a ciphertext `ct` with associated
 data `aad` as follows:
 
 ~~~~~
@@ -879,7 +879,7 @@ def Context<ROLE>.IncrementSeq():
 The sender's context MUST NOT be used for decryption. Similarly, the recipient's
 context MUST NOT be used for encryption. Higher-level protocols re-using the HPKE
 key exchange for more general purposes can derive separate keying material as
-needed using use the Export interface; see {{hpke-export}} and {{bidirectional}} 
+needed using use the Export interface; see {{hpke-export}} and {{bidirectional}}
 for more details.
 
 It is up to the application to ensure that encryptions and decryptions are
@@ -893,7 +893,7 @@ context's AEAD algorithm.
 
 ## Secret Export {#hpke-export}
 
-HPKE provides an interface for exporting secrets from the encryption `Context`
+HPKE provides an interface for exporting secrets from the encryption context
 using a variable-length PRF, similar to the TLS 1.3 exporter interface
 (see {{?RFC8446}}, Section 7.5). This interface takes as input a context
 string `exporter_context` and a desired length `L` in bytes, and produces
@@ -904,7 +904,8 @@ MUST specify a bound for `L`.
 
 The `exporter_context` field has a maximum length that depends on the KDF
 itself, on the definition of `LabeledExpand()`, and on the constant labels
-used together with them. See {{kdf-input-length}} for precise limits on this length.
+used together with them. See {{kdf-input-length}} for precise limits on this
+length.
 
 ~~~~~
 def Context.Export(exporter_context, L):
@@ -913,9 +914,9 @@ def Context.Export(exporter_context, L):
 ~~~~~
 
 Applications that do not use the encryption API in {{hpke-dem}} can use
-the reserved AEAD `0xFFFF` when computing the key schedule. Such applications
-can avoid computing the `key` and `base_nonce` values in the key schedule,
-as they are not used by the Export interface described above.
+the export-only AEAD ID `0xFFFF` when computing the key schedule. Such
+applications can avoid computing the `key` and `base_nonce` values in the
+key schedule, as they are not used by the Export interface described above.
 
 # Single-Shot APIs
 
