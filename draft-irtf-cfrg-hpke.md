@@ -579,7 +579,7 @@ parameters (`enc`, `psk_id`, etc.) are transported between the sender and the
 recipient by some application making use of HPKE. Moreover, a recipient with more
 than one public key needs some way of determining which of its public keys was
 used for the encapsulation operation. As an example, applications may send this
-information alongside a ciphertext from sender to receiver. Specification of
+information alongside a ciphertext from sender to recipient. Specification of
 such a mechanism is left to the application. See {{message-encoding}} for more
 details.
 
@@ -680,7 +680,7 @@ def KeySchedule<ROLE>(mode, shared_secret, info, psk, psk_id):
 ~~~~~
 
 The `ROLE` template parameter is either S or R, depending on the role of
-sender or receiver, respectively. See {{hpke-dem}} for a discussion of the
+sender or recipient, respectively. See {{hpke-dem}} for a discussion of the
 key schedule output, including the role-specific `Context` structure and its API.
 
 Note that the `key_schedule_context` construction in `KeySchedule()` is
@@ -849,7 +849,7 @@ def ContextS.Seal(aad, pt):
   return ct
 ~~~~~
 
-The receiver's context can decrypt a ciphertext `ct` with assciated
+The recipient's context can decrypt a ciphertext `ct` with assciated
 data `aad` as follows:
 
 ~~~~~
@@ -879,7 +879,7 @@ def Context<ROLE>.IncrementSeq():
 The sender's context MUST NOT be used for decryption. Similarly, the recipient's
 context MUST NOT be used for encryption. Higher-level protocols re-using the HPKE
 key exchange for more general purposes can derive separate keying material as
-needed using use the Export interface; see {{hpke-export}} and {{bidirectional}} 
+needed using use the Secret Export interface; see {{hpke-export}} and {{bidirectional}} 
 for more details.
 
 It is up to the application to ensure that encryptions and decryptions are
@@ -1436,7 +1436,7 @@ To recover a lower entropy PSK, an attacker in this scenario can trivially
 perform a dictionary attack. Given a set `S` of possible PSK values, the
 attacker generates an HPKE ciphertext for each value in `S`, and submits
 the resulting ciphertexts to the oracle to learn which PSK is being used by
-the receiver. Further, because HPKE uses AEAD schemes that are not key-committing,
+the recipient. Further, because HPKE uses AEAD schemes that are not key-committing,
 an attacker can mount a partitioning oracle attack {{LGR20}} which can recover
 the PSK from a set of `S` possible PSK values, with |S| = m\*k, in roughly
 m + log k queries to the oracle using ciphertexts of length proportional to
@@ -1501,12 +1501,12 @@ several features that a more high-level protocol might provide, for example:
 ## Bidirectional Encryption {#bidirectional}
 
 As discussed in {{hpke-dem}}, HPKE encryption is unidirectional from sender
-to receiver. Applications that require bidirectional encryption can derive
+to recipient. Applications that require bidirectional encryption can derive
 necessary keying material with the Secret Export interface {{hpke-export}}.
 The type and length of such keying material depends on the application use
 case.
 
-As an example, if an application needs AEAD encryption from receiver to
+As an example, if an application needs AEAD encryption from recipient to
 sender, it can derive a key and nonce from the corresponding HPKE context
 as follows:
 
@@ -1519,7 +1519,7 @@ In this example, the length of each secret is based on the AEAD algorithm
 used for the corresponding HPKE context.
 
 Note that HPKE's limitations with regard to sender authentication become limits
-on receiver authentication in this context. In particular, in the base mode,
+on recipient authentication in this context. In particular, in the Base mode,
 there is no authentication of the remote party at all. Even in the Auth mode,
 where the remote party has proven that they hold a specific private key, this
 authentication is still subject to Key-Compromise Impersonation, as discussed
