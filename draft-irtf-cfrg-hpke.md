@@ -309,7 +309,7 @@ operations, roles, and behaviors of HPKE:
 - `I2OSP(n, w)`: Convert non-negative integer `n` to a `w`-length,
   big-endian byte string as described in {{!RFC8017}}.
 - `OS2IP(x)`: Convert byte string `x` to a non-negative integer as
-  described in {{!RFC8017}}.
+  described in {{!RFC8017}}, assuming big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `random(n)`: A pseudorandom byte string of length `n` bytes
@@ -421,7 +421,7 @@ Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
 - `DH(skX, pkY)`: Perform a non-interactive Diffie-Hellman exchange using
-  the private key `skX` and public key `pkY` to produce a shared secret of
+  the private key `skX` and public key `pkY` to produce a Diffie-Hellman shared secret of
   length `Ndh`. This function can raise a `ValidationError` as described
   in {{validation}}.
 - `Ndh`: The length in bytes of a Diffie-Hellman shared secret produced
