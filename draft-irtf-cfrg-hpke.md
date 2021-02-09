@@ -448,19 +448,19 @@ def ExtractAndExpand(dh, kem_context):
 def Encap(pkR):
   skE, pkE = GenerateKeyPair()
   dh = DH(skE, pkR)
-  enc = Serialize(pkE)
+  enc = SerializePublicKey(pkE)
 
-  pkRm = Serialize(pkR)
+  pkRm = SerializePublicKey(pkR)
   kem_context = concat(enc, pkRm)
 
   shared_secret = ExtractAndExpand(dh, kem_context)
   return shared_secret, enc
 
 def Decap(enc, skR):
-  pkE = Deserialize(enc)
+  pkE = DeserializePublicKey(enc)
   dh = DH(skR, pkE)
 
-  pkRm = Serialize(pk(skR))
+  pkRm = SerializePublicKey(pk(skR))
   kem_context = concat(enc, pkRm)
 
   shared_secret = ExtractAndExpand(dh, kem_context)
@@ -469,21 +469,21 @@ def Decap(enc, skR):
 def AuthEncap(pkR, skS):
   skE, pkE = GenerateKeyPair()
   dh = concat(DH(skE, pkR), DH(skS, pkR))
-  enc = Serialize(pkE)
+  enc = SerializePublicKey(pkE)
 
-  pkRm = Serialize(pkR)
-  pkSm = Serialize(pk(skS))
+  pkRm = SerializePublicKey(pkR)
+  pkSm = SerializePublicKey(pk(skS))
   kem_context = concat(enc, pkRm, pkSm)
 
   shared_secret = ExtractAndExpand(dh, kem_context)
   return shared_secret, enc
 
 def AuthDecap(enc, skR, pkS):
-  pkE = Deserialize(enc)
+  pkE = DeserializePublicKey(enc)
   dh = concat(DH(skR, pkE), DH(skR, pkS))
 
-  pkRm = Serialize(pk(skR))
-  pkSm = Serialize(pkS)
+  pkRm = SerializePublicKey(pk(skR))
+  pkSm = SerializePublicKey(pkS)
   kem_context = concat(enc, pkRm, pkSm)
 
   shared_secret = ExtractAndExpand(dh, kem_context)
@@ -980,14 +980,14 @@ interface. The meaning of all other columns is explained in {{kem-template}}.
 
 ### SerializePublicKey and DeserializePublicKey
 
-For P-256, P-384 and P-521, the `Serialize()` function of the
+For P-256, P-384 and P-521, the `SerializePublicKey()` function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
-conversion according to {{SECG}}. `Deserialize()` performs the
+conversion according to {{SECG}}. `DeserializePublicKey()` performs the
 uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
 
-For X25519 and X448, the `Serialize()` and `Deserialize()` functions
-are the identity function, since these curves already use fixed-length byte
-strings for public keys.
+For X25519 and X448, the `SerializePublicKey()` and `DeserializePublicKey()`
+functions are the identity function, since these curves already use
+fixed-length byte strings for public keys.
 
 Some deserialized public keys MUST be validated before they can be used. See
 {{validation}} for specifics.
