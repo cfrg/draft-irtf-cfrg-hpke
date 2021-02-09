@@ -309,7 +309,7 @@ operations, roles, and behaviors of HPKE:
 - `I2OSP(n, w)`: Convert non-negative integer `n` to a `w`-length,
   big-endian byte string as described in {{!RFC8017}}.
 - `OS2IP(x)`: Convert byte string `x` to a non-negative integer as
-  described in {{!RFC8017}}.
+  described in {{!RFC8017}}, assuming big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
 - `random(n)`: A pseudorandom byte string of length `n` bytes
