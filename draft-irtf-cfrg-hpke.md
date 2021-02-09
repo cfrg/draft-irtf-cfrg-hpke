@@ -549,6 +549,7 @@ values will be used to distinguish between modes:
 | mode_psk      | 0x01  |
 | mode_auth     | 0x02  |
 | mode_auth_psk | 0x03  |
+{: #hpke-modes title="HPKE Modes"}
 
 All these cases follow the same basic two-step pattern:
 
@@ -586,7 +587,7 @@ The variants of HPKE defined in this document share a common
 key schedule that translates the protocol inputs into an encryption
 context. The key schedule inputs are as follows:
 
-* `mode` - A one-byte value indicating the HPKE mode, defined in {{hpke}} (Table 1).
+* `mode` - A one-byte value indicating the HPKE mode, defined in {{hpke-modes}}.
 * `shared_secret` - A KEM shared secret generated for this transaction.
 * `info` - Application-supplied information (optional; default value
   "").
@@ -621,8 +622,8 @@ then the recipient is assured that the sender held the corresponding
 pre-shared key. See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
-AEAD `aead_id` 2-byte code points as defined in {{kem-ids}}, {{kdf-ids}},
-and {{aead-ids}}, respectively, are assumed implicit from the implementation
+AEAD `aead_id` 2-byte code points as defined in {{kemid-values}}, {{kdfid-values}},
+and {{aeadid-values}}, respectively, are assumed implicit from the implementation
 and not passed as parameters. The implicit `suite_id` value used within
 `LabeledExtract` and `LabeledExpand` is defined based on them as follows:
 
@@ -974,6 +975,7 @@ be empty.
 | 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64       | 133  | 133 | 66  | yes  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
 | 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
+{: #kemid-values title="KEM IDs"}
 
 The `Auth` column indicates if the KEM algorithm provides the `AuthEncap()`/`AuthDecap()`
 interface. The meaning of all other columns is explained in {{kem-template}}.
@@ -1118,6 +1120,7 @@ algorithm whose output length is `Npk`.
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
 | 0x0002 | HKDF-SHA384 | 48  | {{?RFC5869}} |
 | 0x0003 | HKDF-SHA512 | 64  | {{?RFC5869}} |
+{: #kdfid-values title="KDF IDs"}
 
 ### Input Length Restrictions {#kdf-input-length}
 
@@ -1136,6 +1139,7 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 | psk_id           | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
 | info             | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
 | exporter_context | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
+{: #input-limits title="Application Input Limits"}
 
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
@@ -1174,7 +1178,8 @@ of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
 | 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
-| 0xFFFF | Export-only      | N/A | N/A | [[RFCXXXX]] |
+| 0xFFFF | Export-only      | N/A | N/A | [[RFCXXXX]]  |
+{: #aeadid-values title="AEAD IDs"}
 
 The `0xFFFF` AEAD ID is reserved for applications which only use the Export
 interface; see {{hpke-export}} for more details.
@@ -1571,7 +1576,7 @@ Template:
 * Auth: A boolean indicating if this algorithm provides the `AuthEncap()`/`AuthDecap()` interface
 * Reference: Where this algorithm is defined
 
-Initial contents: Provided in {{kem-ids}}
+Initial contents: Provided in {{kemid-values}}
 
 ## KDF Identifiers
 
@@ -1586,7 +1591,7 @@ Template:
 * Nh: The output size of the Extract function in bytes
 * Reference: Where this algorithm is defined
 
-Initial contents: Provided in {{kdf-ids}}
+Initial contents: Provided in {{kdfid-values}}
 
 ## AEAD Identifiers
 
@@ -1602,7 +1607,7 @@ Template:
 * Nn: The length in bytes of a nonce for this algorithm
 * Reference: Where this algorithm is defined
 
-Initial contents: Provided in {{aead-ids}}
+Initial contents: Provided in {{aeadid-values}}
 
 # Acknowledgements
 
