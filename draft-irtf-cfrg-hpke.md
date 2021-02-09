@@ -421,7 +421,7 @@ Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
 - `DH(skX, pkY)`: Perform a non-interactive Diffie-Hellman exchange using
-  the private key `skX` and public key `pkY` to produce a shared secret of
+  the private key `skX` and public key `pkY` to produce a Diffie-Hellman shared secret of
   length `Ndh`. This function can raise a `ValidationError` as described
   in {{validation}}.
 - `Ndh`: The length in bytes of a Diffie-Hellman shared secret produced
