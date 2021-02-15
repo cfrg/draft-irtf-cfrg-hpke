@@ -1218,6 +1218,10 @@ reception. In the AuthPSK mode, sender authentication is generally
 expected to hold if at the time of message reception, the sender private
 key skS and the pre-shared key are not both compromised.
 
+HPKE mitigates malleability problems (called benign malleability {{SECG}}) in prior
+public key encryption standards based on ECIES by including all public keys in the
+context key schedule.
+
 ### Key-Compromise Impersonation
 
 The DHKEM variants defined in this document are
