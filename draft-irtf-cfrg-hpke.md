@@ -1101,11 +1101,13 @@ the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 ### KEM Key Reuse
 
-The properties of HPKE depend on the uniqueness of the shared secret.  Senders
-and recipients independently ensure a unique shared secret by each choosing a
+The properties of HPKE depend on the uniqueness of the shared secret.  A
+recipient can use the same keying material to establish multiple contexts.
+Senders ensure that the shared secret is unique for each context by choosing a
 unique value for input keying material.  For the KEMs in this document, the
 `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be reused
-between contexts, even for a different KEM.
+by a sender for multiple contexts, even for a different KEM.  A receiver MUST
+NOT use the same `ikm` for different KEMs.
 
 ### Future KEMs {#future-kems}
 
