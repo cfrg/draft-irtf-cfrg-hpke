@@ -21,7 +21,7 @@ This requires that you have the necessary software installed.  See
 
 | Implementation                                     | Language | Version  | Modes  |
 | -------------------------------------------------- |:---------|:---------|:-------|
-| [go-hpke](https://github.com/cisco/go-hpke)        | Go       | draft-07 | All    |
+| [go-hpke](https://github.com/cisco/go-hpke)        | Go       | draft-08 | All    |
 | [CIRCL](https://github.com/cloudflare/circl/tree/master/hpke) | Go       | draft-07 | All but "Export Only" |
 | [hpke-compact](https://github.com/jedisct1/go-hpke-compact)   | Go       | draft-07 | All    |
 | [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-07 | All    |
