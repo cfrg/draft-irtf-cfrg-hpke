@@ -1365,7 +1365,10 @@ oracle model.
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
-properties described in {{sec-properties}}. In particular, the KEM
+properties described in {{sec-properties}}. {{domain-separation}} lists
+requirements concerning domain separation.
+
+In particular, the KEM
 shared secret MUST be a uniformly random byte string of length `Nsecret`.
 This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
@@ -1451,16 +1454,20 @@ achieved by the different prefix-free label parameters in the calls to
 domains of all `Extract()` and `Expand()` invocations. It also justifies modeling
 them as independent functions even if instantiated by the same KDF.
 
-Future KEM instantiations MUST ensure that all internal invocations of
-`Extract()` and `Expand()` can be modeled as functions independent from the
-invocations of `Extract()` and `Expand()` in the remainder of HPKE. One way to
-ensure this is by using an equal or similar prefixing scheme with
-an identifier different from "HPKE-v1". Particular attention needs to
+Future KEM instantiations MUST ensure, should `Extract()` and
+`Expand()` be used internally, that they can be modeled as functions
+independent from the invocations of `Extract()` and `Expand()` in the
+remainder of HPKE. One way to ensure this is by using `LabeledExtract()`
+and `LabeledExpand()` with label parameters that are prefix-free among
+each other and prefix-free with respect to the labels used in the remainder
+of HPKE. The definition of `suite_id` as defined in {{base-crypto}} MUST
+be respected and used with a `kem_id` allocated to only this KEM.
+Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case of HKDF.
 It MUST be ensured that inputs to these invocations cannot collide with
-inputs to the internal invocations of these functions inside Extract or
-Expand. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
+inputs to the internal invocations of these functions inside `Extract()` or
+`Expand()`. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
 `Hash()` on the arbitrary-length inputs `info` and `psk_id`.
 
 The string literal "HPKE-v1" used in `LabeledExtract()` and `LabeledExpand()`
