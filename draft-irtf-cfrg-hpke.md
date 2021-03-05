@@ -1670,6 +1670,7 @@ Doreen Riepel,
 Raphael Robert,
 Michael Rosenberg,
 Michael Scott,
+Martin Thomson,
 Steven Valdez,
 Riad Wahby,
 and other contributors in the CFRG for helpful feedback that greatly improved this document.
