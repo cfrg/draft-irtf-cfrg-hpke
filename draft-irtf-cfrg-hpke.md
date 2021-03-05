@@ -1028,6 +1028,10 @@ The keys that `DeriveKeyPair()` produces have only as much entropy as the provid
 input keying material. For a given KEM, the `ikm` parameter given to `DeriveKeyPair()` SHOULD
 have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
 
+A value `ikm` used with `DeriveKeyPair()` MUST NOT be reused elsewhere,
+in particular not for other invocations of `DeriveKeyPair()`, be it for
+the same or a different KEM.
+
 All invocations of KDF functions (such as `LabeledExtract` or `LabeledExpand`) in any
 DHKEM's `DeriveKeyPair()` function use the DHKEM's associated KDF (as opposed to
 the ciphersuite's KDF).
