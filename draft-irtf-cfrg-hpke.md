@@ -1129,16 +1129,17 @@ KDFs listed above. These functions add prefixes to their respective
 inputs `ikm` and `info` before calling the KDF's `Extract()` and `Expand()`
 functions. This leads to a reduction of the maximum input length that
 is available for the inputs `psk`, `psk_id`, `info`, `exporter_context`,
-i.e., the variable-length parameters provided by HPKE applications.
+`ikm`, i.e., the variable-length parameters provided by HPKE applications.
 The following table lists the maximum allowed lengths of these fields
 for the KDFs defined in this document, as inclusive bounds in bytes:
 
-| Input            | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
-|:-----------------|:-------------|:--------------|:--------------|
-| psk              | 2^{61} - 88  | 2^{125} - 152 | 2^{125} - 152 |
-| psk_id           | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
-| info             | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
-| exporter_context | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
+| Input               | HKDF-SHA256  | HKDF-SHA384   | HKDF-SHA512   |
+|:--------------------|:-------------|:--------------|:--------------|
+| psk                 | 2^{61} - 88  | 2^{125} - 152 | 2^{125} - 152 |
+| psk_id              | 2^{61} - 93  | 2^{125} - 157 | 2^{125} - 157 |
+| info                | 2^{61} - 91  | 2^{125} - 155 | 2^{125} - 155 |
+| exporter_context    | 2^{61} - 120 | 2^{125} - 200 | 2^{125} - 216 |
+| ikm (DeriveKeyPair) | 2^{61} - 84  | 2^{125} - 148 | 2^{125} - 148 |
 {: #input-limits title="Application Input Limits"}
 
 This shows that the limits are only marginally smaller than the maximum
@@ -1147,7 +1148,7 @@ unlikely to be reached in practical applications. Future specifications
 which define new KDFs MUST specify bounds for these variable-length
 parameters.
 
-The values for `psk`, `psk_id`, and `info` which are inputs to
+The values for `psk`, `psk_id`, `info`, and `ikm` which are inputs to
 `LabeledExtract()` were computed with the following expression:
 
 ~~~
@@ -1167,8 +1168,10 @@ In these equations, `max_size_hash_input` is the maximum input length
 of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_version_label` is the size
 of "HPKE-v1" in bytes and equals 7, `size_suite_id` is the size of the
-`suite_id` and equals 10, and `size_input_label` is the size
-of the label used as parameter to `LabeledExtract()` or `LabeledExpand()`.
+`suite_id` and equals 5 for DHKEM (relevant for `ikm`) and 10 for the
+remainder of HPKE (relevant for `psk`, `psk_id`, `info`, `exporter_context`),
+and `size_input_label` is the size of the label used as parameter to
+`LabeledExtract()` or `LabeledExpand()`.
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
