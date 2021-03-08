@@ -1028,10 +1028,6 @@ The keys that `DeriveKeyPair()` produces have only as much entropy as the provid
 input keying material. For a given KEM, the `ikm` parameter given to `DeriveKeyPair()` SHOULD
 have length at least `Nsk`, and SHOULD have at least `Nsk` bytes of entropy.
 
-A value `ikm` used with `DeriveKeyPair()` MUST NOT be reused elsewhere,
-in particular not for other invocations of `DeriveKeyPair()`, be it for
-the same or a different KEM.
-
 All invocations of KDF functions (such as `LabeledExtract` or `LabeledExpand`) in any
 DHKEM's `DeriveKeyPair()` function use the DHKEM's associated KDF (as opposed to
 the ciphersuite's KDF).
@@ -1102,6 +1098,24 @@ Diffie-Hellman shared secret is not the point at infinity.
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{?RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
+
+### KEM Key Reuse
+
+
+A value `ikm` used with `DeriveKeyPair()` MUST NOT be reused elsewhere,
+in particular not for other invocations of `DeriveKeyPair()`, be it for
+the same or a different KEM.
+
+An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be reused elsewhere, in particular not with `DeriveKeyPair()` of a different KEM.
+
+Ephemeral KEM key pairs MUST NOT be reused.
+
+Sender and receiver KEM key pairs are valid 
+
+A sender or receiver KEM key pair
+
+
+
 
 ### Future KEMs {#future-kems}
 
