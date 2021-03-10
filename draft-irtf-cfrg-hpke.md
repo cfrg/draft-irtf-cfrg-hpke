@@ -1101,14 +1101,12 @@ the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 ### KEM Key Reuse
 
+An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be
+reused elsewhere, in particular not with `DeriveKeyPair()` of a
+different KEM.
 
-A value `ikm` used with `DeriveKeyPair()` MUST NOT be reused elsewhere,
-in particular not for other invocations of `DeriveKeyPair()`, be it for
-the same or a different KEM.
-
-An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be reused elsewhere, in particular not with `DeriveKeyPair()` of a different KEM.
-
-Ephemeral KEM key pairs MUST NOT be reused.
+The randomness used in `Encap()` and `AuthEncap()` to generate the
+KEM shared secret and its encapsulation MUST NOT be reused elsewhere.
 
 Sender and receiver KEM key pairs are valid 
 
