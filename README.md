@@ -28,7 +28,7 @@ This requires that you have the necessary software installed.  See
 | [BoringSSL](https://boringssl.googlesource.com/boringssl/+/HEAD/crypto/hpke/) | C | draft-07 | Base, PSK |
 | [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-07 | Base, PSK |
 | [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | draft-07 | All    |
-| [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-07 | All |
+| [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-08 | All |
 | [hpke-wrap](https://github.com/danharkins/hpke-wrap) | C/OpenSSL | draft-07 | All |
 | [hacl-star-hpke](https://github.com/project-everest/hacl-star/blob/_blipp_hpke/specs/Spec.Agile.HPKE.fsti) | F\* | draft-05 | All |
 
