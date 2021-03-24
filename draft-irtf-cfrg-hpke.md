@@ -1106,14 +1106,13 @@ reused elsewhere, in particular not with `DeriveKeyPair()` of a
 different KEM.
 
 The randomness used in `Encap()` and `AuthEncap()` to generate the
-KEM shared secret and its encapsulation MUST NOT be reused elsewhere.
+KEM shared secret and/or its encapsulation MUST NOT be reused elsewhere.
 
-Sender and receiver KEM key pairs are valid 
-
-A sender or receiver KEM key pair
-
-
-
+A sender or recipient KEM key pair works with all modes, it could thus
+be used with multiple modes in parallel. HPKE is constructed to be
+secure in such settings due to domain separation using the `suite_id`
+variable. However, there is no formal proof of security at the time of
+writing -- {{HPKEAnalysis}} and {{ABHKLR20}} only analyze isolated modes.
 
 ### Future KEMs {#future-kems}
 
