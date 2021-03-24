@@ -1365,7 +1365,10 @@ oracle model.
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
-properties described in {{sec-properties}}. In particular, the KEM
+properties described in {{sec-properties}}. {{domain-separation}} lists
+requirements concerning domain separation.
+
+In particular, the KEM
 shared secret MUST be a uniformly random byte string of length `Nsecret`.
 This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
@@ -1442,31 +1445,35 @@ sufficient entropy so that m + log k is prohibitive for attackers (e.g., 2^128).
 
 ## Domain Separation {#domain-separation}
 
-HPKE allows combining a DHKEM variant DHKEM(Group, KDF') and a KDF
+HPKE allows combining a DHKEM variant `DHKEM(Group, KDF')` and a KDF
 such that both KDFs are instantiated by the same KDF. By design, the
-calls to `Extract()` and `Expand()` inside DHKEM and the remainder of HPKE have
-different prefix-free encodings for the second parameter. This is
-achieved by the different prefix-free label parameters in the calls to
-`LabeledExtract()` and `LabeledExpand()`. This serves to separate the input
-domains of all `Extract()` and `Expand()` invocations. It also justifies modeling
-them as independent functions even if instantiated by the same KDF.
+calls to `Extract()` and `Expand()` inside DHKEM and the remainder of
+HPKE use separate input domains. This justifies modeling them as
+independent functions even if instantiated by the same KDF.
+This domain separation between DHKEM and the remainder of HPKE is achieved by
+the `suite_id` values in `LabeledExtract()` and `LabeledExpand()`:
+The values used (`KEM...` in DHKEM and `HPKE...` in the remainder of HPKE)
+are prefix-free (a set is prefix-free if no element is a prefix of
+another within the set).
 
-Future KEM instantiations MUST ensure that all internal invocations of
-`Extract()` and `Expand()` can be modeled as functions independent from the
-invocations of `Extract()` and `Expand()` in the remainder of HPKE. One way to
-ensure this is by using an equal or similar prefixing scheme with
-an identifier different from "HPKE-v1". Particular attention needs to
+Future KEM instantiations MUST ensure, should `Extract()` and
+`Expand()` be used internally, that they can be modeled as functions
+independent from the invocations of `Extract()` and `Expand()` in the
+remainder of HPKE. One way to ensure this is by using `LabeledExtract()`
+and `LabeledExpand()` with a `suite_id` as defined in {{base-crypto}},
+which will ensure input domain separation as outlined above.
+Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case of HKDF.
 It MUST be ensured that inputs to these invocations cannot collide with
-inputs to the internal invocations of these functions inside Extract or
-Expand. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
+inputs to the internal invocations of these functions inside `Extract()` or
+`Expand()`. In HPKE's `KeySchedule()` this is avoided by using `Extract()` instead of
 `Hash()` on the arbitrary-length inputs `info` and `psk_id`.
 
 The string literal "HPKE-v1" used in `LabeledExtract()` and `LabeledExpand()`
-ensures that any secrets derived in HPKE are bound to the scheme's name,
-even when possibly derived from the same Diffie-Hellman or KEM shared
-secret as in another scheme.
+ensures that any secrets derived in HPKE are bound to the scheme's name
+and version, even when possibly derived from the same Diffie-Hellman or
+KEM shared secret as in another scheme or version.
 
 ## Application Embedding
 
@@ -1663,6 +1670,7 @@ Doreen Riepel,
 Raphael Robert,
 Michael Rosenberg,
 Michael Scott,
+Martin Thomson,
 Steven Valdez,
 Riad Wahby,
 and other contributors in the CFRG for helpful feedback that greatly improved this document.
