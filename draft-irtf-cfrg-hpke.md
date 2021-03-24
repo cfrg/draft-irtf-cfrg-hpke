@@ -1108,7 +1108,7 @@ different KEM.
 The randomness used in `Encap()` and `AuthEncap()` to generate the
 KEM shared secret or its encapsulation MUST NOT be reused elsewhere.
 
-A sender or recipient KEM key pair works with all modes, it could thus
+As a sender or recipient KEM key pair works with all modes, it can
 be used with multiple modes in parallel. HPKE is constructed to be
 secure in such settings due to domain separation using the `suite_id`
 variable. However, there is no formal proof of security at the time of
