@@ -1112,7 +1112,7 @@ As a sender or recipient KEM key pair works with all modes, it can
 be used with multiple modes in parallel. HPKE is constructed to be
 secure in such settings due to domain separation using the `suite_id`
 variable. However, there is no formal proof of security at the time of
-writing -- {{HPKEAnalysis}} and {{ABHKLR20}} only analyze isolated modes.
+writing; {{HPKEAnalysis}} and {{ABHKLR20}} only analyze isolated modes.
 
 ### Future KEMs {#future-kems}
 
