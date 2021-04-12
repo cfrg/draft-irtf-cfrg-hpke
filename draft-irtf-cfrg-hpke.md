@@ -1099,6 +1099,21 @@ For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{?RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
+### KEM Key Reuse
+
+An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be
+reused elsewhere, in particular not with `DeriveKeyPair()` of a
+different KEM.
+
+The randomness used in `Encap()` and `AuthEncap()` to generate the
+KEM shared secret or its encapsulation MUST NOT be reused elsewhere.
+
+As a sender or recipient KEM key pair works with all modes, it can
+be used with multiple modes in parallel. HPKE is constructed to be
+secure in such settings due to domain separation using the `suite_id`
+variable. However, there is no formal proof of security at the time of
+writing; {{HPKEAnalysis}} and {{ABHKLR20}} only analyze isolated modes.
+
 ### Future KEMs {#future-kems}
 
 {{kem-security}} lists security requirements on a KEM used within HPKE.
