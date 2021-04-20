@@ -1189,7 +1189,7 @@ underlying hash function in bytes, `size_version_label` is the size
 of "HPKE-v1" in bytes and equals 7, `size_suite_id` is the size of the
 `suite_id` in bytes and equals 5 for DHKEM (relevant for `ikm`) and 10 for the
 remainder of HPKE (relevant for `psk`, `psk_id`, `info`, `exporter_context`),
-and `size_input_label` is the size of the label used as parameter to
+and `size_input_label` is the size in bytes of the label used as parameter to
 `LabeledExtract()` or `LabeledExpand()`, the maximum of which is 13
 across all labels in this document.
 
