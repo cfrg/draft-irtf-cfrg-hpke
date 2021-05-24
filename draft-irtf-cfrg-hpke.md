@@ -1220,7 +1220,7 @@ errors. For example, for the DHKEM variant described in this specification,
 the `Encap()` algorithm may fail when given an invalid recipient public key.
 However, other KEM algorithms may not have an efficient algorithm for verifying
 the validity of public keys. As a result, an equivalent error may not manifest
-until AEAD decryption at the recipient. As another example, the `AuthDecap()`
+until AEAD decryption at the recipient. As another example, DHKEM's `AuthDecap()`
 function will produce invalid output if given the wrong sender public key.
 This error is not detectable until subsequent AEAD decryption.
 
