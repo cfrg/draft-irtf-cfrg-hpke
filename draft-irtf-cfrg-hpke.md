@@ -1207,6 +1207,27 @@ across all labels in this document.
 The `0xFFFF` AEAD ID is reserved for applications which only use the Export
 interface; see {{hpke-export}} for more details.
 
+# API Considerations {#api-considerations}
+
+The high-level HPKE APIs specified in this document are all fallible.
+For example, `Decap()` can fail if the encapsulated key `enc` is invalid,
+and `Open()` may fail if ciphertext decryption fails. This specification
+notes cases where explicit errors may occur.
+
+However, implicit errors may also occur. As an example, certain classes of
+failures, e.g., malformed recipient public keys, may not yield explicit
+errors. For example, for the DHKEM variant described in this specification,
+the `Encap()` algorithm may fail when given an invalid recipient public key.
+However, other KEM algorithms may not have an efficient algorithm for verifying
+the validity of public keys. As a result, an equivalent error may not manifest
+until AEAD decryption at the recipient. As another example, the `AuthDecap()`
+function will produce invalid output if given the wrong sender public key.
+This error is not detectable until subsequent AEAD decryption.
+
+Applications using HPKE APIs should not assume that classes of failures,
+especially those that stem from implicit errors, will always manifest the
+same way. Applications SHOULD account for errors when encountered.
+
 # Security Considerations {#sec-considerations}
 
 ## Security Properties {#sec-properties}
@@ -1335,6 +1356,7 @@ the given mode satisfies the property.
 | Auth    | y            | y           | y            |
 | AuthPSK | y            | y           | y            |
 
+This analysis assumes that the KEM has no implicit errors.
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
 some indication that any IND-CCA2-secure KEM will suffice here, but are
