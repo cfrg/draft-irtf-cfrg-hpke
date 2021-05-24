@@ -1704,10 +1704,33 @@ and other contributors in the CFRG for helpful feedback that greatly improved th
 
 # Test Vectors
 
+Each section below contains test vectors for a single HPKE ciphersuite and
+contains the following values:
+
+1. Input mode and private key material: This includes the `mode`, HPKE
+   ciphersuite identifiers (`kem_id`, `kdf_id`, `aead_id`), and all
+   sender, receipient, and ephemeral key material. For each role X,
+   where X is one of S, R, or E as sender, receiver, and ephemeral,
+   respectively, key pairs are generated as `(skX, pkX) = DeriveKeyPair(ikmX)`.
+   Each key pair `(skX, pkX)` is written in its serialized form, where
+   `skXm = SerializePrivateKey(skX)` and `pkXm = SerializePublicKey(pkX)`.
+   For applicable modes, the shared PSK and PSK identifier are also included.
+2. Context creation intermediate values and outputs: This includes the
+   KEM outputs `enc` and `shared_secret` used to create the context, along
+   with intermediate values `key_schedule_context` and `secret` computed
+   in the KeySchedule function in {{encryption-context}}. The outputs
+   include the context values `key`, `base_nonce`, and `exporter_secret`.
+3. Encryption test vectors: A fixed plaintext message is encrypted using
+   different sequence numbers and AAD values using the context computed in (2).
+   Each test vector lists the sequence number and corresponding nonce computed
+   with `base_nonce`, the plaintext message `pt`, AAD `aad`, and output
+   ciphertext `ct`.
+4. Export test vectors: Several exported values of the same length with differing
+   context parameters are computed using the context computed in (2). Each test
+   vector lists the `exporter_context`, output length `L`, and resulting export
+   value.
+
 These test vectors are also available in JSON format at {{TestVectors}}.
-Note that the plaintext is the same for each test vector. Only the nonce
-and AAD values differ. In these vectors, `GenerateKeyPair()` is implemented
-as `DeriveKeyPair(random(Nsk))`.
 
 ## DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-128-GCM
 
