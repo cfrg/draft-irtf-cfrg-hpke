@@ -25,7 +25,7 @@ This requires that you have the necessary software installed.  See
 | [CIRCL](https://github.com/cloudflare/circl/tree/master/hpke) | Go       | draft-07 | All but "Export Only" |
 | [hpke-compact](https://github.com/jedisct1/go-hpke-compact)   | Go       | draft-08 | All    |
 | [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-08 | All    |
-| [BoringSSL](https://boringssl.googlesource.com/boringssl/+/HEAD/crypto/hpke/) | C | draft-07 | Base, PSK |
+| [BoringSSL](https://boringssl.googlesource.com/boringssl/+/refs/heads/master/include/openssl/hpke.h) | C | draft-08 | Base |
 | [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-07 | Base, PSK |
 | [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | draft-08 | All    |
 | [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-08 | All |
