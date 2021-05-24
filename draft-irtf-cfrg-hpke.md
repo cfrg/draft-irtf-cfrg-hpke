@@ -300,7 +300,7 @@ The following terms are used throughout this document to describe the
 operations, roles, and behaviors of HPKE:
 
 - `(skX, pkX)`: A Key Encapsulation Mechanism (KEM) key pair used in role X,
-  where X is one of S, R, or E as sender, receiver, and ephemeral, respectively;
+  where X is one of S, R, or E as sender, recipient, and ephemeral, respectively;
   `skX` is the private key and `pkX` is the public key.
 - `pk(skX)`: The KEM public key corresponding to the KEM private key `skX`.
 - Sender (S): Role of entity which sends an encrypted message.
