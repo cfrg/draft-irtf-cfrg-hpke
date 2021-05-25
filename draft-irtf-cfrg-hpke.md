@@ -1234,9 +1234,15 @@ This error is not detectable until subsequent AEAD decryption.
 The errors in this document are meant as a guide to implementors. They are not
 an exhaustive list of all the errors an implementation might emit. For example,
 future KEMs might have internal failure cases, or an implementation might run
-out of memory. As a result, applications using HPKE APIs should not assume that
-the errors here are complete, nor should they assume certain classes of errors
-will always manifest the same way for all ciphersuites.
+out of memory.
+
+Applications using HPKE APIs should not assume that the errors here are complete,
+nor should they assume certain classes of errors will always manifest the same way
+for all ciphersuites. For example, the DHKEM specified in this document will emit
+a `DeserializationError` or `ValidationError` if a KEM public key is invalid. However,
+a new KEM might not have an efficient algorithm for determining whether or not a
+public key is valid. In this case, an invalid public key might instead yield an
+`OpenError` when trying to decrypt ciphertext.
 
 # Security Considerations {#sec-considerations}
 
