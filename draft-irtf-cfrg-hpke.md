@@ -1229,12 +1229,14 @@ However, other KEM algorithms may not have an efficient algorithm for verifying
 the validity of public keys. As a result, an equivalent error may not manifest
 until AEAD decryption at the recipient. As another example, DHKEM's `AuthDecap()`
 function will produce invalid output if given the wrong sender public key.
-This error is not detectable until subsequent AEAD decryption. Note that
-these implicit error examples are not exhaustive.
+This error is not detectable until subsequent AEAD decryption.
 
-Applications using HPKE APIs should not assume that classes of failures,
-especially those that stem from implicit errors, will always manifest the
-same way. Applications SHOULD account for errors when encountered.
+The errors in this document are meant as a guide to implementors. They are not
+an exhaustive list of all the errors an implementation might emit. For example,
+future KEMs might have internal failure cases, or an implementation might run
+out of memory. As a result, applications using HPKE APIs should not assume that
+the errors here are complete, nor should they assume certain classes of errors
+will always manifest the same way for all ciphersuites.
 
 # Security Considerations {#sec-considerations}
 
