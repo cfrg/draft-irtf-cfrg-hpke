@@ -1707,7 +1707,7 @@ and other contributors in the CFRG for helpful feedback that greatly improved th
 Each section below contains test vectors for a single HPKE ciphersuite and
 contains the following values:
 
-1. Input mode and private key material: This includes the `mode`, HPKE
+1. Configuration information and private key material: This includes the `mode`, `info` string, HPKE
    ciphersuite identifiers (`kem_id`, `kdf_id`, `aead_id`), and all
    sender, receipient, and ephemeral key material. For each role X,
    where X is one of S, R, or E as sender, receiver, and ephemeral,
