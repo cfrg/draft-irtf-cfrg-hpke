@@ -1372,7 +1372,6 @@ the given mode satisfies the property.
 | Auth    | y            | y           | y            |
 | AuthPSK | y            | y           | y            |
 
-This analysis assumes that the KEM has no implicit errors.
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
 some indication that any IND-CCA2-secure KEM will suffice here, but are
@@ -1393,7 +1392,9 @@ Further, {{ABHKLR20}} proves composition theorems, showing that HPKE's
 Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
-for authenticated KEMs. The assumptions on the KDF are that `Extract()`
+for authenticated KEMs. The theorems assume that the KEM is perfectly correct;
+it could easily be adapted to work with KEMs that have a non-zero but negligible
+probability for decryption failure. The assumptions on the KDF are that `Extract()`
 and `Expand()` can be modeled as pseudorandom functions wherein the first
 argument is the key, respectively. The assumption for the AEAD is
 IND-CPA and IND-CTXT security.
