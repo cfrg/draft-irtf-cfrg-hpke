@@ -1393,7 +1393,7 @@ Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
 for authenticated KEMs. The theorems assume that the KEM is perfectly correct;
-it could easily be adapted to work with KEMs that have a non-zero but negligible
+they could easily be adapted to work with KEMs that have a non-zero but negligible
 probability for decryption failure. The assumptions on the KDF are that `Extract()`
 and `Expand()` can be modeled as pseudorandom functions wherein the first
 argument is the key, respectively. The assumption for the AEAD is
