@@ -1215,7 +1215,7 @@ and `Open()` may fail if ciphertext decryption fails. The explicit errors
 generated throughout this specification, along with the conditions that
 lead to each error, are as follows:
 
-- `ValidationError`: Public key validation failure; {{dhkem}}.
+- `ValidationError`: KEM input or output validation failure; {{dhkem}}.
 - `DeserializeError`: Public or private key deserialization failure; {{base-crypto}}.
 - `DecapError`: `Decap()` failure; {{base-crypto}}.
 - `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
