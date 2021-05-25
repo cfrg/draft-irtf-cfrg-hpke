@@ -1242,7 +1242,7 @@ for all ciphersuites. For example, the DHKEM specified in this document will emi
 a `DeserializationError` or `ValidationError` if a KEM public key is invalid. However,
 a new KEM might not have an efficient algorithm for determining whether or not a
 public key is valid. In this case, an invalid public key might instead yield an
-`OpenError` when trying to decrypt ciphertext.
+`OpenError` when trying to decrypt a ciphertext.
 
 # Security Considerations {#sec-considerations}
 
