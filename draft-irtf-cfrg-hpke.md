@@ -362,11 +362,11 @@ HPKE variants rely on the following primitives:
   - `Seal(key, nonce, aad, pt)`: Encrypt and authenticate plaintext
     `pt` with associated data `aad` using symmetric key `key` and nonce
     `nonce`, yielding ciphertext and tag `ct`. This function
-     can raise a `MessageLimitReached` upon failure.
+     can raise a `MessageLimitReachedError` upon failure.
   - `Open(key, nonce, aad, ct)`: Decrypt ciphertext and tag `ct` using
     associated data `aad` with symmetric key `key` and nonce `nonce`,
     returning plaintext message `pt`. This function can raise an
-    `OpenError` or `MessageLimitReached` upon failure.
+    `OpenError` or `MessageLimitReachedError` upon failure.
   - `Nk`: The length in bytes of a key for this algorithm.
   - `Nn`: The length in bytes of a nonce for this algorithm.
 
@@ -862,7 +862,7 @@ def Context<ROLE>.ComputeNonce(seq):
 
 def Context<ROLE>.IncrementSeq():
   if self.seq >= (1 << (8*Nn)) - 1:
-    raise MessageLimitReached
+    raise MessageLimitReachedError
   self.seq += 1
 ~~~~~
 
@@ -1086,7 +1086,7 @@ The following public keys are subject to validation if the group
 requires public key validation: the sender MUST validate the recipient's
 public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
-static public key `pkS`.
+static public key `pkS`. Validation failure yields a `ValidationError`.
 
 For P-256, P-384 and P-521, senders and recipients MUST perform partial
 public-key validation on all public key inputs, as defined in section 5.6.2.3.4
@@ -1211,12 +1211,19 @@ interface; see {{hpke-export}} for more details.
 
 The high-level HPKE APIs specified in this document are all fallible.
 For example, `Decap()` can fail if the encapsulated key `enc` is invalid,
-and `Open()` may fail if ciphertext decryption fails. This specification
-notes cases where explicit errors may occur.
+and `Open()` may fail if ciphertext decryption fails. The explicit errors
+generated throughout this specification, along with the conditions that
+lead to each error, are as follows:
 
-However, implicit errors may also occur. As an example, certain classes of
-failures, e.g., malformed recipient public keys, may not yield explicit
-errors. For example, for the DHKEM variant described in this specification,
+- `ValidationError`: Public key validation failure; {{dhkem}}.
+- `DeserializeError`: Public or private key deserialization failure; {{base-crypto}}.
+- `DecapError`: `Decap()` failure; {{base-crypto}}.
+- `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
+- `MessageLimitReachedError`: Context AEAD sequence number overflow; {{base-crypto}} and {{hpke-dem}}.
+
+Implicit errors may also occur. As an example, certain classes of failures,
+e.g., malformed recipient public keys, may not yield explicit errors.
+For example, for the DHKEM variant described in this specification,
 the `Encap()` algorithm may fail when given an invalid recipient public key.
 However, other KEM algorithms may not have an efficient algorithm for verifying
 the validity of public keys. As a result, an equivalent error may not manifest
