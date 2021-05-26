@@ -362,11 +362,11 @@ HPKE variants rely on the following primitives:
   - `Seal(key, nonce, aad, pt)`: Encrypt and authenticate plaintext
     `pt` with associated data `aad` using symmetric key `key` and nonce
     `nonce`, yielding ciphertext and tag `ct`. This function
-     can raise a `MessageLimitReached` upon failure.
+     can raise a `MessageLimitReachedError` upon failure.
   - `Open(key, nonce, aad, ct)`: Decrypt ciphertext and tag `ct` using
     associated data `aad` with symmetric key `key` and nonce `nonce`,
     returning plaintext message `pt`. This function can raise an
-    `OpenError` or `MessageLimitReached` upon failure.
+    `OpenError` or `MessageLimitReachedError` upon failure.
   - `Nk`: The length in bytes of a key for this algorithm.
   - `Nn`: The length in bytes of a nonce for this algorithm.
 
@@ -862,7 +862,7 @@ def Context<ROLE>.ComputeNonce(seq):
 
 def Context<ROLE>.IncrementSeq():
   if self.seq >= (1 << (8*Nn)) - 1:
-    raise MessageLimitReached
+    raise MessageLimitReachedError
   self.seq += 1
 ~~~~~
 
@@ -1086,7 +1086,7 @@ The following public keys are subject to validation if the group
 requires public key validation: the sender MUST validate the recipient's
 public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
-static public key `pkS`.
+static public key `pkS`. Validation failure yields a `ValidationError`.
 
 For P-256, P-384 and P-521, senders and recipients MUST perform partial
 public-key validation on all public key inputs, as defined in section 5.6.2.3.4
@@ -1206,6 +1206,44 @@ across all labels in this document.
 
 The `0xFFFF` AEAD ID is reserved for applications which only use the Export
 interface; see {{hpke-export}} for more details.
+
+# API Considerations {#api-considerations}
+
+The high-level HPKE APIs specified in this document are all fallible.
+For example, `Decap()` can fail if the encapsulated key `enc` is invalid,
+and `Open()` may fail if ciphertext decryption fails. The explicit errors
+generated throughout this specification, along with the conditions that
+lead to each error, are as follows:
+
+- `ValidationError`: KEM input or output validation failure; {{dhkem}}.
+- `DeserializeError`: Public or private key deserialization failure; {{base-crypto}}.
+- `DecapError`: `Decap()` failure; {{base-crypto}}.
+- `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
+- `MessageLimitReachedError`: Context AEAD sequence number overflow; {{base-crypto}} and {{hpke-dem}}.
+- `DeriveKeyPairError`: Key pair derivation failure; {{derive-key-pair}}.
+
+Implicit errors may also occur. As an example, certain classes of failures,
+e.g., malformed recipient public keys, may not yield explicit errors.
+For example, for the DHKEM variant described in this specification,
+the `Encap()` algorithm fails when given an invalid recipient public key.
+However, other KEM algorithms may not have an efficient algorithm for verifying
+the validity of public keys. As a result, an equivalent error may not manifest
+until AEAD decryption at the recipient. As another example, DHKEM's `AuthDecap()`
+function will produce invalid output if given the wrong sender public key.
+This error is not detectable until subsequent AEAD decryption.
+
+The errors in this document are meant as a guide to implementors. They are not
+an exhaustive list of all the errors an implementation might emit. For example,
+future KEMs might have internal failure cases, or an implementation might run
+out of memory.
+
+Applications using HPKE APIs should not assume that the errors here are complete,
+nor should they assume certain classes of errors will always manifest the same way
+for all ciphersuites. For example, the DHKEM specified in this document will emit
+a `DeserializationError` or `ValidationError` if a KEM public key is invalid. However,
+a new KEM might not have an efficient algorithm for determining whether or not a
+public key is valid. In this case, an invalid public key might instead yield an
+`OpenError` when trying to decrypt a ciphertext.
 
 # Security Considerations {#sec-considerations}
 
@@ -1355,7 +1393,9 @@ Further, {{ABHKLR20}} proves composition theorems, showing that HPKE's
 Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
-for authenticated KEMs. The assumptions on the KDF are that `Extract()`
+for authenticated KEMs. The theorems assume that the KEM is perfectly correct;
+they could easily be adapted to work with KEMs that have a non-zero but negligible
+probability for decryption failure. The assumptions on the KDF are that `Extract()`
 and `Expand()` can be modeled as pseudorandom functions wherein the first
 argument is the key, respectively. The assumption for the AEAD is
 IND-CPA and IND-CTXT security.
