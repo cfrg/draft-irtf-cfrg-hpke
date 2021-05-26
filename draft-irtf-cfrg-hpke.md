@@ -1220,7 +1220,7 @@ lead to each error, are as follows:
 - `DecapError`: `Decap()` failure; {{base-crypto}}.
 - `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
 - `MessageLimitReachedError`: Context AEAD sequence number overflow; {{base-crypto}} and {{hpke-dem}}.
-- `DeriveKeyPairError`: Key pair derivation failure; {{derivekeypair}}.
+- `DeriveKeyPairError`: Key pair derivation failure; {{derive-key-pair}}.
 
 Implicit errors may also occur. As an example, certain classes of failures,
 e.g., malformed recipient public keys, may not yield explicit errors.
