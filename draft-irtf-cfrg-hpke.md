@@ -1709,7 +1709,7 @@ contains the following values:
 
 1. Configuration information and private key material: This includes the `mode`, `info` string, HPKE
    ciphersuite identifiers (`kem_id`, `kdf_id`, `aead_id`), and all
-   sender, receipient, and ephemeral key material. For each role X,
+   sender, recipient, and ephemeral key material. For each role X,
    where X is one of S, R, or E as sender, receiver, and ephemeral,
    respectively, key pairs are generated as `(skX, pkX) = DeriveKeyPair(ikmX)`.
    Each key pair `(skX, pkX)` is written in its serialized form, where
