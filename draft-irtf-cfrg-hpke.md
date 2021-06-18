@@ -1600,8 +1600,8 @@ provide, for example:
   resulting from a given context.  HPKE provides no other replay protection.
 
 * Forward secrecy - HPKE ciphertexts are not forward-secure. In the Base and
-  Auth modes, a given ciphertext can be decrypted if the recipient's public
-  encryption key is compromised. In the PSK and AuthPSK modes, a given
+  Auth modes, a given ciphertext can be decrypted if the recipient's private
+  decryption key is compromised. In the PSK and AuthPSK modes, a given
   ciphertext can be decrypted if the recipient's private key and the
   PSK are compromised.
 
