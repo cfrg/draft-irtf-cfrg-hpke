@@ -244,15 +244,17 @@ informative:
 
 --- abstract
 
-This document describes a scheme for hybrid public-key encryption
-(HPKE).  This scheme provides authenticated public key encryption of
-arbitrary-sized plaintexts for a recipient public key. HPKE works
-for any combination of an asymmetric key encapsulation mechanism
-(KEM), key derivation function (KDF), and authenticated encryption
-with additional data (AEAD) encryption function. We provide
-instantiations of the scheme using widely used and efficient
-primitives, such as Elliptic Curve Diffie-Hellman key agreement,
-HKDF, and SHA2.
+This document describes a scheme for hybrid public-key encryption (HPKE).
+This scheme provides a variant of public key encryption of arbitrary-sized
+plaintexts for a recipient public key. It also includes three authenticated
+variants, including one which authenticates possession of a pre-shared key,
+and two optional ones which which authenticates possession of a private key.
+HPKE works for any combination of an asymmetric key encapsulation mechanism
+(KEM), key derivation function (KDF), and authenticated encryption with
+additional data (AEAD) encryption function. Some authenticated variants may not
+be supported by all KEMs. We provide instantiations of the scheme using widely
+used and efficient primitives, such as Elliptic Curve Diffie-Hellman key
+agreement, HKDF, and SHA2.
 
 This document is a product of the Crypto Forum Research Group (CFRG) in the IRTF.
 
@@ -557,12 +559,13 @@ All these cases follow the same basic two-step pattern:
    and the recipient.
 2. Use that context to encrypt or decrypt content.
 
-A _context_ encodes the AEAD algorithm and key in use, and manages
-the nonces used so that the same nonce is not used with multiple
-plaintexts. It also has an interface for exporting secret values,
-as described in {{hpke-export}}. See {{hpke-dem}} for a description
-of this structure and its interfaces. HPKE decryption fails when
-the underlying AEAD decryption fails.
+A _context_ is an implementation-specific structure that encodes
+the AEAD algorithm and key in use, and manages the nonces used so
+that the same nonce is not used with multiple plaintexts. It also
+has an interface for exporting secret values, as described in
+{{hpke-export}}. See {{hpke-dem}} for a description of this structure
+and its interfaces. HPKE decryption fails when the underlying AEAD
+decryption fails.
 
 The constructions described here presume that the relevant non-private
 parameters (`enc`, `psk_id`, etc.) are transported between the sender and the
@@ -965,6 +968,11 @@ be empty.
 
 # Algorithm Identifiers {#ciphersuites}
 
+This section lists algorithm identifiers suitable for different HPKE configurations.
+Future specifications may introduce new KEM, KDF, and AEAD algorithm identifiers
+provided they adhere to the security requirements in {{kem-security}}, {{kdf-choice}},
+and {{aead-security}}, respectively.
+
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
 | Value  | KEM                        | Nsecret  | Nenc | Npk | Nsk | Auth | Reference                    |
@@ -978,7 +986,9 @@ be empty.
 {: #kemid-values title="KEM IDs"}
 
 The `Auth` column indicates if the KEM algorithm provides the `AuthEncap()`/`AuthDecap()`
-interface. The meaning of all other columns is explained in {{kem-template}}.
+interface and is therefore suitable for the Auth and AuthPSK modes. The meaning of all
+other columns is explained in {{kem-template}}. All algorithms are suitable for the
+PSK mode.
 
 ### SerializePublicKey and DeserializePublicKey
 
@@ -1112,7 +1122,8 @@ As a sender or recipient KEM key pair works with all modes, it can
 be used with multiple modes in parallel. HPKE is constructed to be
 secure in such settings due to domain separation using the `suite_id`
 variable. However, there is no formal proof of security at the time of
-writing; {{HPKEAnalysis}} and {{ABHKLR20}} only analyze isolated modes.
+writing for using multiple modes in parallel; {{HPKEAnalysis}} and
+{{ABHKLR20}} only analyze isolated modes.
 
 ### Future KEMs {#future-kems}
 
@@ -1209,7 +1220,8 @@ interface; see {{hpke-export}} for more details.
 
 # API Considerations {#api-considerations}
 
-The high-level HPKE APIs specified in this document are all fallible.
+The high-level, public HPKE APIs specified in this document are all fallible.
+These include the Setup functions and all encryption context functions.
 For example, `Decap()` can fail if the encapsulated key `enc` is invalid,
 and `Open()` may fail if ciphertext decryption fails. The explicit errors
 generated throughout this specification, along with the conditions that
@@ -1473,10 +1485,15 @@ Insider-Auth security for KEMs used within HPKE is not useful.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
-The choice of the KDF for the remainder of HPKE SHOULD be made based on
-the security level provided by the KEM and, if applicable, by the PSK.
-The KDF SHOULD have at least have the security level of the KEM and
-SHOULD at least have the security level provided by the PSK.
+The choice of the KDF for HPKE SHOULD be made based on the security
+level provided by the KEM and, if applicable, by the PSK. The KDF
+SHOULD have at least have the security level of the KEM and SHOULD
+at least have the security level provided by the PSK.
+
+## Security Requirements on an AEAD {#aead-security}
+
+All AEADs must be IND-CCA2-secure, as is currently true for all AEADs
+listed in {{aead-ids}}.
 
 ## Pre-Shared Key Recommendations {#security-psk}
 
