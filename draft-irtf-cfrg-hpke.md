@@ -120,7 +120,7 @@ informative:
 
   HPKEAnalysis:
     title: "An Analysis of Hybrid Public Key Encryption"
-    target: https://eprint.iacr.org/2020/243.pdf
+    target: https://eprint.iacr.org/2020/243
     date: 2020
     author:
       -
