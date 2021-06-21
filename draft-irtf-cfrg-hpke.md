@@ -1266,6 +1266,10 @@ These security goals are expected to hold for any honest sender and
 honest recipient keys, as well as if the honest sender and honest
 recipient keys are the same.
 
+HPKE mitigates malleability problems (called benign malleability {{SECG}}) in prior
+public key encryption standards based on ECIES by including all public keys in the
+context of the key schedule.
+
 As noted in {{non-goals}}, HPKE does not provide forward secrecy.
 In the Base and Auth modes, the secrecy properties are only expected to
 hold if the recipient private key `skR` is not compromised at any point
@@ -1278,10 +1282,6 @@ the sender private key `skS` is not compromised at the time of message
 reception. In the AuthPSK mode, sender authentication is generally
 expected to hold if at the time of message reception, the sender private
 key skS and the pre-shared key are not both compromised.
-
-HPKE mitigates malleability problems (called benign malleability {{SECG}}) in prior
-public key encryption standards based on ECIES by including all public keys in the
-context key schedule.
 
 ### Key-Compromise Impersonation
 
