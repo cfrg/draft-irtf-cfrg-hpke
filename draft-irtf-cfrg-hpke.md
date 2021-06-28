@@ -248,7 +248,7 @@ This document describes a scheme for hybrid public-key encryption (HPKE).
 This scheme provides a variant of public key encryption of arbitrary-sized
 plaintexts for a recipient public key. It also includes three authenticated
 variants, including one which authenticates possession of a pre-shared key,
-and two optional ones which which authenticates possession of a private key.
+and two optional ones which authenticate possession of a KEM private key.
 HPKE works for any combination of an asymmetric key encapsulation mechanism
 (KEM), key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) encryption function. Some authenticated variants may not
