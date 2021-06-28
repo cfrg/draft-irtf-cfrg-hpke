@@ -245,7 +245,7 @@ informative:
 --- abstract
 
 This document describes a scheme for hybrid public-key encryption (HPKE).
-This scheme provides a variant of public key encryption of arbitrary-sized
+This scheme provides a variant of public-key encryption of arbitrary-sized
 plaintexts for a recipient public key. It also includes three authenticated
 variants, including one which authenticates possession of a pre-shared key,
 and two optional ones which authenticate possession of a KEM private key.
