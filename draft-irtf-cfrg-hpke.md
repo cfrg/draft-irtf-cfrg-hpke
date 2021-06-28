@@ -1492,7 +1492,7 @@ at least have the security level provided by the PSK.
 
 ## Security Requirements on an AEAD {#aead-security}
 
-All AEADs must be IND-CCA2-secure, as is currently true for all AEADs
+All AEADs MUST be IND-CCA2-secure, as is currently true for all AEADs
 listed in {{aead-ids}}.
 
 ## Pre-Shared Key Recommendations {#security-psk}
