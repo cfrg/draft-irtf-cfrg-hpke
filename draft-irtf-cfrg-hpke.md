@@ -1487,7 +1487,7 @@ Insider-Auth security for KEMs used within HPKE is not useful.
 
 The choice of the KDF for HPKE SHOULD be made based on the security
 level provided by the KEM and, if applicable, by the PSK. The KDF
-SHOULD have at least have the security level of the KEM and SHOULD
+SHOULD at least have the security level of the KEM and SHOULD
 at least have the security level provided by the PSK.
 
 ## Security Requirements on an AEAD {#aead-security}
