@@ -581,7 +581,7 @@ For such KEMs, only `mode_base` or `mode_psk` are supported. Future specificatio
 which define new KEMs MUST indicate whether these modes are supported.
 See {{future-kems}} for more details.
 
-The procedures described in this session are laid out in a
+The procedures described in this section are laid out in a
 Python-like pseudocode. The algorithms in use are left implicit.
 
 ## Creating the Encryption Context {#encryption-context}
@@ -743,9 +743,8 @@ def SetupPSKR(enc, skR, info, psk, psk_id):
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
-This assurance is based on the assumption that
-`AuthDecap(enc, skR, pkS)` produces the correct KEM shared secret
-only if the encapsulated value `enc` was produced by
+This is because `AuthDecap(enc, skR, pkS)` produces the correct KEM
+shared secret only if the encapsulated value `enc` was produced by
 `AuthEncap(pkR, skS)`, where `skS` is the private key corresponding
 to `pkS`.  In other words, at most two entities (precisely two, in the case
 of DHKEM) could have produced this secret, so if the recipient is at most one, then
@@ -1080,6 +1079,7 @@ P-521:
 `bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
 The precise likelihood of `DeriveKeyPair()` failing with DeriveKeyPairError
 depends on the group being used, but it is negligibly small in all cases.
+See {{api-considerations}} for information about dealing with such failures.
 
 For X25519 and X448, the `DeriveKeyPair()` function applies a KDF to the input:
 
@@ -1108,22 +1108,6 @@ Diffie-Hellman shared secret is not the point at infinity.
 For X25519 and X448, public keys and Diffie-Hellman outputs MUST be validated
 as described in {{?RFC7748}}. In particular, recipients MUST check whether
 the Diffie-Hellman shared secret is the all-zero value and abort if so.
-
-### KEM Key Reuse
-
-An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be
-reused elsewhere, in particular not with `DeriveKeyPair()` of a
-different KEM.
-
-The randomness used in `Encap()` and `AuthEncap()` to generate the
-KEM shared secret or its encapsulation MUST NOT be reused elsewhere.
-
-As a sender or recipient KEM key pair works with all modes, it can
-be used with multiple modes in parallel. HPKE is constructed to be
-secure in such settings due to domain separation using the `suite_id`
-variable. However, there is no formal proof of security at the time of
-writing for using multiple modes in parallel; {{HPKEAnalysis}} and
-{{ABHKLR20}} only analyze isolated modes.
 
 ### Future KEMs {#future-kems}
 
@@ -1244,10 +1228,16 @@ until AEAD decryption at the recipient. As another example, DHKEM's `AuthDecap()
 function will produce invalid output if given the wrong sender public key.
 This error is not detectable until subsequent AEAD decryption.
 
-The errors in this document are meant as a guide to implementors. They are not
+The errors in this document are meant as a guide for implementors. They are not
 an exhaustive list of all the errors an implementation might emit. For example,
 future KEMs might have internal failure cases, or an implementation might run
 out of memory.
+
+How these errors are expressed in an API or handled by applications is an
+implementation-specific detail. For example, some implementations may abort or
+panic upon a `DeriveKeyPairError` failure given that it only occurs with
+negligible probability, whereas other implementations may retry the failed
+DeriveKeyPair operation. See {{derive-key-pair}} for more information.
 
 Applications using HPKE APIs should not assume that the errors here are complete,
 nor should they assume certain classes of errors will always manifest the same way
@@ -1357,12 +1347,9 @@ and the DH group and KDF satisfy the following conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard in the
   appropriate subgroup {{GAP}}.
-- `Extract()` and `Expand()` (in DHKEM): `Extract()` can be modeled as
-  a random oracle. `Expand()` can be modeled as a pseudorandom function,
-  wherein the first argument is the key.
-- `Extract()` and `Expand()` (elsewhere): `Extract()` can be modeled as
-  a random oracle. `Expand()` can be modeled as a pseudorandom function,
-  wherein the first argument is the key.
+- `Extract()` and `Expand()`: `Extract()` can be modeled as a random oracle.
+  `Expand()` can be modeled as a pseudorandom function, wherein the first
+  argument is the key.
 
 In particular, the KDFs and DH groups defined in this document (see
 {{kdf-ids}} and {{kem-ids}}) satisfy these properties when used as
@@ -1482,6 +1469,22 @@ adversary, it can create KEM ciphertexts in the name of the sender).
 Because of the generic attack on an analogous Insider-Auth security
 notion of HPKE described in {{sec-properties}}, a definition of
 Insider-Auth security for KEMs used within HPKE is not useful.
+
+### KEM Key Reuse
+
+An `ikm` input to `DeriveKeyPair()` ({{derive-key-pair}}) MUST NOT be
+reused elsewhere, in particular not with `DeriveKeyPair()` of a
+different KEM.
+
+The randomness used in `Encap()` and `AuthEncap()` to generate the
+KEM shared secret or its encapsulation MUST NOT be reused elsewhere.
+
+As a sender or recipient KEM key pair works with all modes, it can
+be used with multiple modes in parallel. HPKE is constructed to be
+secure in such settings due to domain separation using the `suite_id`
+variable. However, there is no formal proof of security at the time of
+writing for using multiple modes in parallel; {{HPKEAnalysis}} and
+{{ABHKLR20}} only analyze isolated modes.
 
 ## Security Requirements on a KDF {#kdf-choice}
 
@@ -1682,8 +1685,8 @@ Encryption", and administered under a Specification Required policy {{!RFC8126}}
 ## KEM Identifiers {#kem-template}
 
 The "HPKE KEM Identifiers" registry lists identifiers for key encapsulation
-algorithms defined for use with HPKE.  These are two-byte values, so the
-maximum possible value is 0xFFFF = 65535.
+algorithms defined for use with HPKE.  These identifiers are two-byte values,
+so the maximum possible value is 0xFFFF = 65535.
 
 Template:
 
@@ -1701,8 +1704,8 @@ Initial contents: Provided in {{kemid-values}}
 ## KDF Identifiers
 
 The "HPKE KDF Identifiers" registry lists identifiers for key derivation
-functions defined for use with HPKE.  These are two-byte values, so the maximum
-possible value is 0xFFFF = 65535.
+functions defined for use with HPKE.  These identifiers are two-byte values,
+so the maximum possible value is 0xFFFF = 65535.
 
 Template:
 
@@ -1717,7 +1720,8 @@ Initial contents: Provided in {{kdfid-values}}
 
 The "HPKE AEAD Identifiers" registry lists identifiers for authenticated
 encryption with associated data (AEAD) algorithms defined for use with HPKE.
-These are two-byte values, so the maximum possible value is 0xFFFF = 65535.
+These identifiers are two-byte values, so the maximum possible value is
+0xFFFF = 65535.
 
 Template:
 
