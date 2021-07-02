@@ -242,15 +242,6 @@ informative:
     target: https://nacl.cr.yp.to/box.html
     date: 2019
 
-  Noise:
-    title: "The Noise Protocol Framework"
-    target: https://noiseprotocol.org/noise.html
-    date: 2018
-    author:
-      -
-        ins: T. Perrin
-        name: Trevor Perrin
-
 
 --- abstract
 
@@ -1626,10 +1617,6 @@ HPKE ciphertexts are forward secret with respect to sender compromise in all
 modes. This is because ephemeral randomness is used on the sender's side, which
 is supposed to be erased directly after computation of the KEM shared secret and
 ciphertext.
-
-For DHKEM, HPKE is morally similar to specific one-way Noise handshake patterns,
-which can be helpful to understand forward security and other properties {{Noise}}:
-Base mode is similar to Noise N, PSK mode to Npsk1, Auth mode to K, AuthPSK to Kpsk1.
 
 ### Bad Ephemeral Randomness
 
