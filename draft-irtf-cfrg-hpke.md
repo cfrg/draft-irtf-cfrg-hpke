@@ -251,32 +251,6 @@ informative:
         ins: T. Perrin
         name: Trevor Perrin
 
-  PQWireGuard:
-    title: "Post-Quantum WireGuard"
-    target: https://eprint.iacr.org/2020/379
-    date: 2021
-    author:
-      -
-        ins: A. Hülsing
-        name: Andreas Hülsing
-        org: Eindhoven University of Technology
-      -
-        ins: K.-C. Ning
-        name: Kai-Chun Ning
-        org: KPN B.V.
-      -
-        ins: P. Schwabe
-        name: Peter Schwabe
-        org: Max Planck Institute for Security and Privacy & Radboud University
-      -
-        ins: F. Weber
-        name: Florian Weber
-        org: Eindhoven University of Technology
-      -
-        ins: P. R. Zimmermann
-        name: Philip R. Zimmermann
-        org: Delft University of Technology & KPN B.V.
-
 
 --- abstract
 
