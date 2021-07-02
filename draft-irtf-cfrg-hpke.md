@@ -1627,10 +1627,11 @@ confidentiality guarantees can be lost completely; in the other modes, at least 
 respect to sender compromise can be lost completely.
 
 Such a situation could also lead to the reuse of the same KEM shared secret
-and thus to the reuse of same (key, nonce) pairs for the AEAD.
+and thus to the reuse of same key-nonce pairs for the AEAD.
 The AEADs specified in this document are not secure
-in case of nonce reuse. This is another attack vector against confidentiality
-in case of bad ephemeral randomness.
+in case of nonce reuse. This attack vector is particularly relevant in
+authenticated modes because knowledge of the ephemeral randomness is not
+enough to derive `shared_secret` in these modes.
 
 One way for applications to mitigate the impacts of bad ephemeral randomness is
 to combine ephemeral randomness with a local long-term secret that has been
