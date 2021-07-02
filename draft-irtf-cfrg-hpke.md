@@ -1320,7 +1320,7 @@ reception. In the AuthPSK mode, sender authentication is generally
 expected to hold if at the time of message reception, the sender private
 key skS and the pre-shared key are not both compromised.
 
-Besides forward secrecy and key-compromise impersonation which are highlighted
+Besides forward secrecy and key-compromise impersonation, which are highlighted
 in this section because of their particular cryptographic importance, HPKE
 has other non-goals that are described in {{non-goals}}: no tolerance of
 message reordering or loss, no downgrade or replay prevention, no hiding of the
