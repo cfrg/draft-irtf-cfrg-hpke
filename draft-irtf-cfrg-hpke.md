@@ -1645,7 +1645,7 @@ Base mode is similar to Noise N, PSK mode to Npsk1, Auth mode to K, AuthPSK to K
 If the randomness used for KEM encapsulation is bad, i.e. of low entropy or
 compromised because of a broken or subverted random number generator, the
 confidentiality guarantees of HPKE degrade significantly. In Base mode,
-can be lost completely; in the other modes, at least forward secrecy with
+confidentiality guarantees can be lost completely; in the other modes, at least forward secrecy with
 respect to sender compromise can be lost completely.
 
 Such a situation could also lead to the reuse of the same KEM shared secret
