@@ -1610,7 +1610,7 @@ HPKE provides no other replay protection.
 
 HPKE ciphertexts are not forward secret with respect to recipient compromise
 in any mode. This means that compromise of long-term recipient secrets allows
-an attacker to decrypt past ciphertexts encrypted under said secret. This is because 
+an attacker to decrypt past ciphertexts encrypted under said secrets. This is because
 only long-term secrets are used on the side of the recipient.
 
 HPKE ciphertexts are forward secret with respect to sender compromise in all
