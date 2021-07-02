@@ -1655,7 +1655,7 @@ in case of bad ephemeral randomness.
 
 One way for applications to mitigate the impacts of bad ephemeral randomness is
 to combine ephemeral randomness with a local long-term secret that has been
-generated securely, as described in {{PQWireGuard}}.
+generated securely, as described in {{?RFC8937}}.
 
 ### Hiding Plaintext Length
 
