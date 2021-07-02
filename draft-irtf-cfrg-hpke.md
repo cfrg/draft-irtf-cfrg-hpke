@@ -1650,7 +1650,7 @@ respect to sender compromise can be lost completely.
 
 Such a situation could also lead to the reuse of the same KEM shared secret
 and thus to the reuse of same (key, nonce) pairs for the AEAD.
-The AEADs specified in this document keep no or only limited security guarantees
+The AEADs specified in this document are not secure
 in case of nonce reuse. This is another attack vector against confidentiality
 in case of bad ephemeral randomness.
 
