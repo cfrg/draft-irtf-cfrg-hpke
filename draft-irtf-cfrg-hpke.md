@@ -1627,8 +1627,9 @@ HPKE provides no other replay protection.
 ### Forward Secrecy
 
 HPKE ciphertexts are not forward secret with respect to recipient compromise
-in any mode. This is because no ephemeral randomness but only long-term secrets
-are used on the side of the recipient.
+in any mode. This means that compromise of long-term recipient secrets allows
+an attacker to decrypt past ciphertexts encrypted under said secret. This is because 
+only long-term secrets are used on the side of the recipient.
 
 HPKE ciphertexts are forward secret with respect to sender compromise in all
 modes. This is because ephemeral randomness is used on the sender's side, which
