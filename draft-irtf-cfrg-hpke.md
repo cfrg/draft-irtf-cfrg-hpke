@@ -1209,7 +1209,7 @@ interface; see {{hpke-export}} for more details.
 
 HPKE has two places at which applications can specify auxiliary authenticated information:
 (1) during context construction via the Setup `info` parameter, and (2) during Context
-operations, i.e., with the `aad` parameter for `Open()` and `Seal()`, and the `info` parameter
+operations, i.e., with the `aad` parameter for `Open()` and `Seal()`, and the `exporter_context` parameter
 for `Export()`. Application information applicable to multiple operations on a single Context
 should use the Setup `info` parameter. This avoids redundantly processing this information for
 each Context operation. In contrast, application information that varies on a per-message basis
