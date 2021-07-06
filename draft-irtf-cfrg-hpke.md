@@ -1652,7 +1652,6 @@ decryption key is compromised. In the PSK and AuthPSK modes, a given
 ciphertext can be decrypted if the recipient's private key and the
 PSK are compromised.
 
-This is addressed in detail in {{kci}}. It is mentioned again here for completeness.
 
 ## Bidirectional Encryption {#bidirectional}
 
