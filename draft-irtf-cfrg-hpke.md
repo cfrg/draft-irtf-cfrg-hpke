@@ -1646,7 +1646,7 @@ padding policies.
 
 ### Key-Compromise Impersonation
 
-Forward secrecy - HPKE ciphertexts are not forward-secure. In the Base and
+As discussed in {{kci}}, HPKE ciphertexts are not forward-secure. In the Base and
 Auth modes, a given ciphertext can be decrypted if the recipient's private
 decryption key is compromised. In the PSK and AuthPSK modes, a given
 ciphertext can be decrypted if the recipient's private key and the
