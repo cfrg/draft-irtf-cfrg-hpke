@@ -911,7 +911,7 @@ the export-only AEAD ID `0xFFFF` when computing the key schedule. Such
 applications can avoid computing the `key` and `base_nonce` values in the
 key schedule, as they are not used by the Export interface described above.
 
-# Single-Shot APIs
+# Single-Shot APIs {#single-shot-apis}
 
 ## Encryption and Decryption {#single-shot-encryption}
 
@@ -1080,7 +1080,7 @@ P-521:
 `bitmask` is defined to be 0xFF for P-256 and P-384, and 0x01 for P-521.
 The precise likelihood of `DeriveKeyPair()` failing with DeriveKeyPairError
 depends on the group being used, but it is negligibly small in all cases.
-See {{api-considerations}} for information about dealing with such failures.
+See {{api-errors}} for information about dealing with such failures.
 
 For X25519 and X448, the `DeriveKeyPair()` function applies a KDF to the input:
 
@@ -1204,6 +1204,27 @@ The `0xFFFF` AEAD ID is reserved for applications which only use the Export
 interface; see {{hpke-export}} for more details.
 
 # API Considerations {#api-considerations}
+
+This section documents considerations for interfaces to implementations of HPKE.
+This includes error handling considerations and recommendations that improve
+interoperability when HPKE is used in applications.
+
+## Auxiliary Authenticated Application Information
+
+HPKE has two places at which applications can specify auxiliary authenticated information:
+(1) during context construction via the Setup `info` parameter, and (2) during Context
+operations, i.e., with the `aad` parameter for `Open()` and `Seal()`, and the `exporter_context` parameter
+for `Export()`. Application information applicable to multiple operations on a single Context
+should use the Setup `info` parameter. This avoids redundantly processing this information for
+each Context operation. In contrast, application information that varies on a per-message basis
+should be specified via the Context APIs (`Seal()`, `Open()`, or `Export()`).
+
+Applications that only use the single-shot APIs described in {{single-shot-apis}} should use the
+Setup `info` parameter for specifying auxiliary authenticated information. Implementations which
+only expose single-shot APIs should not allow applications to use both Setup `info` and Context
+`aad` or `exporter_context` auxiliary information parameters.
+
+## Errors {#api-errors}
 
 The high-level, public HPKE APIs specified in this document are all fallible.
 These include the Setup functions and all encryption context functions.
