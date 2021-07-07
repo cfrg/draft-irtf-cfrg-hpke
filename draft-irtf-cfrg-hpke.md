@@ -1205,7 +1205,11 @@ interface; see {{hpke-export}} for more details.
 
 # API Considerations {#api-considerations}
 
-## Auxiliary Application Information
+This section documents considerations for interfaces to implementations of HPKE.
+This includes error handling considerations and recommendations that improve
+interoperability when HPKE is used in applications.
+
+## Auxiliary Authenticated Application Information
 
 HPKE has two places at which applications can specify auxiliary authenticated information:
 (1) during context construction via the Setup `info` parameter, and (2) during Context
@@ -1217,8 +1221,8 @@ should be specified via the Context APIs (`Seal()`, `Open()`, or `Export()`).
 
 Applications that only use the single-shot APIs described in {{single-shot-apis}} should use the
 Setup `info` parameter for specifying auxiliary authenticated information. Implementations which
-only expose single-shot APIs should not allow applications to use both Setup and Context auxiliary
-information parameters.
+only expose single-shot APIs should not allow applications to use both Setup `info` and Context
+`aad` or `exporter_context` auxiliary information parameters.
 
 ## Errors {#api-errors}
 
