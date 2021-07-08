@@ -1642,6 +1642,11 @@ modes. This is because ephemeral randomness is used on the sender's side, which
 is supposed to be erased directly after computation of the KEM shared secret and
 ciphertext.
 
+HPKE ciphertexts are not forward-secure with respect to receipient compromise. 
+In the Base and Auth modes, a given ciphertext can be decrypted if the recipient's 
+private decryption key is compromised. In the PSK and AuthPSK modes, a given ciphertext
+can be decrypted if the recipient's private key and the PSK are compromised.
+
 ### Bad Ephemeral Randomness
 
 If the randomness used for KEM encapsulation is bad, i.e. of low entropy or
@@ -1667,15 +1672,6 @@ AEAD ciphertexts produced by HPKE do not hide the plaintext length. Applications
 requiring this level of privacy should use a suitable padding mechanism. See
 {{?I-D.ietf-tls-esni}} and {{?RFC8467}} for examples of protocol-specific
 padding policies.
-
-### Key-Compromise Impersonation
-
-As discussed in {{kci}}, HPKE ciphertexts are not forward-secure. In the Base and
-Auth modes, a given ciphertext can be decrypted if the recipient's private
-decryption key is compromised. In the PSK and AuthPSK modes, a given
-ciphertext can be decrypted if the recipient's private key and the
-PSK are compromised.
-
 
 ## Bidirectional Encryption {#bidirectional}
 
