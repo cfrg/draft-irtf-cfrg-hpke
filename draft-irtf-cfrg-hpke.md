@@ -1642,11 +1642,6 @@ modes. This is because ephemeral randomness is used on the sender's side, which
 is supposed to be erased directly after computation of the KEM shared secret and
 ciphertext.
 
-HPKE ciphertexts are not forward-secure with respect to receipient compromise. 
-In the Base and Auth modes, a given ciphertext can be decrypted if the recipient's 
-private decryption key is compromised. In the PSK and AuthPSK modes, a given ciphertext
-can be decrypted if the recipient's private key and the PSK are compromised.
-
 ### Bad Ephemeral Randomness
 
 If the randomness used for KEM encapsulation is bad, i.e. of low entropy or
