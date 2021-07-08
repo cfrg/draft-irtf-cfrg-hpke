@@ -1668,15 +1668,6 @@ requiring this level of privacy should use a suitable padding mechanism. See
 {{?I-D.ietf-tls-esni}} and {{?RFC8467}} for examples of protocol-specific
 padding policies.
 
-### Key-Compromise Impersonation
-
-As discussed in {{kci}}, HPKE ciphertexts are not forward-secure. In the Base and
-Auth modes, a given ciphertext can be decrypted if the recipient's private
-decryption key is compromised. In the PSK and AuthPSK modes, a given
-ciphertext can be decrypted if the recipient's private key and the
-PSK are compromised.
-
-
 ## Bidirectional Encryption {#bidirectional}
 
 As discussed in {{hpke-dem}}, HPKE encryption is unidirectional from sender
