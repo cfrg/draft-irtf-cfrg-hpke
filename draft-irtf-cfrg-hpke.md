@@ -970,8 +970,9 @@ be empty.
 
 This section lists algorithm identifiers suitable for different HPKE configurations.
 Future specifications may introduce new KEM, KDF, and AEAD algorithm identifiers
-provided they adhere to the security requirements in {{kem-security}}, {{kdf-choice}},
-and {{aead-security}}, respectively.
+and retain the security guarantees presented in this document provided they adhere
+to the security requirements in {{kem-security}}, {{kdf-choice}}, and {{aead-security}},
+respectively.
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
