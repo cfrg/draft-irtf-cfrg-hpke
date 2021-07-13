@@ -972,8 +972,7 @@ This section lists algorithm identifiers suitable for different HPKE configurati
 Future specifications may introduce new KEM, KDF, and AEAD algorithm identifiers
 and retain the security guarantees presented in this document provided they adhere
 to the security requirements in {{kem-security}}, {{kdf-choice}}, and {{aead-security}},
-respectively. Future specification MUST indicate if they modify HPKE's security
-guarantees.
+respectively.
 
 ## Key Encapsulation Mechanisms (KEMs) {#kem-ids}
 
