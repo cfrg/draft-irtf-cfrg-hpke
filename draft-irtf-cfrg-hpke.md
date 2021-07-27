@@ -337,7 +337,8 @@ HPKE variants rely on the following primitives:
   - `Encap(pkR)`: Randomized algorithm to generate an ephemeral,
     fixed-length symmetric key (the KEM shared secret) and
     a fixed-length encapsulation of that key that can be decapsulated
-    by the holder of the private key corresponding to `pkR`.
+    by the holder of the private key corresponding to `pkR`. This function
+    can raise an `EncapError` on encapsulation failure.
   - `Decap(enc, skR)`: Deterministic algorithm using the private key `skR`
     to recover the ephemeral symmetric key (the KEM shared secret) from
     its encapsulated representation `enc`. This function can raise a
@@ -424,8 +425,8 @@ Suppose we are given a KDF, and a Diffie-Hellman group providing the
 following operations:
 
 - `DH(skX, pkY)`: Perform a non-interactive Diffie-Hellman exchange using
-  the private key `skX` and public key `pkY` to produce a Diffie-Hellman shared secret of
-  length `Ndh`. This function can raise a `ValidationError` as described
+  the private key `skX` and public key `pkY` to produce a Diffie-Hellman shared
+  secret of length `Ndh`. This function can raise a `ValidationError` as described
   in {{validation}}.
 - `Ndh`: The length in bytes of a Diffie-Hellman shared secret produced
   by `DH()`.
@@ -1236,6 +1237,7 @@ lead to each error, are as follows:
 
 - `ValidationError`: KEM input or output validation failure; {{dhkem}}.
 - `DeserializeError`: Public or private key deserialization failure; {{base-crypto}}.
+- `EncapError`: `Encap()` failure; {{base=crypto}}.
 - `DecapError`: `Decap()` failure; {{base-crypto}}.
 - `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
 - `MessageLimitReachedError`: Context AEAD sequence number overflow; {{base-crypto}} and {{hpke-dem}}.
@@ -1261,6 +1263,9 @@ implementation-specific detail. For example, some implementations may abort or
 panic upon a `DeriveKeyPairError` failure given that it only occurs with
 negligible probability, whereas other implementations may retry the failed
 DeriveKeyPair operation. See {{derive-key-pair}} for more information.
+As another example, some implementations of the DHKEM specified in this document
+may choose to transform `ValidationError` from `DH()` into an `EncapError`
+from `Encap()`, whereas others may choose to raise `ValidationError` unmodified.
 
 Applications using HPKE APIs should not assume that the errors here are complete,
 nor should they assume certain classes of errors will always manifest the same way
