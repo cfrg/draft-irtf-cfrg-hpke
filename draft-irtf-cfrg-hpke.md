@@ -1264,8 +1264,9 @@ panic upon a `DeriveKeyPairError` failure given that it only occurs with
 negligible probability, whereas other implementations may retry the failed
 DeriveKeyPair operation. See {{derive-key-pair}} for more information.
 As another example, some implementations of the DHKEM specified in this document
-may choose to transform `ValidationError` from `DH()` into an `EncapError`
-from `Encap()`, whereas others may choose to raise `ValidationError` unmodified.
+may choose to transform `ValidationError` from `DH()` into an `EncapError` or
+`DecapError` from `Encap()` or `Decap()`, respectively, whereas others may choose
+to raise `ValidationError` unmodified.
 
 Applications using HPKE APIs should not assume that the errors here are complete,
 nor should they assume certain classes of errors will always manifest the same way
