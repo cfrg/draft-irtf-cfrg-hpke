@@ -1237,7 +1237,7 @@ lead to each error, are as follows:
 
 - `ValidationError`: KEM input or output validation failure; {{dhkem}}.
 - `DeserializeError`: Public or private key deserialization failure; {{base-crypto}}.
-- `EncapError`: `Encap()` failure; {{base=crypto}}.
+- `EncapError`: `Encap()` failure; {{base-crypto}}.
 - `DecapError`: `Decap()` failure; {{base-crypto}}.
 - `OpenError`: Context AEAD `Open()` failure; {{base-crypto}} and {{hpke-dem}}.
 - `MessageLimitReachedError`: Context AEAD sequence number overflow; {{base-crypto}} and {{hpke-dem}}.
