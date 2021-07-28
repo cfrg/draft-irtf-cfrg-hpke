@@ -1456,6 +1456,18 @@ this analysis requires the random oracle model; in a quantum
 setting, this model needs adaption to, for example, the quantum random
 oracle model.
 
+### Robustness
+
+A public key encryption system is said to be robust if it is infeasible
+to produce two ciphertexts that are valid for two different recipients
+{{?ROBUSTNESS=DOI.10.1007/s00145-017-9258-8}}. The DHKEM HPKE ciphersuites
+specified in this document provide robustness because the recipient
+public key is included in the key schedule context. Future specifications
+which define new KEMs MUST indicate whether or not the resulting scheme is robust.
+
+This property can also be achieved by using an AEAD which is key-committing.
+None of the AEADs specified in this document are key-committing.
+
 ## Security Requirements on a KEM used within HPKE {#kem-security}
 
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
