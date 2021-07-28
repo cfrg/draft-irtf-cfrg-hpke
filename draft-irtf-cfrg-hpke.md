@@ -1694,7 +1694,7 @@ on recipient authentication in this context. In particular, in the Base mode,
 there is no authentication of the remote party at all. Even in the Auth mode,
 where the remote party has proven that they hold a specific private key, this
 authentication is still subject to Key-Compromise Impersonation, as discussed
-in {{key-compromise-impersonation}}.
+in {{kci}}.
 
 ## Metadata Protection
 
