@@ -1651,8 +1651,8 @@ ciphertext.
 
 ### Bad Ephemeral Randomness
 
-If the randomness used for KEM encapsulation is bad, i.e. of low entropy or
-compromised because of a broken or subverted random number generator, the
+If the randomness used for KEM encapsulation is bad -- i.e. of low entropy or
+compromised because of a broken or subverted random number generator -- the
 confidentiality guarantees of HPKE degrade significantly. In Base mode,
 confidentiality guarantees can be lost completely; in the other modes, at least forward secrecy with
 respect to sender compromise can be lost completely.
