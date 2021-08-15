@@ -1561,7 +1561,14 @@ the recipient. Further, because HPKE uses AEAD schemes that are not key-committi
 an attacker can mount a partitioning oracle attack {{LGR20}} which can recover
 the PSK from a set of `S` possible PSK values, with |S| = m\*k, in roughly
 m + log k queries to the oracle using ciphertexts of length proportional to
-k, the maximum message length in blocks. The PSK must therefore be chosen with
+k, the maximum message length in blocks.
+
+(HPKE uses a different base nonce for each key, so the multi-collision
+algorithm from {{LGR20}} needs to be slightly adapted to compute the appropriate
+nonce for each candidate key. This adds one call to HKDF per key.
+The number of partitioning oracle queries stays unchanged.)
+
+The PSK must therefore be chosen with
 sufficient entropy so that m + log k is prohibitive for attackers (e.g., 2^128).
 Future specifications can define new AEAD algorithms which are key-committing.
 
