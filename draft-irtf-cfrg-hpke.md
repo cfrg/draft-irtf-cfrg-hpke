@@ -832,8 +832,8 @@ each encryption or decryption operation is the result of XORing
 integer of the same length as `base_nonce`. Implementations MAY use a
 sequence number that is shorter than the nonce length (padding on the left
 with zero), but MUST raise an error if the sequence number overflows. The AEAD 
-cipher produces ciphertext that is Nt bytes longer than the plaintext, which is 
-16 bytes longer for the AEAD ciphers defined in this document. 
+algorithm produces ciphertext that is Nt bytes longer than the plaintext.
+Nt = 16 for AEAD algorithms defined in this document.
 
 Encryption is unidirectional from sender to recipient. The sender's
 context can encrypt a plaintext `pt` with associated data `aad` as
