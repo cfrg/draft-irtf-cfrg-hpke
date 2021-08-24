@@ -832,7 +832,7 @@ each encryption or decryption operation is the result of XORing
 integer of the same length as `base_nonce`. Implementations MAY use a
 sequence number that is shorter than the nonce length (padding on the left
 with zero), but MUST raise an error if the sequence number overflows. The
-AEAD cipher is initialized with an authentication tag length, Nt, which is
+AEAD cipher produces an authentication tag length, Nt, which is
 equal to 16 bytes for the AEAD ciphers defined in this document. 
 
 Encryption is unidirectional from sender to recipient. The sender's
@@ -1797,6 +1797,7 @@ Template:
 * AEAD: The name of the algorithm
 * Nk: The length in bytes of a key for this algorithm
 * Nn: The length in bytes of a nonce for this algorithm
+* Nt: The length in bytes of an authentication tag for this algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{aeadid-values}}
