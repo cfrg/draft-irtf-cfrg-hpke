@@ -373,6 +373,7 @@ HPKE variants rely on the following primitives:
     `OpenError` or `MessageLimitReachedError` upon failure.
   - `Nk`: The length in bytes of a key for this algorithm.
   - `Nn`: The length in bytes of a nonce for this algorithm.
+  - `Nt`: The length in bytes of the authentication tag for this algorithm.
 
 Beyond the above, a KEM MAY also expose the following functions, whose behavior
 is detailed in {{serializeprivatekey}}:
@@ -830,7 +831,9 @@ each encryption or decryption operation is the result of XORing
 `base_nonce` with the current sequence number, encoded as a big-endian
 integer of the same length as `base_nonce`. Implementations MAY use a
 sequence number that is shorter than the nonce length (padding on the left
-with zero), but MUST raise an error if the sequence number overflows.
+with zero), but MUST raise an error if the sequence number overflows. The AEAD 
+algorithm produces ciphertext that is Nt bytes longer than the plaintext.
+Nt = 16 for AEAD algorithms defined in this document.
 
 Encryption is unidirectional from sender to recipient. The sender's
 context can encrypt a plaintext `pt` with associated data `aad` as
@@ -1193,13 +1196,13 @@ across all labels in this document.
 
 ## Authenticated Encryption with Associated Data (AEAD) Functions {#aead-ids}
 
-| Value  | AEAD             | Nk  | Nn  | Reference    |
-|:-------|:-----------------|:----|:----|:-------------|
-| 0x0000 | (reserved)       | N/A | N/A | N/A          |
-| 0x0001 | AES-128-GCM      | 16  | 12  | {{GCM}}      |
-| 0x0002 | AES-256-GCM      | 32  | 12  | {{GCM}}      |
-| 0x0003 | ChaCha20Poly1305 | 32  | 12  | {{?RFC8439}} |
-| 0xFFFF | Export-only      | N/A | N/A | [[RFCXXXX]]  |
+| Value  | AEAD             | Nk  | Nn  | Nt  | Reference    |
+|:-------|:-----------------|:----|:----|:----|:-------------|
+| 0x0000 | (reserved)       | N/A | N/A | N/A |  N/A         |
+| 0x0001 | AES-128-GCM      | 16  | 12  | 16  | {{GCM}}      |
+| 0x0002 | AES-256-GCM      | 32  | 12  | 16  | {{GCM}}      |
+| 0x0003 | ChaCha20Poly1305 | 32  | 12  | 16  | {{?RFC8439}} |
+| 0xFFFF | Export-only      | N/A | N/A | N/A | [[RFCXXXX]]  |
 {: #aeadid-values title="AEAD IDs"}
 
 The `0xFFFF` AEAD ID is reserved for applications which only use the Export
@@ -1795,6 +1798,7 @@ Template:
 * AEAD: The name of the algorithm
 * Nk: The length in bytes of a key for this algorithm
 * Nn: The length in bytes of a nonce for this algorithm
+* Nt: The length in bytes of an authentication tag for this algorithm
 * Reference: Where this algorithm is defined
 
 Initial contents: Provided in {{aeadid-values}}
