@@ -367,9 +367,6 @@ HPKE variants rely on the following primitives:
     `pt` with associated data `aad` using symmetric key `key` and nonce
     `nonce`, yielding `ct` which consists of the tuple (ciphertext, tag). This function
      can raise a `MessageLimitReachedError` upon failure.
-    It is the responsibility of users of this specification to specify
-    how to serialize ct; common practice is to concatenate them
-    as `ciphertext || ct`.
   - `Open(key, nonce, aad, ct)`: Decrypt ciphertext and tag `ct` using
     associated data `aad` with symmetric key `key` and nonce `nonce`,
     returning plaintext message `pt`. This function can raise an
@@ -1734,7 +1731,8 @@ require further analysis.
 
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
-minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
+minimally: the encapsulated value `enc`, ciphertext value(s) and authentication
+tags (and order if there are
 multiple), and any info values that are not implicit. One example of a non-implicit value
 is the recipient public key used for encapsulation, which may be needed if a recipient
 has more than one public key.
