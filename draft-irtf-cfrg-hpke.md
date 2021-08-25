@@ -365,8 +365,11 @@ HPKE variants rely on the following primitives:
 * An AEAD encryption algorithm {{!RFC5116}}:
   - `Seal(key, nonce, aad, pt)`: Encrypt and authenticate plaintext
     `pt` with associated data `aad` using symmetric key `key` and nonce
-    `nonce`, yielding ciphertext and tag `ct`. This function
+    `nonce`, yielding `ct` which consists of the tuple (ciphertext, tag). This function
      can raise a `MessageLimitReachedError` upon failure.
+    It is the responsibility of users of this specification to specify
+    how to serialize ct; common practice is to concatenate them
+    as `ciphertext || ct`.
   - `Open(key, nonce, aad, ct)`: Decrypt ciphertext and tag `ct` using
     associated data `aad` with symmetric key `key` and nonce `nonce`,
     returning plaintext message `pt`. This function can raise an
