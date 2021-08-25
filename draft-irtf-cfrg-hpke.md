@@ -822,7 +822,7 @@ each encryption or decryption operation is the result of XORing
 `base_nonce` with the current sequence number, encoded as a big-endian
 integer of the same length as `base_nonce`. Implementations MAY use a
 sequence number that is shorter than the nonce length (padding on the left
-with zero), but MUST raise an error if the sequence number overflows. The AEAD 
+with zero), but MUST raise an error if the sequence number overflows. The AEAD
 algorithm produces ciphertext that is Nt bytes longer than the plaintext.
 Nt = 16 for AEAD algorithms defined in this document.
 
@@ -1726,9 +1726,17 @@ require further analysis.
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
 minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
-multiple), and any info values that are not implicit. One example of a non-implicit value
-is the recipient public key used for encapsulation, which may be needed if a recipient
-has more than one public key.
+multiple), and any info values that are not implicit. One example of a non-implicit
+value is the recipient public key used for encapsulation, which may be needed if a
+recipient has more than one public key.
+
+Some AEAD `Seal()` implementations produce multiple outputs consisting of the encrypted
+plaintext and an authentication tag of length Nt. For compatibility, such implementations
+MUST concatenate both values to produce a single output whose length matches that of
+the input plaintext plus Nt. Similarly, an AEAD `Open()` implementation which accepts
+two inputs, one for the encrypted plaintext and another for the authentication tag,
+needs to parse ciphertext values into the consituent pieces, with the trailing Nt bytes
+being the authentication tag and all preceding bytes being the encrypted plaintext.
 
 # IANA Considerations {#iana}
 
