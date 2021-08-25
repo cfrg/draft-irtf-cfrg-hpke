@@ -1730,16 +1730,16 @@ multiple), and any info values that are not implicit. One example of a non-impli
 value is the recipient public key used for encapsulation, which may be needed if a
 recipient has more than one public key.
 
-All AEAD algorithms defined in this specification produce and consume a single
-value consisting of the encrypted plaintext and authentication tag. However,
-some AEAD algorithms produce multiple outputs consisting of the encrypted
-plaintext and an authentication tag of length Nt. When used with this specification,
-those algorithms MUST concatenate both values to produce a single output whose length matches that of
-the input plaintext plus Nt. Similarly, some AEAD algorithms accept
-two inputs, one for the encrypted plaintext and another for the authentication tag.
-When used with this specification, the ciphertext MUST first be parsed 
-into the constituent pieces, with the trailing Nt bytes
-being the authentication tag and all preceding bytes being the encrypted plaintext.
+The AEAD interface used in this document is based on {{RFC5116}}, which produces and
+consumes a single ciphertext value. As discussed in {{RFC5116}}, this ciphertext value
+contains the encrypted plaintext as well as any authentication data, encoded in a manner
+described by the individual AEAD scheme. Some implementations are not structured in this
+way, instead providing a separate ciphertext and authentication tag. When such
+AEAD implementations are used in HPKE implementations, the HPKE implementation must combine
+these inputs into a single ciphertext value within `Seal()`, and parse them out within
+`Open()`, where the parsing details are defined by the AEAD scheme. For example, with
+the AES-GCM schemes specified in this document, the GCM authentication tag is placed in
+the last Nt bytes of the ciphertext output.
 
 # IANA Considerations {#iana}
 
