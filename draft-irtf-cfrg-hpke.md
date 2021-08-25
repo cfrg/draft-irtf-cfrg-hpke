@@ -228,15 +228,6 @@ informative:
 
   GCM: DOI.10.6028/NIST.SP.800-38D
 
-  WireGuard:
-    title: "WireGuard: Next Generation Kernel Network Tunnel"
-    target: https://www.wireguard.com/papers/wireguard.pdf
-    date: 2020
-    author:
-      -
-        ins: J. A. Donenfeld
-        name: Jason A. Donenfeld
-
   NaCl:
     title: "Public-key authenticated encryption: crypto_box"
     target: https://nacl.cr.yp.to/box.html
@@ -1352,8 +1343,8 @@ secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
 non-quantum-resistant KEM used with HPKE is broken by a
 quantum computer, the security properties are preserved through the use
-of a pre-shared key. This assumes that the pre-shared key has not been
-compromised, as described in {{WireGuard}}.
+of a pre-shared key. As described in {{?RFC8696, Section 7}} this
+assumes that the pre-shared key has not been compromised.
 
 ### Computational Analysis
 
