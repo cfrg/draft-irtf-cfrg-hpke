@@ -1731,7 +1731,7 @@ value is the recipient public key used for encapsulation, which may be needed if
 recipient has more than one public key.
 
 All AEAD algorithms defined in this specification produce and consume a single
-value consisting of the ciphertext and authentication tag. However,
+value consisting of the encrypted plaintext and authentication tag. However,
 some AEAD algorithms produce multiple outputs consisting of the encrypted
 plaintext and an authentication tag of length Nt. When used with this specification,
 those algorithms MUST concatenate both values to produce a single output whose length matches that of
