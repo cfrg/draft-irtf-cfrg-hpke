@@ -356,7 +356,7 @@ HPKE variants rely on the following primitives:
 * An AEAD encryption algorithm {{!RFC5116}}:
   - `Seal(key, nonce, aad, pt)`: Encrypt and authenticate plaintext
     `pt` with associated data `aad` using symmetric key `key` and nonce
-    `nonce`, yielding `ct` which consists of the tuple (ciphertext, tag). This function
+    `nonce`, yielding ciphertext and tag `ct`. This function
      can raise a `MessageLimitReachedError` upon failure.
   - `Open(key, nonce, aad, ct)`: Decrypt ciphertext and tag `ct` using
     associated data `aad` with symmetric key `key` and nonce `nonce`,
@@ -1725,8 +1725,7 @@ require further analysis.
 
 This document does not specify a wire format encoding for HPKE messages. Applications
 that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
-minimally: the encapsulated value `enc`, ciphertext value(s) and authentication
-tags (and order if there are
+minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
 multiple), and any info values that are not implicit. One example of a non-implicit value
 is the recipient public key used for encapsulation, which may be needed if a recipient
 has more than one public key.
