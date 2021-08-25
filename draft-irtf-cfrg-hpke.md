@@ -1730,12 +1730,15 @@ multiple), and any info values that are not implicit. One example of a non-impli
 value is the recipient public key used for encapsulation, which may be needed if a
 recipient has more than one public key.
 
-Some AEAD `Seal()` implementations produce multiple outputs consisting of the encrypted
-plaintext and an authentication tag of length Nt. For compatibility, such implementations
-MUST concatenate both values to produce a single output whose length matches that of
-the input plaintext plus Nt. Similarly, an AEAD `Open()` implementation which accepts
-two inputs, one for the encrypted plaintext and another for the authentication tag,
-needs to parse ciphertext values into the consituent pieces, with the trailing Nt bytes
+All AEAD algorithms defined in this specification produce and consume a single
+value consisting of the ciphertext and authentication tag. However,
+some AEAD algorithms produce multiple outputs consisting of the encrypted
+plaintext and an authentication tag of length Nt. When used with this specification,
+those algorithms MUST concatenate both values to produce a single output whose length matches that of
+the input plaintext plus Nt. Similarly, some AEAD algorithms accept
+two inputs, one for the encrypted plaintext and another for the authentication tag.
+When used with this specification, the ciphertext MUST first be parsed 
+into the constituent pieces, with the trailing Nt bytes
 being the authentication tag and all preceding bytes being the encrypted plaintext.
 
 # IANA Considerations {#iana}
