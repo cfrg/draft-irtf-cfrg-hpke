@@ -202,7 +202,8 @@ informative:
 
   LGR20:
     title: "Partitioning Oracle Attacks"
-    date: To appear in USENIX Security 2021
+    target: https://eprint.iacr.org/2020/1491
+    date: 2021
     author:
       -
         ins: J. Len
