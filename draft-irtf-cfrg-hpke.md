@@ -299,10 +299,10 @@ Specifically, encrypted messages convey an encryption key encapsulated with a
 public-key scheme, along with one or more arbitrary-sized ciphertexts encrypted
 using that key. This type of public key encryption has many applications in
 practice, including Messaging Layer Security {{?I-D.ietf-mls-protocol}} and
-TLS-encrypted ClientHello messages {{?I-D.ietf-tls-esni}}.
+TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}.
 
 Currently, there are numerous competing and non-interoperable standards and
-variants for hybrid encryption, mostly based on Elliptic Curve Integrated Encryption Schemes (ECIESes), including ANSI X9.63
+variants for hybrid encryption, mostly based on Elliptic Curve Integrated Encryption Schemes (ECIES), including ANSI X9.63
 (ECIES) {{ANSI}}, IEEE 1363a {{IEEE1363}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
 {{SECG}}.  See {{MAEA10}} for a thorough comparison.  All these existing
 schemes have problems, e.g., because they rely on outdated primitives, lack
@@ -409,7 +409,7 @@ is detailed in {{serializeprivatekey}}:
   private key. This function can raise a `DeserializeError` error upon `skXm`
   deserialization failure.
 
-A _ciphersuite_ is a triple (KEM, KDF, and AEAD), containing a choice of algorithm
+A _ciphersuite_ is a triple (KEM, KDF, AEAD), containing a choice of algorithm
 for each primitive.
 
 A set of algorithm identifiers for concrete instantiations of these
@@ -679,8 +679,8 @@ In the Auth and AuthPSK modes, the recipient is assured that the sender
 held the private key `skS`. This assurance is limited for the DHKEM
 variants defined in this document because of key compromise impersonation,
 as described in {{dhkem}} and {{sec-properties}}. If in the PSK and
-AuthPSK modes, the `psk` and `psk_id` arguments are provided as required;
-then, the recipient is assured that the sender held the corresponding
+AuthPSK modes, the `psk` and `psk_id` arguments are provided as required,
+then the recipient is assured that the sender held the corresponding
 pre-shared key. See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
@@ -1075,7 +1075,7 @@ use an integer representation of private keys that is compatible with the
 `OS2IP()` function.
 
 For P-256, P-384, and P-521, the `SerializePrivateKey()` function of the KEM
-performs the field-element-to-octet-string conversion according to {{SECG}}. If
+performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
 the private key is an integer outside the range `[0, order-1]`, where `order`
 is the order of the curve being used, the private key MUST be reduced to its
 representative in `[0, order-1]` before being serialized.
@@ -1288,7 +1288,7 @@ IANA registry (HPKE AEAD Identifiers):
 | 0x0001 | AES-128-GCM      | 16  | 12  | 16  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | 16  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | 16  | {{?RFC8439}} |
-| 0xFFFF | Export-only      | N/A | N/A | N/A | [[RFCXXXX]]  |
+| 0xFFFF | Export-only      | N/A | N/A | N/A | RFC 9180     |
 {: #aeadid-values title="AEAD IDs"}
 
 The `0xFFFF` AEAD ID is reserved for applications that only use the Export
@@ -1488,7 +1488,7 @@ using the encryption context, and additionally exports two independent
 secrets using the secret export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
-means that a property does not apply for the given mode, whereas `y` means
+means that a property does not apply for the given mode, whereas `Y` means
 the given mode satisfies the property.
 
 {::comment}
@@ -1498,10 +1498,10 @@ review, and provide a title if desired.
 
 | Variant | Message Sec. | Export Sec. | Sender Auth. |
 |:--------|:------------:|:-----------:|:------------:|
-| Base    | y            | y           | N/A          |
-| PSK     | y            | y           | y            |
-| Auth    | y            | y           | y            |
-| AuthPSK | y            | y           | y            |
+| Base    | Y            | Y           | N/A          |
+| PSK     | Y            | Y           | Y            |
+| Auth    | Y            | Y           | Y            |
+| AuthPSK | Y            | Y           | Y            |
 
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
