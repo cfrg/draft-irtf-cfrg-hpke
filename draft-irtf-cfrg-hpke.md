@@ -1617,8 +1617,8 @@ described above.
 Ordering requirements of this character are usually fulfilled by providing a
 sequence number in the framing of encrypted messages.  Whatever information is
 used to determine the ordering of HPKE-encrypted messages SHOULD be included in
-the AAD passed to `ContextS.Seal()` and `ContextR.Open()`.  The specifics of
-this scheme are up to the application.
+the associated data passed to `ContextS.Seal()` and `ContextR.Open()`.  The
+specifics of this scheme are up to the application.
 
 HPKE is not tolerant of lost messages. Applications MUST be able to detect when
 a message has been lost.  When an unrecoverable loss is detected, the application MUST discard
@@ -1837,9 +1837,9 @@ contains the following values:
    in the KeySchedule function in {{encryption-context}}. The outputs
    include the context values `key`, `base_nonce`, and `exporter_secret`.
 3. Encryption test vectors: A fixed plaintext message is encrypted using
-   different sequence numbers and AAD values using the context computed in (2).
+   different sequence numbers and associated data values using the context computed in (2).
    Each test vector lists the sequence number and corresponding nonce computed
-   with `base_nonce`, the plaintext message `pt`, AAD `aad`, and output
+   with `base_nonce`, the plaintext message `pt`, associated data `aad`, and output
    ciphertext `ct`.
 
 {::comment}
