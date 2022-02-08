@@ -287,7 +287,7 @@ This document represents the consensus of the Crypto Forum Research Group (CFRG)
 
 # Requirements Notation
 
-{::boilerplate bcp14}
+{::boilerplate bcp14-tagged}
 
 # Notation
 
@@ -978,8 +978,8 @@ respectively.
 | 0x0010 | DHKEM(P-256, HKDF-SHA256)  | 32       | 65   | 65  | 32  | yes  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0011 | DHKEM(P-384, HKDF-SHA384)  | 48       | 97   | 97  | 48  | yes  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64       | 133  | 133 | 66  | yes  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC5869}}, {{?RFC7748}}   |
+| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC5869}}, {{?RFC7748}}   |
 {: #kemid-values title="KEM IDs"}
 
 The `Auth` column indicates if the KEM algorithm provides the `AuthEncap()`/`AuthDecap()`
@@ -1403,6 +1403,7 @@ the given mode satisfies the property.
 | PSK     | Y            | Y           | Y            |
 | Auth    | Y            | Y           | Y            |
 | AuthPSK | Y            | Y           | Y            |
+{: #security-properties-table title="HPKE Mode Security Properties"}
 
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
