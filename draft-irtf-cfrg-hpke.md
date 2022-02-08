@@ -409,8 +409,8 @@ The value of `suite_id` depends on where the KDF is used; it is assumed
 implicit from the implementation and not passed as a parameter. If used
 inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
 this KEM algorithm; if used in the remainder of HPKE, it MUST start with
-"HPKE" and identify the entire ciphersuite in use. See sections {{dhkem}}
-and {{encryption-context}} for details.
+"HPKE" and identify the entire ciphersuite in use. See Sections {{<dhkem}}
+and {{<encryption-context}} for details.
 
 ## DH-Based KEM (DHKEM) {#dhkem}
 
@@ -509,7 +509,7 @@ underlying the KDF. For P-256, P-384, and P-521, the size `Ndh` of the
 Diffie-Hellman shared secret is equal to 32, 48, and 66, respectively,
 corresponding to the x-coordinate of the resulting elliptic curve point {{IEEE1363}}.
 For X25519 and X448, the size `Ndh` is equal to 32 and 56, respectively
-(see {{?RFC7748}}, Section 5).
+(see {{?RFC7748, Section 5}}).
 
 It is important to note that the `AuthEncap()` and `AuthDecap()` functions of the
 DHKEM variants defined in this document are vulnerable to key-compromise
@@ -884,7 +884,7 @@ context's AEAD algorithm.
 
 HPKE provides an interface for exporting secrets from the encryption context
 using a variable-length pseudorandom function (PRF), similar to the TLS 1.3 exporter interface
-(see {{?RFC8446}}, Section 7.5). This interface takes as input a context
+(see {{?RFC8446, Section 7.5}}). This interface takes as input a context
 string `exporter_context` and a desired length `L` in bytes, and produces
 a secret derived from the internal exporter secret using the corresponding
 KDF Expand function. For the KDFs defined in this specification, `L` has
@@ -1022,7 +1022,7 @@ representation, so little processing has to be done. The
 `SerializePrivateKey()` function MUST clamp its output and the
 `DeserializePrivateKey()` function MUST clamp its input, where _clamping_ refers to the
 bitwise operations performed on `k` in the `decodeScalar25519()` and
-`decodeScalar448()` functions defined in Section 5 of {{?RFC7748}}.
+`decodeScalar448()` functions defined in {{Section 5 of ?RFC7748}}.
 
 To catch invalid keys early on, implementors of DHKEMs SHOULD check that
 deserialized private keys are not equivalent to 0 (mod `order`), where `order`
@@ -1347,7 +1347,7 @@ secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
 non-quantum-resistant KEM used with HPKE is broken by a
 quantum computer, the security properties are preserved through the use
-of a pre-shared key. As described in Section 7 of {{?RFC8696}} this
+of a pre-shared key. As described in {{Section 7 of ?RFC8696}} this
 assumes that the pre-shared key has not been compromised.
 
 ### Computational Analysis
