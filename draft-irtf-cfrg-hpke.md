@@ -1096,7 +1096,7 @@ public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`. Validation failure yields a `ValidationError`.
 
-For P-256, P-384 and P-521, senders and recipients MUST perform partial
+For P-256, P-384, and P-521, senders and recipients MUST perform partial
 public key validation on all public key inputs, as defined in Section 5.6.2.3.4
 of {{keyagreement}}. This includes checking that the coordinates are in the
 correct range, that the point is on the curve, and that the point is not the
