@@ -13,7 +13,7 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
- -  ins: R. L. Barnes
+ -  ins: R. Barnes
     name: Richard L. Barnes
     org: Cisco
     email: rlb@ipv.sx
@@ -25,7 +25,7 @@ author:
     name: Benjamin Lipp
     org: Inria
     email: ietf@benjaminlipp.de
- -  ins: C. A. Wood
+ -  ins: C. Wood
     name: Christopher A. Wood
     org: Cloudflare
     email: caw@heapingbits.net
@@ -237,17 +237,17 @@ informative:
 
 --- abstract
 
-This document describes a scheme for hybrid public-key encryption (HPKE).
-This scheme provides a variant of public-key encryption of arbitrary-sized
+This document describes a scheme for hybrid public key encryption (HPKE).
+This scheme provides a variant of public key encryption of arbitrary-sized
 plaintexts for a recipient public key. It also includes three authenticated
-variants, including one which authenticates possession of a pre-shared key,
-and two optional ones which authenticate possession of a KEM private key.
-HPKE works for any combination of an asymmetric key encapsulation mechanism
-(KEM), key derivation function (KDF), and authenticated encryption with
+variants, including one that authenticates possession of a pre-shared key
+and two optional ones that authenticate possession of a key encapsulation
+mechanism (KEM) private key. HPKE works for any combination of an asymmetric
+KEM, key derivation function (KDF), and authenticated encryption with
 additional data (AEAD) encryption function. Some authenticated variants may not
 be supported by all KEMs. We provide instantiations of the scheme using widely
-used and efficient primitives, such as Elliptic Curve Diffie-Hellman key
-agreement, HKDF, and SHA2.
+used and efficient primitives, such as Elliptic Curve Diffie-Hellman (ECDH) key
+agreement, HMAC-based key derivation function (HKDF), and SHA2.
 
 This document is a product of the Crypto Forum Research Group (CFRG) in the IRTF.
 
@@ -256,54 +256,54 @@ This document is a product of the Crypto Forum Research Group (CFRG) in the IRTF
 # Introduction
 
 Encryption schemes that combine asymmetric and symmetric algorithms have been
-specified and practiced since the early days of public-key cryptography, e.g.,
+specified and practiced since the early days of public key cryptography, e.g.,
 {{?RFC1421}}. Combining the two yields the key management advantages of asymmetric
 cryptography and the performance benefits of symmetric cryptography. The traditional
 combination has been "encrypt the symmetric key with the public key." "Hybrid"
-public-key encryption schemes (HPKE), specified here, take a different approach:
+public key encryption (HPKE) schemes, specified here, take a different approach:
 "generate the symmetric key and its encapsulation with the public key."
 Specifically, encrypted messages convey an encryption key encapsulated with a
-public-key scheme, along with one or more arbitrary-sized ciphertexts encrypted
+public key scheme, along with one or more arbitrary-sized ciphertexts encrypted
 using that key. This type of public key encryption has many applications in
 practice, including Messaging Layer Security {{?I-D.ietf-mls-protocol}} and
 TLS Encrypted ClientHello {{?I-D.ietf-tls-esni}}.
 
 Currently, there are numerous competing and non-interoperable standards and
-variants for hybrid encryption, mostly based on ECIES, including ANSI X9.63
+variants for hybrid encryption, mostly variants on the Elliptic Curve Integrated Encryption Scheme (ECIES), including ANSI X9.63
 (ECIES) {{ANSI}}, IEEE 1363a {{IEEE1363}}, ISO/IEC 18033-2 {{ISO}}, and SECG SEC 1
 {{SECG}}.  See {{MAEA10}} for a thorough comparison.  All these existing
 schemes have problems, e.g., because they rely on outdated primitives, lack
-proofs of IND-CCA2 security, or fail to provide test vectors.
+proofs of indistinguishable (adaptive) chosen-ciphertext attack (IND-CCA2) security, or fail to provide test vectors.
 
 This document defines an HPKE scheme that provides a subset
-of the functions provided by the collection of schemes above, but
+of the functions provided by the collection of schemes above but
 specified with sufficient clarity that they can be interoperably
 implemented. The HPKE construction defined herein is secure against (adaptive)
-chosen ciphertext attacks (IND-CCA2 secure) under classical assumptions about
-the underlying primitives {{HPKEAnalysis}}, {{ABHKLR20}}. A summary of
+chosen ciphertext attacks (IND-CCA2-secure) under classical assumptions about
+the underlying primitives {{HPKEAnalysis}} {{ABHKLR20}}. A summary of
 these analyses is in {{sec-properties}}.
 
 This document represents the consensus of the Crypto Forum Research Group (CFRG).
 
 # Requirements Notation
 
-{::boilerplate bcp14}
+{::boilerplate bcp14-tagged}
 
 # Notation
 
 The following terms are used throughout this document to describe the
 operations, roles, and behaviors of HPKE:
 
-- `(skX, pkX)`: A Key Encapsulation Mechanism (KEM) key pair used in role X,
+- `(skX, pkX)`: A key encapsulation mechanism (KEM) key pair used in role X,
   where X is one of S, R, or E as sender, recipient, and ephemeral, respectively;
   `skX` is the private key and `pkX` is the public key.
 - `pk(skX)`: The KEM public key corresponding to the KEM private key `skX`.
-- Sender (S): Role of entity which sends an encrypted message.
-- Recipient (R): Role of entity which receives an encrypted message.
+- Sender (S): Role of entity that sends an encrypted message.
+- Recipient (R): Role of entity that receives an encrypted message.
 - Ephemeral (E): Role of a fresh random value meant for one-time use.
 - `I2OSP(n, w)`: Convert non-negative integer `n` to a `w`-length,
-  big-endian byte string as described in {{!RFC8017}}.
-- `OS2IP(x)`: Convert byte string `x` to a non-negative integer as
+  big-endian byte string, as described in {{!RFC8017}}.
+- `OS2IP(x)`: Convert byte string `x` to a non-negative integer, as
   described in {{!RFC8017}}, assuming big-endian byte order.
 - `concat(x0, ..., xN)`: Concatenation of byte strings.
   `concat(0x01, 0x0203, 0x040506) = 0x010203040506`.
@@ -316,7 +316,7 @@ operations, roles, and behaviors of HPKE:
 
 HPKE variants rely on the following primitives:
 
-* A Key Encapsulation Mechanism (KEM):
+* A key encapsulation mechanism (KEM):
   - `GenerateKeyPair()`: Randomized algorithm to generate a key pair `(skX, pkX)`.
   - `DeriveKeyPair(ikm)`: Deterministic algorithm to derive a key pair
     `(skX, pkX)` from the byte string `ikm`, where `ikm` SHOULD have at
@@ -346,7 +346,7 @@ HPKE variants rely on the following primitives:
   - `Npk`: The length in bytes of an encoded public key for this KEM.
   - `Nsk`: The length in bytes of an encoded private key for this KEM.
 
-* A Key Derivation Function (KDF):
+* A key derivation function (KDF):
   - `Extract(salt, ikm)`: Extract a pseudorandom key of fixed length `Nh` bytes
     from input keying material `ikm` and an optional byte string
     `salt`.
@@ -388,7 +388,7 @@ Note that `GenerateKeyPair` can be implemented as `DeriveKeyPair(random(Nsk))`.
 The notation `pk(skX)`, depending on its use and the KEM and its
 implementation, is either the
 computation of the public key using the private key, or just syntax
-expressing the retrieval of the public key assuming it is stored along
+expressing the retrieval of the public key, assuming it is stored along
 with the private key object.
 
 The following two functions are defined to facilitate domain separation of
@@ -409,12 +409,12 @@ The value of `suite_id` depends on where the KDF is used; it is assumed
 implicit from the implementation and not passed as a parameter. If used
 inside a KEM algorithm, `suite_id` MUST start with "KEM" and identify
 this KEM algorithm; if used in the remainder of HPKE, it MUST start with
-"HPKE" and identify the entire ciphersuite in use. See sections {{dhkem}}
-and {{encryption-context}} for details.
+"HPKE" and identify the entire ciphersuite in use. See Sections {{<dhkem}}
+and {{<encryption-context}} for details.
 
-## DH-Based KEM {#dhkem}
+## DH-Based KEM (DHKEM) {#dhkem}
 
-Suppose we are given a KDF, and a Diffie-Hellman group providing the
+Suppose we are given a KDF, and a Diffie-Hellman (DH) group providing the
 following operations:
 
 - `DH(skX, pkY)`: Perform a non-interactive Diffie-Hellman exchange using
@@ -427,7 +427,7 @@ following operations:
 
 Then we can construct a KEM that implements the interface defined in {{base-crypto}}
 called `DHKEM(Group, KDF)` in the following way, where `Group` denotes the
-Diffie-Hellman group and `KDF` the KDF. The function parameters `pkR` and `pkS`
+Diffie-Hellman group and `KDF` denotes the KDF. The function parameters `pkR` and `pkS`
 are deserialized public keys, and `enc` is a serialized public key. Since
 encapsulated keys are Diffie-Hellman public keys in this KEM algorithm,
 we use `SerializePublicKey()` and `DeserializePublicKey()` to encode and decode
@@ -498,18 +498,18 @@ suite_id = concat("KEM", I2OSP(kem_id, 2))
 The KDF used in DHKEM can be equal to or different from the KDF used
 in the remainder of HPKE, depending on the chosen variant.
 Implementations MUST make sure to use the constants (`Nh`) and function
-calls (`LabeledExtract`, `LabeledExpand`) of the appropriate KDF when
+calls (`LabeledExtract` and `LabeledExpand`) of the appropriate KDF when
 implementing DHKEM. See {{kdf-choice}} for a comment on the choice of
 a KDF for the remainder of HPKE, and {{domain-separation}} for the
 rationale of the labels.
 
 For the variants of DHKEM defined in this document, the size `Nsecret` of the
 KEM shared secret is equal to the output length of the hash function
-underlying the KDF. For P-256, P-384 and P-521, the size `Ndh` of the
+underlying the KDF. For P-256, P-384, and P-521, the size `Ndh` of the
 Diffie-Hellman shared secret is equal to 32, 48, and 66, respectively,
 corresponding to the x-coordinate of the resulting elliptic curve point {{IEEE1363}}.
-For X25519 and X448, the size `Ndh` of is equal to 32 and 56, respectively
-(see {{?RFC7748}}, Section 5).
+For X25519 and X448, the size `Ndh` is equal to 32 and 56, respectively
+(see {{?RFC7748, Section 5}}).
 
 It is important to note that the `AuthEncap()` and `AuthDecap()` functions of the
 DHKEM variants defined in this document are vulnerable to key-compromise
@@ -524,18 +524,18 @@ in {{kem-ids}}.
 # Hybrid Public Key Encryption {#hpke}
 
 In this section, we define a few HPKE variants.  All variants take a
-recipient public key and a sequence of plaintexts `pt`, and produce an
+recipient public key and a sequence of plaintexts `pt` and produce an
 encapsulated key `enc` and a sequence of ciphertexts `ct`.  These outputs are
 constructed so that only the holder of `skR` can decapsulate the key from
 `enc` and decrypt the ciphertexts.  All the algorithms also take an
 `info` parameter that can be used to influence the generation of keys
 (e.g., to fold in identity information) and an `aad` parameter that
-provides Additional Authenticated Data to the AEAD algorithm in use.
+provides additional authenticated data to the AEAD algorithm in use.
 
 In addition to the base case of encrypting to a public key, we
-include three authenticated variants, one which authenticates
-possession of a pre-shared key, one which authenticates
-possession of a KEM private key, and one which authenticates possession of both
+include three authenticated variants: one that authenticates
+possession of a pre-shared key, one that authenticates
+possession of a KEM private key, and one that authenticates possession of both
 a pre-shared key and a KEM private key. All authenticated variants contribute
 additional keying material to the encryption operation. The following one-byte
 values will be used to distinguish between modes:
@@ -567,7 +567,7 @@ parameters (`enc`, `psk_id`, etc.) are transported between the sender and the
 recipient by some application making use of HPKE. Moreover, a recipient with more
 than one public key needs some way of determining which of its public keys was
 used for the encapsulation operation. As an example, applications may send this
-information alongside a ciphertext from sender to recipient. Specification of
+information alongside a ciphertext from the sender to the recipient. Specification of
 such a mechanism is left to the application. See {{message-encoding}} for more
 details.
 
@@ -620,7 +620,7 @@ then the recipient is assured that the sender held the corresponding
 pre-shared key. See {{sec-properties}} for more details.
 
 The HPKE algorithm identifiers, i.e., the KEM `kem_id`, KDF `kdf_id`, and
-AEAD `aead_id` 2-byte code points as defined in {{kemid-values}}, {{kdfid-values}},
+AEAD `aead_id` 2-byte code points, as defined in {{kemid-values}}, {{kdfid-values}},
 and {{aeadid-values}}, respectively, are assumed implicit from the implementation
 and not passed as parameters. The implicit `suite_id` value used within
 `LabeledExtract` and `LabeledExpand` is defined based on them as follows:
@@ -709,7 +709,7 @@ def SetupBaseR(enc, skR, info):
                       default_psk, default_psk_id)
 ~~~~~
 
-### Authentication using a Pre-Shared Key {#mode-psk}
+### Authentication Using a Pre-Shared Key {#mode-psk}
 
 This variant extends the base mechanism by allowing the recipient to
 authenticate that the sender possessed a given PSK. The PSK also
@@ -734,7 +734,7 @@ def SetupPSKR(enc, skR, info, psk, psk_id):
   return KeyScheduleR(mode_psk, shared_secret, info, psk, psk_id)
 ~~~~~
 
-### Authentication using an Asymmetric Key {#mode-auth}
+### Authentication Using an Asymmetric Key {#mode-auth}
 
 This variant extends the base mechanism by allowing the recipient
 to authenticate that the sender possessed a given KEM private key.
@@ -758,7 +758,7 @@ This mechanism authenticates only the key pair of the sender, not
 any other identifier.  If an application wishes to bind HPKE
 ciphertexts or exported secrets to another identity for the sender
 (e.g., an email address or domain name), then this identifier should be
-included in the `info` parameter to avoid identity mis-binding issues {{IMB}}.
+included in the `info` parameter to avoid identity misbinding issues {{IMB}}.
 
 ~~~~~
 def SetupAuthS(pkR, info, skS):
@@ -772,12 +772,11 @@ def SetupAuthR(enc, skR, info, pkS):
                       default_psk, default_psk_id)
 ~~~~~
 
-### Authentication using both a PSK and an Asymmetric Key {#mode-auth-psk}
+### Authentication Using Both a PSK and an Asymmetric Key {#mode-auth-psk}
 
-This mode is a straightforward combination of the PSK and
-authenticated modes.  The PSK is passed through to the key schedule
-as in the former, and as in the latter, we use the authenticated KEM
-variants.
+This mode is a straightforward combination of the PSK and authenticated modes.
+Like the PSK mode, a PSK is provided as input to the key schedule, and like the
+authenticated mode, authenticated KEM variants are used.
 
 ~~~~~
 def SetupAuthPSKS(pkR, info, psk, psk_id, skS):
@@ -797,14 +796,14 @@ bytes or longer. See {{security-psk}} for a more detailed discussion.
 ## Encryption and Decryption {#hpke-dem}
 
 HPKE allows multiple encryption operations to be done based on a
-given setup transaction.  Since the public-key operations involved
+given setup transaction.  Since the public key operations involved
 in setup are typically more expensive than symmetric encryption or
 decryption, this allows applications to amortize the cost of the
-public-key operations, reducing the overall overhead.
+public key operations, reducing the overall overhead.
 
 In order to avoid nonce reuse, however, this encryption must be
 stateful. Each of the setup procedures above produces a role-specific
-context object that stores the AEAD and Secret Export parameters.
+context object that stores the AEAD and secret export parameters.
 The AEAD parameters consist of:
 
 * The AEAD algorithm in use
@@ -812,10 +811,11 @@ The AEAD parameters consist of:
 * A base nonce `base_nonce`
 * A sequence number (initially 0)
 
-The Secret Export parameters consist of:
+The secret export parameters consist of:
 
-* The HPKE ciphersuite in use
-* An `exporter_secret` used for the Secret Export interface; see {{hpke-export}}
+* The HPKE ciphersuite in use and
+* An `exporter_secret` used for the secret export interface (see
+  {{hpke-export}})
 
 All these parameters except the AEAD sequence number are constant.
 The sequence number provides nonce uniqueness: The nonce used for
@@ -866,9 +866,9 @@ def Context<ROLE>.IncrementSeq():
 ~~~~~
 
 The sender's context MUST NOT be used for decryption. Similarly, the recipient's
-context MUST NOT be used for encryption. Higher-level protocols re-using the HPKE
+context MUST NOT be used for encryption. Higher-level protocols reusing the HPKE
 key exchange for more general purposes can derive separate keying material as
-needed using use the Secret Export interface; see {{hpke-export}} and {{bidirectional}}
+needed using use the secret export interface; see {{hpke-export}} and {{bidirectional}}
 for more details.
 
 It is up to the application to ensure that encryptions and decryptions are
@@ -883,12 +883,12 @@ context's AEAD algorithm.
 ## Secret Export {#hpke-export}
 
 HPKE provides an interface for exporting secrets from the encryption context
-using a variable-length PRF, similar to the TLS 1.3 exporter interface
-(see {{?RFC8446}}, Section 7.5). This interface takes as input a context
+using a variable-length pseudorandom function (PRF), similar to the TLS 1.3 exporter interface
+(see {{?RFC8446, Section 7.5}}). This interface takes as input a context
 string `exporter_context` and a desired length `L` in bytes, and produces
 a secret derived from the internal exporter secret using the corresponding
 KDF Expand function. For the KDFs defined in this specification, `L` has
-a maximum value of `255*Nh`. Future specifications which define new KDFs
+a maximum value of `255*Nh`. Future specifications that define new KDFs
 MUST specify a bound for `L`.
 
 The `exporter_context` field has a maximum length that depends on the KDF
@@ -927,7 +927,7 @@ def Open<MODE>(enc, skR, info, aad, ct, ...):
 ~~~~~
 
 The `MODE` template parameter is one of Base, PSK, Auth, or AuthPSK. The optional parameters
-indicated by "..." depend on `MODE` and may be empty. `SetupBase()`, for example, has no
+indicated by "..." depend on `MODE` and may be empty. For example, `SetupBase()` has no
 additional parameters. `SealAuthPSK()` and `OpenAuthPSK()` would be implemented as follows:
 
 ~~~
@@ -974,12 +974,12 @@ respectively.
 
 | Value  | KEM                        | Nsecret  | Nenc | Npk | Nsk | Auth | Reference                    |
 |:-------|:---------------------------|:---------|:-----|:----|:----|:-----|:-----------------------------|
-| 0x0000 | (reserved)                 | N/A      | N/A  | N/A | N/A | yes  | N/A                          |
+| 0x0000 | Reserved                   | N/A      | N/A  | N/A | N/A | yes  | RFC 9180                     |
 | 0x0010 | DHKEM(P-256, HKDF-SHA256)  | 32       | 65   | 65  | 32  | yes  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0011 | DHKEM(P-384, HKDF-SHA384)  | 48       | 97   | 97  | 48  | yes  | {{NISTCurves}}, {{?RFC5869}} |
 | 0x0012 | DHKEM(P-521, HKDF-SHA512)  | 64       | 133  | 133 | 66  | yes  | {{NISTCurves}}, {{?RFC5869}} |
-| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
-| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC7748}}, {{?RFC5869}}   |
+| 0x0020 | DHKEM(X25519, HKDF-SHA256) | 32       | 32   | 32  | 32  | yes  | {{?RFC5869}}, {{?RFC7748}}   |
+| 0x0021 | DHKEM(X448, HKDF-SHA512)   | 64       | 56   | 56  | 56  | yes  | {{?RFC5869}}, {{?RFC7748}}   |
 {: #kemid-values title="KEM IDs"}
 
 The `Auth` column indicates if the KEM algorithm provides the `AuthEncap()`/`AuthDecap()`
@@ -989,7 +989,7 @@ PSK mode.
 
 ### SerializePublicKey and DeserializePublicKey
 
-For P-256, P-384 and P-521, the `SerializePublicKey()` function of the
+For P-256, P-384, and P-521, the `SerializePublicKey()` function of the
 KEM performs the uncompressed Elliptic-Curve-Point-to-Octet-String
 conversion according to {{SECG}}. `DeserializePublicKey()` performs the
 uncompressed Octet-String-to-Elliptic-Curve-Point conversion.
@@ -1005,11 +1005,11 @@ Some deserialized public keys MUST be validated before they can be used. See
 
 As per {{SECG}}, P-256, P-384, and P-521 private keys are field elements in the
 scalar field of the curve being used. For this section, and for
-{{derive-key-pair}}, it is assumed that implementers of ECDH over these curves
+{{derive-key-pair}}, it is assumed that implementors of ECDH over these curves
 use an integer representation of private keys that is compatible with the
 `OS2IP()` function.
 
-For P-256, P-384 and P-521, the `SerializePrivateKey()` function of the KEM
+For P-256, P-384, and P-521, the `SerializePrivateKey()` function of the KEM
 performs the Field-Element-to-Octet-String conversion according to {{SECG}}. If
 the private key is an integer outside the range `[0, order-1]`, where `order`
 is the order of the curve being used, the private key MUST be reduced to its
@@ -1019,12 +1019,12 @@ according to {{SECG}}.
 
 For X25519 and X448, private keys are identical to their byte string
 representation, so little processing has to be done. The
-`SerializePrivateKey()` function MUST clamp its output and
-`DeserializePrivateKey()` MUST clamp its input, where _clamping_ refers to the
+`SerializePrivateKey()` function MUST clamp its output and the
+`DeserializePrivateKey()` function MUST clamp its input, where _clamping_ refers to the
 bitwise operations performed on `k` in the `decodeScalar25519()` and
-`decodeScalar448()` functions defined in section 5 of {{?RFC7748}}.
+`decodeScalar448()` functions defined in {{Section 5 of ?RFC7748}}.
 
-To catch invalid keys early on, implementers of DHKEMs SHOULD check that
+To catch invalid keys early on, implementors of DHKEMs SHOULD check that
 deserialized private keys are not equivalent to 0 (mod `order`), where `order`
 is the order of the DH group. Note that this property is trivially true for X25519
 and X448 groups, since clamped values can never be 0 (mod `order`).
@@ -1039,7 +1039,7 @@ All invocations of KDF functions (such as `LabeledExtract` or `LabeledExpand`) i
 DHKEM's `DeriveKeyPair()` function use the DHKEM's associated KDF (as opposed to
 the ciphersuite's KDF).
 
-For P-256, P-384 and P-521, the `DeriveKeyPair()` function of the KEM performs
+For P-256, P-384, and P-521, the `DeriveKeyPair()` function of the KEM performs
 rejection sampling over field elements:
 
 ~~~
@@ -1058,7 +1058,7 @@ def DeriveKeyPair(ikm):
   return (sk, pk(sk))
 ~~~
 
-`order` is the order of the curve being used (see section D.1.2 of {{NISTCurves}}), and
+`order` is the order of the curve being used (see Section D.1.2 of {{NISTCurves}}), and
 is listed below for completeness.
 
 ~~~~~
@@ -1096,8 +1096,8 @@ public key `pkR`; the recipient MUST validate the ephemeral public key
 `pkE`; in authenticated modes, the recipient MUST validate the sender's
 static public key `pkS`. Validation failure yields a `ValidationError`.
 
-For P-256, P-384 and P-521, senders and recipients MUST perform partial
-public-key validation on all public key inputs, as defined in section 5.6.2.3.4
+For P-256, P-384, and P-521, senders and recipients MUST perform partial
+public key validation on all public key inputs, as defined in Section 5.6.2.3.4
 of {{keyagreement}}. This includes checking that the coordinates are in the
 correct range, that the point is on the curve, and that the point is not the
 point at infinity. Additionally, senders and recipients MUST ensure the
@@ -1113,7 +1113,7 @@ the Diffie-Hellman shared secret is the all-zero value and abort if so.
 
 The `AuthEncap()` and `AuthDecap()` functions are OPTIONAL. If a KEM algorithm
 does not provide them, only the Base and PSK modes of HPKE are supported.
-Future specifications which define new KEMs MUST indicate whether or not
+Future specifications that define new KEMs MUST indicate whether or not
 Auth and AuthPSK modes are supported.
 
 A KEM algorithm may support different encoding algorithms, with different output
@@ -1124,7 +1124,7 @@ algorithm whose output length is `Npk`.
 
 | Value  | KDF         | Nh  | Reference    |
 |:-------|:------------|-----|:-------------|
-| 0x0000 | (reserved)  | N/A | N/A          |
+| 0x0000 | Reserved    | N/A | RFC 9180     |
 | 0x0001 | HKDF-SHA256 | 32  | {{?RFC5869}} |
 | 0x0002 | HKDF-SHA384 | 48  | {{?RFC5869}} |
 | 0x0003 | HKDF-SHA512 | 64  | {{?RFC5869}} |
@@ -1153,22 +1153,22 @@ for the KDFs defined in this document, as inclusive bounds in bytes:
 This shows that the limits are only marginally smaller than the maximum
 input length of the underlying hash function; these limits are large and
 unlikely to be reached in practical applications. Future specifications
-which define new KDFs MUST specify bounds for these variable-length
+that define new KDFs MUST specify bounds for these variable-length
 parameters.
 
 The RECOMMENDED limit for these values is 64 bytes. This would enable
 interoperability with implementations that statically allocate memory
 for these inputs to avoid memory allocations.
 
-The values for `psk`, `psk_id`, `info`, and `ikm` which are inputs to
-`LabeledExtract()` were computed with the following expression:
+The values for `psk`, `psk_id`, `info`, and `ikm`, which are inputs to
+`LabeledExtract()`, were computed with the following expression:
 
 ~~~
 max_size_hash_input - Nb - size_version_label -
     size_suite_id - size_input_label
 ~~~
 
-The value for `exporter_context` which is an input to `LabeledExpand()`
+The value for `exporter_context`, which is an input to `LabeledExpand()`,
 was computed with the following expression:
 
 ~~~
@@ -1181,7 +1181,7 @@ of the underlying hash function in bytes, `Nb` is the block size of the
 underlying hash function in bytes, `size_version_label` is the size
 of "HPKE-v1" in bytes and equals 7, `size_suite_id` is the size of the
 `suite_id` in bytes and equals 5 for DHKEM (relevant for `ikm`) and 10 for the
-remainder of HPKE (relevant for `psk`, `psk_id`, `info`, `exporter_context`),
+remainder of HPKE (relevant for `psk`, `psk_id`, `info`, and `exporter_context`),
 and `size_input_label` is the size in bytes of the label used as parameter to
 `LabeledExtract()` or `LabeledExpand()`, the maximum of which is 13
 across all labels in this document.
@@ -1190,14 +1190,14 @@ across all labels in this document.
 
 | Value  | AEAD             | Nk  | Nn  | Nt  | Reference    |
 |:-------|:-----------------|:----|:----|:----|:-------------|
-| 0x0000 | (reserved)       | N/A | N/A | N/A |  N/A         |
+| 0x0000 | Reserved         | N/A | N/A | N/A | RFC 9180     |
 | 0x0001 | AES-128-GCM      | 16  | 12  | 16  | {{GCM}}      |
 | 0x0002 | AES-256-GCM      | 32  | 12  | 16  | {{GCM}}      |
 | 0x0003 | ChaCha20Poly1305 | 32  | 12  | 16  | {{?RFC8439}} |
-| 0xFFFF | Export-only      | N/A | N/A | N/A | [[RFCXXXX]]  |
+| 0xFFFF | Export-only      | N/A | N/A | N/A | RFC 9180     |
 {: #aeadid-values title="AEAD IDs"}
 
-The `0xFFFF` AEAD ID is reserved for applications which only use the Export
+The `0xFFFF` AEAD ID is reserved for applications that only use the Export
 interface; see {{hpke-export}} for more details.
 
 # API Considerations {#api-considerations}
@@ -1307,14 +1307,14 @@ details.
 In the Auth mode, sender authentication is generally expected to hold if
 the sender private key `skS` is not compromised at the time of message
 reception. In the AuthPSK mode, sender authentication is generally
-expected to hold if at the time of message reception, the sender private
+expected to hold if, at the time of message reception, the sender private
 key skS and the pre-shared key are not both compromised.
 
 Besides forward secrecy and key-compromise impersonation, which are highlighted
 in this section because of their particular cryptographic importance, HPKE
 has other non-goals that are described in {{non-goals}}: no tolerance of
 message reordering or loss, no downgrade or replay prevention, no hiding of the
-plaintext length, no protection against bad ephemeral randomness. {{non-goals}}
+plaintext length, and no protection against bad ephemeral randomness. {{non-goals}}
 suggests application-level mitigations for some of them.
 
 ### Key-Compromise Impersonation {#kci}
@@ -1333,31 +1333,31 @@ knows a recipient's private key can decapsulate an observed KEM ciphertext,
 compute the key schedule, and encrypt an arbitrary message that the recipient
 will accept as coming from the original sender. Importantly, this is possible even
 with a KEM that is resistant to key-compromise impersonation attacks. As a
-result, mitigating this issue requires fundamental changes that are out-of-scope
+result, mitigating this issue requires fundamental changes that are out of scope
 of this specification.
 
 Applications that require resistance against key-compromise impersonation
 SHOULD take extra steps to prevent this attack. One possibility is to
 produce a digital signature over `(enc, ct)` tuples using a sender's
 private key -- where `ct` is an AEAD ciphertext produced by the single-shot
-or multi-shot API, and `enc` the corresponding KEM encapsulated key.
+or multi-shot API and `enc` is the corresponding KEM encapsulated key.
 
 Given these properties, pre-shared keys strengthen both the authentication and the
 secrecy properties in certain adversary models. One particular example in which
 this can be useful is a hybrid quantum setting: if a
 non-quantum-resistant KEM used with HPKE is broken by a
 quantum computer, the security properties are preserved through the use
-of a pre-shared key. As described in {{?RFC8696, Section 7}} this
+of a pre-shared key. As described in {{Section 7 of ?RFC8696}} this
 assumes that the pre-shared key has not been compromised.
 
 ### Computational Analysis
 
-It is shown in {{CS01}} that a hybrid public-key encryption scheme of
+It is shown in {{CS01}} that a hybrid public key encryption scheme of
 essentially the same form as the Base mode described here is
 IND-CCA2-secure as long as the underlying KEM and AEAD schemes are
 IND-CCA2-secure. Moreover, it is shown in {{HHK06}} that IND-CCA2 security
 of the KEM and the data encapsulation mechanism are necessary conditions
-to achieve IND-CCA2 security for hybrid public-key encryption.
+to achieve IND-CCA2 security for hybrid public key encryption.
 The main difference between the scheme proposed in {{CS01}}
 and the Base mode in this document (both named HPKE) is that we interpose
 some KDF calls between the KEM and the AEAD. Analyzing the HPKE Base mode
@@ -1374,7 +1374,7 @@ HPKE can be viewed and analyzed as flavors of signcryption {{SigncryptionDZ10}}.
 
 A preliminary computational analysis of all HPKE modes has been done
 in {{HPKEAnalysis}}, indicating asymptotic security for the case where
-the KEM is DHKEM, the AEAD is any IND-CPA and INT-CTXT-secure scheme,
+the KEM is DHKEM, the AEAD is any IND-CPA-secure and INT-CTXT-secure scheme,
 and the DH group and KDF satisfy the following conditions:
 
 - DH group: The gap Diffie-Hellman (GDH) problem is hard in the
@@ -1394,15 +1394,16 @@ using the encryption context, and additionally exports two independent
 secrets using the secret export interface.
 
 The table below summarizes the main results from {{HPKEAnalysis}}. N/A
-means that a property does not apply for the given mode, whereas `y` means
+means that a property does not apply for the given mode, whereas `Y` means
 the given mode satisfies the property.
 
 | Variant | Message Sec. | Export Sec. | Sender Auth. |
 |:--------|:------------:|:-----------:|:------------:|
-| Base    | y            | y           | N/A          |
-| PSK     | y            | y           | y            |
-| Auth    | y            | y           | y            |
-| AuthPSK | y            | y           | y            |
+| Base    | Y            | Y           | N/A          |
+| PSK     | Y            | Y           | Y            |
+| Auth    | Y            | Y           | Y            |
+| AuthPSK | Y            | Y           | Y            |
+{: #security-properties-table title="HPKE Mode Security Properties"}
 
 If non-DH-based KEMs are to be used with HPKE, further analysis will be
 necessary to prove their security. The results from {{CS01}} provide
@@ -1415,8 +1416,8 @@ The paper defines security notions for authenticated
 KEMs and for authenticated public key encryption, using the outsider and
 insider security terminology known from signcryption {{SigncryptionDZ10}}.
 The analysis proves that DHKEM's `AuthEncap()`/`AuthDecap()` interface
-fulfills these notions for all Diffie-Hellman groups specified in this document,
-and indicates exact security bounds, under the assumption that the
+fulfills these notions for all Diffie-Hellman groups specified in this document.
+The analysis also provides exact security bounds, under the assumptions that the
 gap Diffie-Hellman (GDH) problem is hard in the appropriate subgroup {{GAP}},
 and that HKDF can be modeled as a random oracle.
 
@@ -1425,7 +1426,7 @@ Auth mode fulfills the security notions of authenticated public key encryption
 for all KDFs and AEAD schemes specified in this document, given any
 authenticated KEM satisfying the previously defined security notions
 for authenticated KEMs. The theorems assume that the KEM is perfectly correct;
-they could easily be adapted to work with KEMs that have a non-zero but negligible
+they could easily be adapted to work with KEMs that have a nonzero but negligible
 probability for decryption failure. The assumptions on the KDF are that `Extract()`
 and `Expand()` can be modeled as pseudorandom functions wherein the first
 argument is the key, respectively. The assumption for the AEAD is
@@ -1457,7 +1458,7 @@ this analysis requires the random oracle model; in a quantum
 setting, this model needs adaption to, for example, the quantum random
 oracle model.
 
-## Security Requirements on a KEM used within HPKE {#kem-security}
+## Security Requirements on a KEM Used within HPKE {#kem-security}
 
 A KEM used within HPKE MUST allow HPKE to satisfy its desired security
 properties described in {{sec-properties}}. {{domain-separation}} lists
@@ -1467,14 +1468,14 @@ In particular, the KEM
 shared secret MUST be a uniformly random byte string of length `Nsecret`.
 This means, for instance, that it would not be sufficient if the KEM
 shared secret is only uniformly random as an element of some set prior
-to its encoding as byte string.
+to its encoding as a byte string.
 
 ### Encap/Decap Interface
 
 As mentioned in {{sec-considerations}}, {{CS01}} provides some indications
 that if the KEM's `Encap()`/`Decap()` interface (which is used in the Base
-and PSK modes), is IND-CCA2-secure, HPKE is able to satisfy its desired
-security properties. An appropriate definition of IND-CCA2-security for
+and PSK modes) is IND-CCA2-secure, HPKE is able to satisfy its desired
+security properties. An appropriate definition of IND-CCA2 security for
 KEMs can be found in {{CS01}} and {{BHK09}}.
 
 ### AuthEncap/AuthDecap Interface
@@ -1483,7 +1484,7 @@ The analysis of HPKE's Auth mode single-shot encryption API in {{ABHKLR20}}
 provides composition theorems that guarantee that HPKE's Auth mode achieves
 its desired security properties if the KEM's `AuthEncap()`/`AuthDecap()`
 interface satisfies multi-user Outsider-CCA, Outsider-Auth, and
-Insider-CCA security as defined in the same paper.
+Insider-CCA security, as defined in the same paper.
 
 Intuitively, Outsider-CCA security formalizes confidentiality, and
 Outsider-Auth security formalizes authentication of the KEM shared secret
@@ -1511,7 +1512,7 @@ different KEM.
 The randomness used in `Encap()` and `AuthEncap()` to generate the
 KEM shared secret or its encapsulation MUST NOT be reused elsewhere.
 
-As a sender or recipient KEM key pair works with all modes, it can
+Since a KEM key pair belonging to a sender or recipient works with all modes, it can
 be used with multiple modes in parallel. HPKE is constructed to be
 secure in such settings due to domain separation using the `suite_id`
 variable. However, there is no formal proof of security at the time of
@@ -1536,24 +1537,24 @@ In the PSK and AuthPSK modes, the PSK MUST have at least 32 bytes of
 entropy and SHOULD be of length `Nh` bytes or longer. Using a PSK longer than
 32 bytes but shorter than `Nh` bytes is permitted.
 
-HPKE is specified to use HKDF as key derivation function. HKDF is not
-designed to slow down dictionary attacks, see {{?RFC5869}}. Thus, HPKE's
+HPKE is specified to use HKDF as its key derivation function. HKDF is not
+designed to slow down dictionary attacks (see {{?RFC5869}}). Thus, HPKE's
 PSK mechanism is not suitable for use with a low-entropy password as the
-PSK: in scenarios in which the adversary knows the KEM shared secret
-`shared_secret` and has access to an oracle that allows to distinguish between
+PSK: In scenarios in which the adversary knows the KEM shared secret
+`shared_secret` and has access to an oracle that distinguishes between
 a good and a wrong PSK, it can perform PSK-recovering attacks. This oracle
 can be the decryption operation on a captured HPKE ciphertext or any other
-recipient behavior which is observably different when using a wrong PSK.
+recipient behavior that is observably different when using a wrong PSK.
 The adversary knows the KEM shared secret `shared_secret` if it knows all
-KEM private keys of one participant. In the PSK mode this is trivially
-the case if the adversary acts as sender.
+KEM private keys of one participant. In the PSK mode, this is trivially
+the case if the adversary acts as the sender.
 
 To recover a lower entropy PSK, an attacker in this scenario can trivially
 perform a dictionary attack. Given a set `S` of possible PSK values, the
 attacker generates an HPKE ciphertext for each value in `S`, and submits
 the resulting ciphertexts to the oracle to learn which PSK is being used by
 the recipient. Further, because HPKE uses AEAD schemes that are not key-committing,
-an attacker can mount a partitioning oracle attack {{LGR20}} which can recover
+an attacker can mount a partitioning oracle attack {{LGR20}} that can recover
 the PSK from a set of `S` possible PSK values, with |S| = m\*k, in roughly
 m + log k queries to the oracle using ciphertexts of length proportional to
 k, the maximum message length in blocks. (Applying the multi-collision algorithm from
@@ -1561,7 +1562,7 @@ k, the maximum message length in blocks. (Applying the multi-collision algorithm
 is computed for each candidate key. This modification adds one call to HKDF per key.
 The number of partitioning oracle queries remains unchanged.) As a result, the PSK
 must therefore be chosen with sufficient entropy so that m + log k is prohibitive for
-attackers (e.g., 2^128). Future specifications can define new AEAD algorithms which
+attackers (e.g., 2^128). Future specifications can define new AEAD algorithms that
 are key-committing.
 
 ## Domain Separation {#domain-separation}
@@ -1572,17 +1573,17 @@ calls to `Extract()` and `Expand()` inside DHKEM and the remainder of
 HPKE use separate input domains. This justifies modeling them as
 independent functions even if instantiated by the same KDF.
 This domain separation between DHKEM and the remainder of HPKE is achieved by
-the `suite_id` values in `LabeledExtract()` and `LabeledExpand()`:
-The values used (`KEM...` in DHKEM and `HPKE...` in the remainder of HPKE)
-are prefix-free (a set is prefix-free if no element is a prefix of
-another within the set).
+using prefix-free sets of `suite_id` values in `LabeledExtract()` and
+`LabeledExpand()` (`KEM...` in DHKEM and `HPKE...` in the remainder of HPKE).
+Recall that a set is prefix-free if no element is a prefix of another within the
+set.
 
 Future KEM instantiations MUST ensure, should `Extract()` and
 `Expand()` be used internally, that they can be modeled as functions
 independent from the invocations of `Extract()` and `Expand()` in the
 remainder of HPKE. One way to ensure this is by using `LabeledExtract()`
 and `LabeledExpand()` with a `suite_id` as defined in {{base-crypto}},
-which will ensure input domain separation as outlined above.
+which will ensure input domain separation, as outlined above.
 Particular attention needs to
 be paid if the KEM directly invokes functions that are used internally
 in HPKE's `Extract()` or `Expand()`, such as `Hash()` and `HMAC()` in the case of HKDF.
@@ -1600,7 +1601,7 @@ KEM shared secret as in another scheme or version.
 
 HPKE is designed to be a fairly low-level mechanism.  As a result, it assumes
 that certain properties are provided by the application in which HPKE is
-embedded, and leaves certain security properties to be provided by other
+embedded and leaves certain security properties to be provided by other
 mechanisms. Otherwise said, certain properties are out-of-scope for HPKE.
 
 ### Message Order and Message Loss
@@ -1616,8 +1617,8 @@ described above.
 Ordering requirements of this character are usually fulfilled by providing a
 sequence number in the framing of encrypted messages.  Whatever information is
 used to determine the ordering of HPKE-encrypted messages SHOULD be included in
-the AAD passed to `ContextS.Seal()` and `ContextR.Open()`.  The specifics of
-this scheme are up to the application.
+the associated data passed to `ContextS.Seal()` and `ContextR.Open()`.  The
+specifics of this scheme are up to the application.
 
 HPKE is not tolerant of lost messages. Applications MUST be able to detect when
 a message has been lost.  When an unrecoverable loss is detected, the application MUST discard
@@ -1650,7 +1651,7 @@ ciphertext.
 
 ### Bad Ephemeral Randomness
 
-If the randomness used for KEM encapsulation is bad -- i.e. of low entropy or
+If the randomness used for KEM encapsulation is bad -- i.e., of low entropy or
 compromised because of a broken or subverted random number generator -- the
 confidentiality guarantees of HPKE degrade significantly. In Base mode,
 confidentiality guarantees can be lost completely; in the other modes, at least forward secrecy with
@@ -1678,12 +1679,12 @@ padding policies.
 
 As discussed in {{hpke-dem}}, HPKE encryption is unidirectional from sender
 to recipient. Applications that require bidirectional encryption can derive
-necessary keying material with the Secret Export interface {{hpke-export}}.
+necessary keying material with the secret export interface {{hpke-export}}.
 The type and length of such keying material depends on the application use
 case.
 
-As an example, if an application needs AEAD encryption from recipient to
-sender, it can derive a key and nonce from the corresponding HPKE context
+As an example, if an application needs AEAD encryption from the recipient to
+the sender, it can derive a key and nonce from the corresponding HPKE context
 as follows:
 
 ~~~
@@ -1698,16 +1699,16 @@ Note that HPKE's limitations with regard to sender authentication become limits
 on recipient authentication in this context. In particular, in the Base mode,
 there is no authentication of the remote party at all. Even in the Auth mode,
 where the remote party has proven that they hold a specific private key, this
-authentication is still subject to Key-Compromise Impersonation, as discussed
+authentication is still subject to key-compromise impersonation, as discussed
 in {{kci}}.
 
 ## Metadata Protection
 
-The authenticated modes of HPKE (PSK, Auth, AuthPSK) require that the recipient
+The authenticated modes of HPKE (PSK, Auth, and AuthPSK) require that the recipient
 know what key material to use for the sender.  This can be signaled in
 applications by sending the PSK ID (`psk_id` above) and/or the sender's public
 key (`pkS`).  However, these values themselves might be considered sensitive,
-since in a given application context, they might identify the sender.
+since, in a given application context, they might identify the sender.
 
 An application that wishes to protect these metadata values without requiring
 further provisioning of keys can use an additional instance of HPKE, using the
@@ -1725,7 +1726,7 @@ require further analysis.
 # Message Encoding {#message-encoding}
 
 This document does not specify a wire format encoding for HPKE messages. Applications
-that adopt HPKE must therefore specify an unambiguous encoding mechanism which includes,
+that adopt HPKE must therefore specify an unambiguous encoding mechanism that includes,
 minimally: the encapsulated value `enc`, ciphertext value(s) (and order if there are
 multiple), and any info values that are not implicit. One example of a non-implicit
 value is the recipient public key used for encapsulation, which may be needed if a
@@ -1737,20 +1738,20 @@ contains the encrypted plaintext as well as any authentication data, encoded in 
 described by the individual AEAD scheme. Some implementations are not structured in this
 way, instead providing a separate ciphertext and authentication tag. When such
 AEAD implementations are used in HPKE implementations, the HPKE implementation must combine
-these inputs into a single ciphertext value within `Seal()`, and parse them out within
+these inputs into a single ciphertext value within `Seal()` and parse them out within
 `Open()`, where the parsing details are defined by the AEAD scheme. For example, with
 the AES-GCM schemes specified in this document, the GCM authentication tag is placed in
 the last Nt bytes of the ciphertext output.
 
 # IANA Considerations {#iana}
 
-This document requests the creation of three new IANA registries:
+IANA has created three new registries:
 
 * HPKE KEM Identifiers
 * HPKE KDF Identifiers
 * HPKE AEAD Identifiers
 
-All these registries should be under a heading of "Hybrid Public Key
+All these registries are under "Hybrid Public Key
 Encryption", and administered under a Specification Required policy {{!RFC8126}}
 
 ## KEM Identifiers {#kem-template}
@@ -1805,35 +1806,17 @@ Template:
 
 Initial contents: Provided in {{aeadid-values}}
 
+--- back
+
 # Acknowledgements
 
-The authors would like to thank
-Joël Alwen,
-Jean-Philippe Aumasson,
-David Benjamin,
-Benjamin Beurdouche,
-Bruno Blanchet,
-Frank Denis,
-Stephen Farrell,
-Scott Fluhrer,
-Eduard Hauck,
-Scott Hollenbeck,
-Kevin Jacobs,
-Burt Kaliski,
-Eike Kiltz,
-Julia Len,
-John Mattsson,
-Christopher Patton,
-Doreen Riepel,
-Raphael Robert,
-Michael Rosenberg,
-Michael Scott,
-Martin Thomson,
-Steven Valdez,
-Riad Wahby,
-and other contributors in the CFRG for helpful feedback that greatly improved this document.
-
---- back
+The authors would like to thank Joël Alwen, Jean-Philippe Aumasson, David
+Benjamin, Benjamin Beurdouche, Bruno Blanchet, Frank Denis, Stephen Farrell,
+Scott Fluhrer, Eduard Hauck, Scott Hollenbeck, Kevin Jacobs, Burt Kaliski, Eike
+Kiltz, Julia Len, John Mattsson, Christopher Patton, Doreen Riepel, Raphael
+Robert, Michael Rosenberg, Michael Scott, Martin Thomson, Steven Valdez, Riad
+Wahby, and other contributors in the CFRG for helpful feedback that greatly
+improved this document.
 
 # Test Vectors
 
@@ -1843,7 +1826,7 @@ contains the following values:
 1. Configuration information and private key material: This includes the `mode`, `info` string, HPKE
    ciphersuite identifiers (`kem_id`, `kdf_id`, `aead_id`), and all
    sender, recipient, and ephemeral key material. For each role X,
-   where X is one of S, R, or E as sender, recipient, and ephemeral,
+   where X is one of S, R, or E, as sender, recipient, and ephemeral,
    respectively, key pairs are generated as `(skX, pkX) = DeriveKeyPair(ikmX)`.
    Each key pair `(skX, pkX)` is written in its serialized form, where
    `skXm = SerializePrivateKey(skX)` and `pkXm = SerializePublicKey(pkX)`.
@@ -1854,10 +1837,41 @@ contains the following values:
    in the KeySchedule function in {{encryption-context}}. The outputs
    include the context values `key`, `base_nonce`, and `exporter_secret`.
 3. Encryption test vectors: A fixed plaintext message is encrypted using
-   different sequence numbers and AAD values using the context computed in (2).
+   different sequence numbers and associated data values using the context computed in (2).
    Each test vector lists the sequence number and corresponding nonce computed
-   with `base_nonce`, the plaintext message `pt`, AAD `aad`, and output
+   with `base_nonce`, the plaintext message `pt`, associated data `aad`, and output
    ciphertext `ct`.
+
+{::comment}
+[rfced] FYI, the text rendering of the <tt> element was changed
+in Sept. 2021 (xml2rfc release 3.10.0). <tt> no longer yields quotation
+marks in the text rendering. In light of this, please review and let us
+know if you want to make any changes (e.g., add quotation marks that
+would be in all 3 output formats). For example:
+
+Original:
+       Each test vector lists the sequence number and
+       corresponding nonce computed with "base_nonce", the plaintext
+       message "pt", AAD "aad", and output ciphertext "ct".
+
+Current text:
+       Each test vector lists the sequence
+       number and corresponding nonce computed with base_nonce, the
+       plaintext message pt, AAD aad, and output ciphertext ct.
+
+If you decide to add parentheses similar to usage in Section 9.9:
+       Each test vector lists the sequence
+       number and corresponding nonce computed with base_nonce, the
+       plaintext message (pt), AAD (aad), and output ciphertext (ct).
+
+Side note: <tt> yields fixed-width font in the HTML and PDF files.
+
+This alternative diff file has been provided so that you can review
+changes without the noise of the quotation marks being removed due
+to this change to the rendering of <tt>:
+https://www.rfc-editor.org/authors/rfc9180-alt-diff.html
+{:/comment}
+
 4. Export test vectors: Several exported values of the same length with differing
    context parameters are computed using the context computed in (2). Each test
    vector lists the `exporter_context`, output length `L`, and resulting export
