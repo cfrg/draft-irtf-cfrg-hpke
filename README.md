@@ -34,6 +34,7 @@ This requires that you have the necessary software installed.  See
 | [libhpke](https://github.com/cisco/mlspp/tree/main/lib/hpke) | C++ (OpenSSL) | RFC9180 | All |
 | [hacl-star-hpke](https://github.com/project-everest/hacl-star/blob/_blipp_hpke/specs/Spec.Agile.HPKE.fsti) | F\* | draft-05 | All |
 | [hpke-js](https://github.com/dajiaji/hpke-js) | Javascript (built on WebCrypto API) | RFC9180 | All |
+| (Tink)(https://developers.google.com/tink/hybrid?hl=en) | Java, Python, Obj-C, Go, C++ | RFC9180 | Base |
 
 Submit a PR if you would like your implementation to be added!
 
