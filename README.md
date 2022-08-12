@@ -21,19 +21,20 @@ This requires that you have the necessary software installed.  See
 
 | Implementation                                     | Language | Version  | Modes  |
 | -------------------------------------------------- |:---------|:---------|:-------|
-| [go-hpke](https://github.com/cisco/go-hpke)        | Go       | draft-08 | All    |
-| [CIRCL](https://github.com/cloudflare/circl/tree/master/hpke) | Go       | draft-08 | All but "Export Only" |
-| [hpke-compact](https://github.com/jedisct1/go-hpke-compact)   | Go       | draft-08 | All    |
-| [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | draft-08 | All    |
-| [BoringSSL](https://boringssl.googlesource.com/boringssl/+/refs/heads/master/include/openssl/hpke.h) | C | draft-08 | Base |
-| [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | draft-08 | Base, PSK |
-| [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | draft-08 | All    |
-| [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | draft-08 | All |
-| [hpke-wrap](https://github.com/danharkins/hpke-wrap) | C/OpenSSL | draft-08 | All |
-| [zig-hpke](https://github.com/jedisct1/zig-hpke) | Zig | draft-08 | All |
-| [libhpke](https://github.com/cisco/mlspp/tree/main/lib/hpke) | C++ (OpenSSL) | draft-08 | All |
+| [go-hpke](https://github.com/cisco/go-hpke)        | Go       | RFC9180 | All    |
+| [CIRCL](https://github.com/cloudflare/circl/tree/master/hpke) | Go       | RFC9180 | All but "Export Only" |
+| [hpke-compact](https://github.com/jedisct1/go-hpke-compact)   | Go       | RFC9180 | All    |
+| [rust-hpke](https://github.com/rozbb/rust-hpke)    | Rust     | RFC9180 | All    |
+| [BoringSSL](https://boringssl.googlesource.com/boringssl/+/refs/heads/master/include/openssl/hpke.h) | C | RFC9180 | Base |
+| [NSS](https://hg.mozilla.org/projects/nss/file/tip/lib/pk11wrap) | C | RFC9180 | Base, PSK |
+| [hpke-rs](https://github.com/franziskuskiefer/hpke-rs)    | Rust     | RFC9180 | All    |
+| [happykey](https://github.com/sftcd/happykey) | C/OpenSSL | RFC9180 | All |
+| [hpke-wrap](https://github.com/danharkins/hpke-wrap) | C/OpenSSL | RFC9180 | All |
+| [zig-hpke](https://github.com/jedisct1/zig-hpke) | Zig | RFC9180 | All |
+| [libhpke](https://github.com/cisco/mlspp/tree/main/lib/hpke) | C++ (OpenSSL) | RFC9180 | All |
 | [hacl-star-hpke](https://github.com/project-everest/hacl-star/blob/_blipp_hpke/specs/Spec.Agile.HPKE.fsti) | F\* | draft-05 | All |
 | [hpke-py](https://github.com/ctz/hpke-py) | Python (cryptography.io) | RFC9180 | Base, Auth |
+| [hpke-js](https://github.com/dajiaji/hpke-js) | Javascript (built on WebCrypto API) | RFC9180 | All |
 
 Submit a PR if you would like your implementation to be added!
 
