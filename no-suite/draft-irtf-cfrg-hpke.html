@@ -1,0 +1,1079 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head profile="http://www.w3.org/2006/03/hcard http://dublincore.org/documents/2008/08/04/dc-html/">
+  <meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+
+  <title>Hybrid Public Key Encryption</title>
+
+  
+<style type="text/css">/*<![CDATA[*/
+
+body {
+  font: 16px "Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
+  color: #333;
+  font-size-adjust: 0.5;
+  line-height: 24px;
+  margin: 75px auto;
+  max-width: 624px;
+  padding: 0 5px;
+}
+
+.title, .filename, h1, h2, h3, h4, h5 {
+  font: 16px "Roboto Condensed","Helvetica Neue","Open Sans",Helvetica,Calibri,sans-serif;
+  font-size-adjust: 0.5;
+  font-weight: bold;
+  color: #333;
+  line-height: 100%;
+  margin: 1.2em 0 0.3em;
+}
+.title, #rfc\.title h1 { font-size: 32px; }
+h1, section h1, h2, section h2, section h3, nav h2 { font-size: 20px; }
+h3, section h4, h4, section h5 { font-size: 16px; }
+h1 a[href], h2 a[href], h3 a[href], h4 a[href] {
+  color: #333;
+}
+
+table {
+  margin-left: 0em;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  border-bottom: 2px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+}
+tr:nth-child(2n+1) > td,
+tr:nth-child(2n+1) > th {
+  background-color: #f9f9f9;
+}
+td.reference {
+  max-width: 200px;
+  border-top: none;
+  padding-right: 1em;
+}
+.right {
+  text-align: right;
+}
+
+
+table.header, table#rfc\.headerblock {
+  width: 100%;
+}
+table.header td, table#rfc\.headerblock td {
+  border: none;
+  background-color: transparent;
+  color: black;
+  padding: 0;
+}
+.filename {
+  display: block;
+  color: rgb(119, 119, 119);
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 100%;
+  margin: 10px 0 32px;
+}
+#rfc\.abstract+p, #rfc\.abstract+p code, #rfc\.abstract+p samp, #rfc\.abstract+p tt {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+samp, tt, code, pre, span.tt {
+  font-size: 13.5px;
+  font-family: Consolas, monospace;
+  font-size-adjust: none;
+}
+pre {
+  background-color: #eee;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+  padding: 5px;
+  margin: 5px;
+}
+.figure, caption {
+  font-style: italic;
+  margin: 0 1.5em;
+  text-align: left;
+}
+
+address {
+  margin: 16px 2px;
+  line-height: 20px;
+}
+.vcard {
+  font-style: normal;
+}
+.vcardline {
+  display: block;
+}
+.vcardline .fn, address b {
+  font-weight: normal;
+}
+.vcardline .hidden {
+  display: none;
+}
+
+dl {
+  margin-left: 1em;
+}
+dl.dl-horizontal: {
+  margin-left: 0;
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.nohang > dt {
+  float: none;
+}
+dl > dd {
+  margin-bottom: .5em;
+}
+dl.compact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+ul.empty {
+  list-style-type: none;
+}
+ul.empty li {
+  margin-top: .5em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+hr.noprint {
+  display: none;
+}
+
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #2a6496;
+}
+a[href]:hover {
+  background-color: #eee;
+}
+
+p, ol, ul, li {
+  padding: 0;
+}
+p {
+  margin: 0.5em 0;
+}
+ol, ul {
+  margin: 0.2em 0 0.2em 2em;
+}
+li {
+  margin: 0.2em 0;
+}
+address {
+  font-style: normal;
+}
+
+ul.toc ul {
+  margin: 0 0 0 2em;
+}
+ul.toc li {
+  list-style: none;
+  margin: 0;
+}
+
+@media screen and (min-width: 924px) {
+  body {
+    padding-right: 350px;
+  }
+  body>ul.toc, body>#rfc\.toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 500px);
+    width: 300px;
+    z-index: 1;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  body>#rfc\.toc {
+    top: 55px;
+  }
+  body>ul.toc {
+    top: 100px;
+  }
+
+  ul.toc {
+    margin: 0 0 0 4px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+  ul.toc ul {
+    margin-left: 1.2em;
+  }
+}
+
+.github-fork-ribbon-wrapper {
+  display: none;
+}
+@media screen and (min-width: 800px) {
+  /* "Fork me on GitHub" CSS ribbon based on
+   * https://github.com/simonwhitaker/github-fork-ribbon-css
+   */
+  .github-fork-ribbon {
+    position: absolute;
+    padding: 2px 0;
+    background-color: #a00;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.5);
+    font: 700 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    pointer-events: auto;
+
+    top: 38px;
+    right: -45px;
+
+    transform: rotate(45deg);
+  }
+
+  .github-fork-ribbon a[href],
+  .github-fork-ribbon a[href]:hover {
+    color: #fff;
+    background-color: transparent;
+    text-decoration: none;
+    text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+
+    width: 190px;
+    line-height: 18px;
+
+    display: inline-block;
+    padding: 2px 0;
+
+    border: 1.5px dotted #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+
+  .github-fork-ribbon-wrapper {
+    display: block;
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    overflow: hidden;
+    top: 0; right: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .github-fork-ribbon-wrapper {
+    position: fixed;
+  }
+  /*]]>*/</style>
+  <meta name="viewport" content="initial-scale=1.0">
+
+
+  <link href="#rfc.toc" rel="Contents">
+<link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
+<link href="#rfc.section.2" rel="Chapter" title="2 Requirements Notation">
+<link href="#rfc.section.3" rel="Chapter" title="3 Security Properties">
+<link href="#rfc.section.4" rel="Chapter" title="4 Notation">
+<link href="#rfc.section.5" rel="Chapter" title="5 Cryptographic Dependencies">
+<link href="#rfc.section.5.1" rel="Chapter" title="5.1 DH-Based KEM">
+<link href="#rfc.section.6" rel="Chapter" title="6 Hybrid Public Key Encryption">
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Creating an Encryption Context">
+<link href="#rfc.section.6.2" rel="Chapter" title="6.2 Encryption to a Public Key">
+<link href="#rfc.section.6.3" rel="Chapter" title="6.3 Authentication using a Pre-Shared Key">
+<link href="#rfc.section.6.4" rel="Chapter" title="6.4 Authentication using an Asymmetric Key">
+<link href="#rfc.section.6.5" rel="Chapter" title="6.5 Authentication using both a PSK and an Asymmetric Key">
+<link href="#rfc.section.6.6" rel="Chapter" title="6.6 Encryption and Decryption">
+<link href="#rfc.section.7" rel="Chapter" title="7 Algorithm Identifiers">
+<link href="#rfc.section.7.1" rel="Chapter" title="7.1 Key Encapsulation Mechanisms (KEMs)">
+<link href="#rfc.section.7.2" rel="Chapter" title="7.2 Key Derivation Functions (KDFs)">
+<link href="#rfc.section.7.3" rel="Chapter" title="7.3 Authentication Encryption with Associated Data (AEAD) Functions">
+<link href="#rfc.section.8" rel="Chapter" title="8 Security Considerations">
+<link href="#rfc.section.9" rel="Chapter" title="9 IANA Considerations">
+<link href="#rfc.references" rel="Chapter" title="10 References">
+<link href="#rfc.references.1" rel="Chapter" title="10.1 Normative References">
+<link href="#rfc.references.2" rel="Chapter" title="10.2 Informative References">
+<link href="#rfc.appendix.A" rel="Chapter" title="A Possible TODOs">
+<link href="#rfc.authors" rel="Chapter">
+
+
+  <meta name="generator" content="xml2rfc version 2.22.2 - https://tools.ietf.org/tools/xml2rfc" />
+  <link rel="schema.dct" href="http://purl.org/dc/terms/" />
+
+  <meta name="dct.creator" content="Barnes, R. and K. Bhargavan" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-irtf-cfrg-hpke-latest" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-07-04" />
+  <meta name="dct.abstract" content="This document describes a scheme for hybrid public-key encryption (HPKE).  This scheme provides authenticated public key encryption of arbitrary-sized plaintexts for a recipient public key. HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM), key derivation function (KDF), and authenticated encryption with additional data (AEAD) encryption function. We provide instantiations of the scheme using widely-used and efficient primitives." />
+  <meta name="description" content="This document describes a scheme for hybrid public-key encryption (HPKE).  This scheme provides authenticated public key encryption of arbitrary-sized plaintexts for a recipient public key. HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM), key derivation function (KDF), and authenticated encryption with additional data (AEAD) encryption function. We provide instantiations of the scheme using widely-used and efficient primitives." />
+
+</head>
+
+<body>
+
+  <table class="header">
+    <tbody>
+    
+    	<tr>
+<td class="left">Network Working Group</td>
+<td class="right">R. Barnes</td>
+</tr>
+<tr>
+<td class="left">Internet-Draft</td>
+<td class="right">Cisco</td>
+</tr>
+<tr>
+<td class="left">Intended status: Informational</td>
+<td class="right">K. Bhargavan</td>
+</tr>
+<tr>
+<td class="left">Expires: January 5, 2020</td>
+<td class="right">Inria</td>
+</tr>
+<tr>
+<td class="left"></td>
+<td class="right">July 04, 2019</td>
+</tr>
+
+    	
+    </tbody>
+  </table>
+
+  <p class="title">Hybrid Public Key Encryption<br />
+  <span class="filename">draft-irtf-cfrg-hpke-latest</span></p>
+  
+  <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
+<p>This document describes a scheme for hybrid public-key encryption (HPKE).  This scheme provides authenticated public key encryption of arbitrary-sized plaintexts for a recipient public key. HPKE works for any combination of an asymmetric key encapsulation mechanism (KEM), key derivation function (KDF), and authenticated encryption with additional data (AEAD) encryption function. We provide instantiations of the scheme using widely-used and efficient primitives.</p>
+<h1 id="rfc.status"><a href="#rfc.status">Status of This Memo</a></h1>
+<p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
+<p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
+<p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
+<p>This Internet-Draft will expire on January 5, 2020.</p>
+<h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
+<p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
+<p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
+
+  
+  <hr class="noprint" />
+  <h1 class="np" id="rfc.toc"><a href="#rfc.toc">Table of Contents</a></h1>
+  <ul class="toc">
+
+  	<li>1.   <a href="#rfc.section.1">Introduction</a>
+</li>
+<li>2.   <a href="#rfc.section.2">Requirements Notation</a>
+</li>
+<li>3.   <a href="#rfc.section.3">Security Properties</a>
+</li>
+<li>4.   <a href="#rfc.section.4">Notation</a>
+</li>
+<li>5.   <a href="#rfc.section.5">Cryptographic Dependencies</a>
+</li>
+<ul><li>5.1.   <a href="#rfc.section.5.1">DH-Based KEM</a>
+</li>
+</ul><li>6.   <a href="#rfc.section.6">Hybrid Public Key Encryption</a>
+</li>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Creating an Encryption Context</a>
+</li>
+<li>6.2.   <a href="#rfc.section.6.2">Encryption to a Public Key</a>
+</li>
+<li>6.3.   <a href="#rfc.section.6.3">Authentication using a Pre-Shared Key</a>
+</li>
+<li>6.4.   <a href="#rfc.section.6.4">Authentication using an Asymmetric Key</a>
+</li>
+<li>6.5.   <a href="#rfc.section.6.5">Authentication using both a PSK and an Asymmetric Key</a>
+</li>
+<li>6.6.   <a href="#rfc.section.6.6">Encryption and Decryption</a>
+</li>
+</ul><li>7.   <a href="#rfc.section.7">Algorithm Identifiers</a>
+</li>
+<ul><li>7.1.   <a href="#rfc.section.7.1">Key Encapsulation Mechanisms (KEMs)</a>
+</li>
+<li>7.2.   <a href="#rfc.section.7.2">Key Derivation Functions (KDFs)</a>
+</li>
+<li>7.3.   <a href="#rfc.section.7.3">Authentication Encryption with Associated Data (AEAD) Functions</a>
+</li>
+</ul><li>8.   <a href="#rfc.section.8">Security Considerations</a>
+</li>
+<li>9.   <a href="#rfc.section.9">IANA Considerations</a>
+</li>
+<li>10.   <a href="#rfc.references">References</a>
+</li>
+<ul><li>10.1.   <a href="#rfc.references.1">Normative References</a>
+</li>
+<li>10.2.   <a href="#rfc.references.2">Informative References</a>
+</li>
+</ul><li>Appendix A.   <a href="#rfc.appendix.A">Possible TODOs</a>
+</li>
+<li><a href="#rfc.authors">Authors' Addresses</a>
+</li>
+
+
+  </ul>
+
+  <h1 id="rfc.section.1">
+<a href="#rfc.section.1">1.</a> <a href="#introduction" id="introduction">Introduction</a>
+</h1>
+<p id="rfc.section.1.p.1">&#8220;Hybrid&#8221; public-key encryption schemes (HPKE) that combine asymmetric and symmetric algorithms are a substantially more efficient solution than traditional public key encryption techniques such as those based on RSA or ElGamal.  Encrypted messages convey a single ciphertext and authentication tag alongside a short public key, which may be further compressed. The key size and computational complexity of elliptic curve cryptographic primitives for authenticated encryption therefore make it compelling for a variety of use cases. This type of public key encryption has many applications in practice, for example:</p>
+<p></p>
+
+<ul>
+<li>PGP <a href="#RFC6637" class="xref">[RFC6637]</a>
+</li>
+<li>Messaging Layer Security <a href="#I-D.ietf-mls-protocol" class="xref">[I-D.ietf-mls-protocol]</a>
+</li>
+<li>Encrypted Server Name Indication <a href="#I-D.ietf-tls-esni" class="xref">[I-D.ietf-tls-esni]</a>
+</li>
+<li>Protection of 5G subscriber identities <a href="#fiveG" class="xref">[fiveG]</a>
+</li>
+</ul>
+<p id="rfc.section.1.p.3">Currently, there are numerous competing and non-interoperable standards and variants for hybrid encryption, including ANSI X9.63 <a href="#ANSI" class="xref">[ANSI]</a>, IEEE 1363a <a href="#IEEE" class="xref">[IEEE]</a>, ISO/IEC 18033-2 <a href="#ISO" class="xref">[ISO]</a>, and SECG SEC 1 <a href="#SECG" class="xref">[SECG]</a>.  All of these existing schemes have problems, e.g., because they rely on outdated primitives, lack proofs of IND-CCA2 security, or fail to provide test vectors.</p>
+<p id="rfc.section.1.p.4">This document defines an HPKE scheme that provides a subset of the functions provided by the collection of schemes above, but specified with sufficient clarity that they can be interoperably implemented and formally verified.</p>
+<h1 id="rfc.section.2">
+<a href="#rfc.section.2">2.</a> <a href="#requirements-notation" id="requirements-notation">Requirements Notation</a>
+</h1>
+<p id="rfc.section.2.p.1">The key words &#8220;MUST&#8221;, &#8220;MUST NOT&#8221;, &#8220;REQUIRED&#8221;, &#8220;SHALL&#8221;, &#8220;SHALL NOT&#8221;, &#8220;SHOULD&#8221;, &#8220;SHOULD NOT&#8221;, &#8220;RECOMMENDED&#8221;, &#8220;NOT RECOMMENDED&#8221;, &#8220;MAY&#8221;, and &#8220;OPTIONAL&#8221; in this document are to be interpreted as described in BCP14 <a href="#RFC2119" class="xref">[RFC2119]</a> <a href="#RFC8174" class="xref">[RFC8174]</a>  when, and only when, they appear in all capitals, as shown here.</p>
+<h1 id="rfc.section.3">
+<a href="#rfc.section.3">3.</a> <a href="#security-properties" id="security-properties">Security Properties</a>
+</h1>
+<p id="rfc.section.3.p.1">As a hybrid authentication encryption algorithm, we desire security against (adaptive) chosen ciphertext attacks (IND-CCA2 secure). The HPKE variants described in this document achieve this property under the Random Oracle model assuming the gap Computational Diffie Hellman (CDH) problem is hard <a href="#S01" class="xref">[S01]</a>.</p>
+<p id="rfc.section.3.p.2">[[ TODO - Provide citations to these proofs once they exist ]]</p>
+<h1 id="rfc.section.4">
+<a href="#rfc.section.4">4.</a> <a href="#notation" id="notation">Notation</a>
+</h1>
+<p id="rfc.section.4.p.1">The following terms are used throughout this document to describe the operations, roles, and behaviors of HPKE:</p>
+<p></p>
+
+<ul>
+<li>Initiator (I): Sender of an encrypted message.</li>
+<li>Responder (R): Receiver of an encrypted message.</li>
+<li>Ephemeral (E): A fresh random value meant for one-time use.</li>
+<li>
+<samp>(skX, pkX)</samp>: A KEM key pair used in role X; <samp>skX</samp> is the private key and <samp>pkX</samp> is the public key</li>
+<li>
+<samp>pk(skX)</samp>: The public key corresponding to private key <samp>skX</samp>
+</li>
+<li>
+<samp>len(x)</samp>: The length of the octet string <samp>x</samp>, expressed as a two-octet unsigned integer in network (big-endian) byte order</li>
+<li>
+<samp>encode_big_endian(x, n)</samp>: An octet string encoding the integer value <samp>x</samp> as an n-byte big-endian value</li>
+<li>
+<samp>concat(x0, ..., xN)</samp>: Concatenation of octet strings.  <samp>concat(0x01, 0x0203, 0x040506) = 0x010203040506</samp>
+</li>
+<li>
+<samp>zero(n)</samp>: An all-zero octet string of length <samp>n</samp>. <samp>zero(4) = 0x00000000</samp>
+</li>
+<li>
+<samp>xor(a,b)</samp>: XOR of octet strings; <samp>xor(0xF0F0, 0x1234) = 0xE2C4</samp>.  It is an error to call this function with two arguments of unequal length.</li>
+</ul>
+<h1 id="rfc.section.5">
+<a href="#rfc.section.5">5.</a> <a href="#cryptographic-dependencies" id="cryptographic-dependencies">Cryptographic Dependencies</a>
+</h1>
+<p id="rfc.section.5.p.1">HPKE variants rely on the following primitives:</p>
+<p></p>
+
+<ul>
+<li>A Key Encapsulation Mechanism (KEM): <ul>
+<li>GenerateKeyPair(): Generate a key pair (sk, pk)</li>
+<li>Marshal(pk): Produce a fixed-length octet string encoding the public key <samp>pk</samp>
+</li>
+<li>Unmarshal(enc): Parse a fixed-length octet string to recover a public key</li>
+<li>Encap(pk): Generate an ephemeral symmetric key and a fixed-length encapsulation of that key that can be decapsulated by the holder of the private key corresponding to pk</li>
+<li>Decap(enc, sk): Use the private key <samp>sk</samp> to recover the ephemeral symmetric key from its encapsulated representation <samp>enc</samp>
+</li>
+<li>AuthEncap(pkR, skI) (optional): Same as Encap(), but the outputs encode an assurance that the ephemeral shared key is known only to the holder of the private key <samp>skI</samp>
+</li>
+<li>AuthDecap(skR, pkI) (optional): Same as Decap(), but the holder of the private key <samp>skR</samp> is assured that the ephemeral shared key is known only to the holder of the private key corresponding to <samp>pkI</samp>
+</li>
+<li>Nenc: The length in octets of an encapsulated key from this KEM</li>
+<li>Npk: The length in octets of a public key for this KEM</li>
+</ul>
+</li>
+<li>A Key Derivation Function: <ul>
+<li>Extract(salt, IKM): Extract a pseudorandom key of fixed length from input keying material <samp>IKM</samp> and an optional octet string <samp>salt</samp>
+</li>
+<li>Expand(PRK, info, L): Expand a pseudorandom key <samp>PRK</samp> using optional string <samp>info</samp> into <samp>L</samp> bytes of output keying material</li>
+<li>Nh: The output size of the Extract function</li>
+</ul>
+</li>
+<li>An AEAD encryption algorithm <a href="#RFC5116" class="xref">[RFC5116]</a>: <ul>
+<li>Seal(key, nonce, aad, pt): Encrypt and authenticate plaintext <samp>pt</samp> with associated data <samp>aad</samp> using secret key <samp>key</samp> and nonce <samp>nonce</samp>, yielding ciphertext and tag <samp>ct</samp>
+</li>
+<li>Open(key, nonce, aad, ct): Decrypt ciphertext <samp>ct</samp> using associated data <samp>aad</samp> with secret key <samp>key</samp> and nonce <samp>nonce</samp>, returning plaintext message <samp>pt</samp> or the error value <samp>OpenError</samp>
+</li>
+<li>Nk: The length in octets of a key for this algorithm</li>
+<li>Nn: The length in octets of a nonce for this algorithm</li>
+</ul>
+</li>
+</ul>
+<p id="rfc.section.5.p.3">A set of algorithm identifiers for concrete instantiations of these primitives is provided in <a href="#ciphersuites" class="xref">Section 7</a>.  Algorithm identifier values are two octets long.</p>
+<h1 id="rfc.section.5.1">
+<a href="#rfc.section.5.1">5.1.</a> <a href="#dh-based-kem" id="dh-based-kem">DH-Based KEM</a>
+</h1>
+<p id="rfc.section.5.1.p.1">Suppose we are given a Diffie-Hellman group that provides the following operations:</p>
+<p></p>
+
+<ul>
+<li>GenerateKeyPair(): Generate an ephemeral key pair <samp>(sk, pk)</samp> for the DH group in use</li>
+<li>DH(sk, pk): Perform a non-interactive DH exchange using the private key sk and public key pk to produce a fixed-length shared secret</li>
+<li>Marshal(pk): Produce a fixed-length octet string encoding the public key <samp>pk</samp>
+</li>
+<li>Unmarshal(enc): Parse a fixed-length octet string to recover a public key</li>
+</ul>
+<p id="rfc.section.5.1.p.3">Then we can construct a KEM (which we&#8217;ll call &#8220;DHKEM&#8221;) in the following way:</p>
+<pre>
+def Encap(pkR):
+  skE, pkE = GenerateKeyPair()
+  zz = DH(skE, pkR)
+  enc = Marshal(pkE)
+  return zz, enc
+
+def Decap(enc, skR):
+  pkE = Unmarshal(enc)
+  return DH(skR, pkE)
+
+def AuthEncap(pkR, skI):
+  skE, pkE = GenerateKeyPair()
+  zz = concat(DH(skE, pkR), DH(skI, pkR))
+  enc = Marshal(pkE)
+  return zz, enc
+
+def AuthDecap(enc, skR, pkI):
+  pkE = Unmarshal(enc)
+  return concat(DH(skR, pkE), DH(skR, pkI))
+</pre>
+<p id="rfc.section.5.1.p.4">The GenerateKeyPair, Marshal, and Unmarshal functions are the same as for the underlying DH group.  The Marshal functions for the curves referenced in {#ciphersuites} are as follows:</p>
+<p></p>
+
+<ul>
+<li>P-256: The X-coordinate of the point, encoded as a 32-octet big-endian integer</li>
+<li>P-521: The X-coordinate of the point, encoded as a 66-octet big-endian integer</li>
+<li>Curve25519: The standard 32-octet representation of the public key</li>
+<li>Curve448: The standard 56-octet representation of the public key</li>
+</ul>
+<h1 id="rfc.section.6">
+<a href="#rfc.section.6">6.</a> <a href="#hybrid-public-key-encryption" id="hybrid-public-key-encryption">Hybrid Public Key Encryption</a>
+</h1>
+<p id="rfc.section.6.p.1">In this section, we define a few HPKE variants.  All variants take a recipient public key and a sequence of plaintexts <samp>pt</samp>, and produce an encapsulated key <samp>enc</samp> and a sequence of ciphertexts <samp>ct</samp>.  These outputs are constructed so that only the holder of the private key corresponding to <samp>pkR</samp> can decapsulate the key from <samp>enc</samp> and decrypt the ciphertexts.  All of the algorithms also take an <samp>info</samp> parameter that can be used to influence the generation of keys (e.g., to fold in identity information) and an <samp>aad</samp> parameter that provides Additional Authenticated Data to the AEAD algorithm in use.</p>
+<p id="rfc.section.6.p.2">In addition to the base case of encrypting to a public key, we include two authenticated variants, one of which authenticates possession of a pre-shared key, and one of which authenticates possession of a KEM private key.  The following one-octet values will be used to distinguish between modes:</p>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+<thead><tr>
+<th class="left">Mode</th>
+<th class="left">Value</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">mode_base</td>
+<td class="left">0x00</td>
+</tr>
+<tr>
+<td class="left">mode_psk</td>
+<td class="left">0x01</td>
+</tr>
+<tr>
+<td class="left">mode_auth</td>
+<td class="left">0x02</td>
+</tr>
+<tr>
+<td class="left">mode_psk_auth</td>
+<td class="left">0x03</td>
+</tr>
+</tbody>
+</table>
+<p id="rfc.section.6.p.3">All of these cases follow the same basic two-step pattern:</p>
+<p></p>
+
+<ol>
+<li>Set up an encryption context that is shared between the sender and the recipient</li>
+<li>Use that context to encrypt or decrypt content</li>
+</ol>
+<p id="rfc.section.6.p.5">A &#8220;context&#8221; encodes the AEAD algorithm and key in use, and manages the nonces used so that the same nonce is not used with multiple plaintexts.</p>
+<p id="rfc.section.6.p.6">The procedures described in this session are laid out in a Python-like pseudocode.  The algorithms in use are left implicit.</p>
+<h1 id="rfc.section.6.1">
+<a href="#rfc.section.6.1">6.1.</a> <a href="#creating-an-encryption-context" id="creating-an-encryption-context">Creating an Encryption Context</a>
+</h1>
+<p id="rfc.section.6.1.p.1">The variants of HPKE defined in this document share a common mechanism for translating the protocol inputs into an encryption context.  The key schedule inputs are as follows:</p>
+<p></p>
+
+<ul>
+<li>
+<samp>pkR</samp> - The receiver&#8217;s public key</li>
+<li>
+<samp>zz</samp> - A shared secret generated via the KEM for this transaction</li>
+<li>
+<samp>enc</samp> - An encapsulated key produced by the KEM for the receiver</li>
+<li>
+<samp>info</samp> - Application-supplied information (optional; default value &#8220;&#8221;)</li>
+<li>
+<samp>psk</samp> - A pre-shared secret held by both the initiator and the receiver (optional; default value <samp>zero(Nh)</samp>).</li>
+<li>
+<samp>pskID</samp> - An identifier for the PSK (optional; default value <samp>"" = zero(0)</samp>
+</li>
+<li>
+<samp>pkI</samp> - The initiator&#8217;s public key (optional; default value <samp>zero(Npk)</samp>)</li>
+</ul>
+<p id="rfc.section.6.1.p.3">The <samp>psk</samp> and <samp>pskID</samp> fields MUST appear together or not at all.  That is, if a non-default value is provided for one of them, then the other MUST be set to a non-default value.</p>
+<p id="rfc.section.6.1.p.4">The key and nonce computed by this algorithm have the property that they are only known to the holder of the receipient private key, and the party that ran the KEM to generate <samp>zz</samp> and <samp>enc</samp>.  If the <samp>psk</samp> and <samp>pskID</samp> arguments are provided, then the recipient is assured that the initiator held the PSK.  If the <samp>pkIm</samp> argument is provided, then the recipient is assued that the initator held the corresponding private key (assuming that <samp>zz</samp> and <samp>enc</samp> were generated using the AuthEncap / AuthDecap methods; see below).</p>
+<pre>
+default_pkIm = zero(Npk)
+default_psk = zero(Nh)
+default_pskId = zero(0)
+
+def VerifyMode(mode, psk, pskID, pkIm):
+  got_psk = (psk != default_psk and pskID != default_pskID)
+  no_psk = (psk == default_psk and pskID == default_pskID)
+  got_pkIm = (pkIm != default_pkIm)
+  no_pkIm = (pkIm == default_pkIm)
+
+  if mode == mode_base and (got_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_base")
+  if mode == mode_psk and (no_psk or got_pkIm):
+    raise Exception("Invalid configuration for mode_psk")
+  if mode == mode_auth and (got_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_auth")
+  if mode == mode_psk_auth and (no_psk or no_pkIm):
+    raise Exception("Invalid configuration for mode_psk_auth")
+
+def EncryptionContext(mode, pkRm, zz, enc, info, psk, pskID, pkIm):
+  VerifyMode(mode, psk, pskID, pkI)
+
+  pkRm = Marshal(pkR)
+  context = concat(mode, ciphersuite, enc, pkRm, pkIm,
+                   len(pskID), pskID, len(info), info)
+
+  secret = Extract(psk, zz)
+  key = Expand(secret, concat("hpke key", context), Nk)
+  nonce = Expand(secret, concat("hpke nonce", context), Nn)
+  return Context(key, nonce)
+</pre>
+<p id="rfc.section.6.1.p.5">Note that the context construction in the KeySchedule procedure is equivalent to serializing a structure of the following form in the TLS presentation syntax:</p>
+<pre>
+struct {
+    // Mode and algorithms
+    uint8 mode;
+    uint16 ciphersuite;
+
+    // Public inputs to this key exchange
+    opaque enc[Nenc];
+    opaque pkR[Npk];
+    opaque pkI[Npk];
+    opaque pskID&lt;0..2^16-1&gt;;
+
+    // Application-supplied info
+    opaque info&lt;0..2^16-1&gt;;
+} HPKEContext;
+</pre>
+<h1 id="rfc.section.6.2">
+<a href="#rfc.section.6.2">6.2.</a> <a href="#encryption-to-a-public-key" id="encryption-to-a-public-key">Encryption to a Public Key</a>
+</h1>
+<p id="rfc.section.6.2.p.1">The most basic function of an HPKE scheme is to enable encryption for the holder of a given KEM private key.  The <samp>SetupBaseI()</samp> and <samp>SetupBaseR()</samp> procedures establish contexts that can be used to encrypt and decrypt, respectively, for a given private key.</p>
+<p id="rfc.section.6.2.p.2">The the shared secret produced by the KEM is combined via the KDF with information describing the key exchange, as well as the explicit <samp>info</samp> parameter provided by the caller.</p>
+<pre>
+def SetupBaseI(pkR, info):
+  zz, enc = Encap(pkR)
+  return enc, KeySchedule(mode_base, pkR, zz, enc, info,
+                          default_psk, default_pskID, default_pkIm)
+
+def SetupBaseR(enc, skR, info):
+  zz = Decap(enc, skR)
+  return KeySchedule(mode_base, pk(skR), zz, enc, info,
+                     default_psk, default_pskID, default_pkIm)
+</pre>
+<h1 id="rfc.section.6.3">
+<a href="#rfc.section.6.3">6.3.</a> <a href="#authentication-using-a-pre-shared-key" id="authentication-using-a-pre-shared-key">Authentication using a Pre-Shared Key</a>
+</h1>
+<p id="rfc.section.6.3.p.1">This variant extends the base mechansism by allowing the recipient to authenticate that the sender possessed a given pre-shared key (PSK).  We assume that both parties have been provisioned with both the PSK value <samp>psk</samp> and another octet string <samp>pskID</samp> that is used to identify which PSK should be used.</p>
+<p id="rfc.section.6.3.p.2">The primary differences from the base case are:</p>
+<p></p>
+
+<ul>
+<li>The PSK is used as the <samp>salt</samp> input to the KDF (instead of 0)</li>
+<li>The PSK ID is added to the context string used as the <samp>info</samp> input to the KDF</li>
+</ul>
+<p id="rfc.section.6.3.p.4">This mechanism is not suitable for use with a low-entropy password as the PSK.  A malicious recipient that does not possess the PSK can use decryption of a plaintext as an oracle for performing offline dictionary attacks.</p>
+<pre>
+def SetupPSKI(pkR, psk, pskID, info):
+  zz, enc = Encap(pkR)
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          psk, pskId, default_pkIm)
+
+def SetupPSKR(enc, skR, psk, pskID, info):
+  zz = Decap(enc, skR)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     psk, pskId, default_pkIm)
+</pre>
+<h1 id="rfc.section.6.4">
+<a href="#rfc.section.6.4">6.4.</a> <a href="#authentication-using-an-asymmetric-key" id="authentication-using-an-asymmetric-key">Authentication using an Asymmetric Key</a>
+</h1>
+<p id="rfc.section.6.4.p.1">This variant extends the base mechansism by allowing the recipient to authenticate that the sender possessed a given KEM private key.  This assurance is based on the assumption that <samp>AuthDecap(enc, skR, pkI)</samp> produces the correct shared secret only if the encapsulated value <samp>enc</samp> was produced by <samp>AuthEncap(pkR, skI)</samp>, where <samp>skI</samp> is the private key corresponding to <samp>pkI</samp>.  In other words, only two people could have produced this secret, so if the recipient is one, then the sender must be the other.</p>
+<p id="rfc.section.6.4.p.2">The primary differences from the base case are:</p>
+<p></p>
+
+<ul>
+<li>The calls to <samp>Encap</samp> and <samp>Decap</samp> are replaced with calls to <samp>AuthEncap</samp> and <samp>AuthDecap</samp>.</li>
+<li>The initiator public key is added to the context string</li>
+</ul>
+<p id="rfc.section.6.4.p.4">Obviously, this variant can only be used with a KEM that provides <samp>AuthEncap()</samp> and <samp>AuthDecap()</samp> procuedures.</p>
+<p id="rfc.section.6.4.p.5">This mechanism authenticates only the key pair of the initiator, not any other identity.  If an application wishes to authenticate some other identity for the sender (e.g., an email address or domain name), then this identity should be included in the <samp>info</samp> parameter to avoid unknown key share attacks.</p>
+<pre>
+def SetupAuthI(pkR, skI, info):
+  zz, enc = AuthEncap(pkR, skI)
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info,
+                          default_psk, default_pskID, pkIm)
+
+def SetupAuthR(enc, skR, pkI, info):
+  zz = AuthDecap(enc, skR, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info,
+                     default_psk, default_pskID, pkIm)
+</pre>
+<h1 id="rfc.section.6.5">
+<a href="#rfc.section.6.5">6.5.</a> <a href="#authentication-using-both-a-psk-and-an-asymmetric-key" id="authentication-using-both-a-psk-and-an-asymmetric-key">Authentication using both a PSK and an Asymmetric Key</a>
+</h1>
+<p id="rfc.section.6.5.p.1">This mode is a straightforward combination of the PSK and authenticated modes.  The PSK is passed through to the key schedule as in the former, and as in the latter, we use the authenticated KEM variants.</p>
+<pre>
+def SetupAuthI(pkR, psk, pskID, skI, info):
+  zz, enc = AuthEncap(pkR, skI)
+  pkIm = Marshal(pk(skI))
+  return enc, KeySchedule(pkR, zz, enc, info, psk, pskID, pkIm)
+
+def SetupAuthR(enc, skR, psk, pskID, pkI, info):
+  zz = AuthDecap(enc, skR, pkI)
+  pkIm = Marshal(pkI)
+  return KeySchedule(pk(skR), zz, enc, info, psk, pskID, pkIm)
+</pre>
+<h1 id="rfc.section.6.6">
+<a href="#rfc.section.6.6">6.6.</a> <a href="#encryption-and-decryption" id="encryption-and-decryption">Encryption and Decryption</a>
+</h1>
+<p id="rfc.section.6.6.p.1">HPKE allows multiple encryption operations to be done based on a given setup transaction.  Since the public-key operations involved in setup are typically more expensive than symmetric encryption or decryption, this allows applications to &#8220;amortize&#8221; the cost of the public-key operations, reducing the overall overhead.</p>
+<p id="rfc.section.6.6.p.2">In order to avoid nonce reuse, however, this decryption must be stateful.  Each of the setup procedures above produces a context object that stores the required state:</p>
+<p></p>
+
+<ul>
+<li>The AEAD algorithm in use</li>
+<li>The key to be used with the AEAD algorithm</li>
+<li>A base nonce value</li>
+<li>A sequence number (initially 0)</li>
+</ul>
+<p id="rfc.section.6.6.p.4">All of these fields except the sequence number are constant.  The sequence number is used to provide nonce uniqueness: The nonce used for each encryption or decryption operation is the result of XORing the base nonce with the current sequence number, encoded as a big-endian integer of the same length as the nonce.  Implementations MAY use a sequence number that is shorter than the nonce (padding on the left with zero), but MUST return an error if the sequence number overflows.</p>
+<p id="rfc.section.6.6.p.5">Each encryption or decryption operation increments the sequence number for the context in use.  A given context SHOULD be used either only for encryption or only for decryption.</p>
+<p id="rfc.section.6.6.p.6">It is up to the application to ensure that encryptions and decryptions are done in the proper sequence, so that the nonce values used for encryption and decryption line up.</p>
+<pre>
+[[ TODO: Check for overflow, a la TLS ]]
+def Context.Nonce(seq):
+  encSeq = encode_big_endian(seq, len(self.nonce))
+  return xor(self.nonce, encSeq)
+
+def Context.Seal(aad, pt):
+  ct = Seal(self.key, self.Nonce(self.seq), aad, pt)
+  self.seq += 1
+  return ct
+
+def Context.Open(aad, ct):
+  pt = Open(self.key, self.Nonce(self.seq), aad, ct)
+  if pt == OpenError:
+    return OpenError
+  self.seq += 1
+  return pt
+</pre>
+<h1 id="rfc.section.7">
+<a href="#rfc.section.7">7.</a> <a href="#ciphersuites" id="ciphersuites">Algorithm Identifiers</a>
+</h1>
+<h1 id="rfc.section.7.1">
+<a href="#rfc.section.7.1">7.1.</a> <a href="#key-encapsulation-mechanisms-kems" id="key-encapsulation-mechanisms-kems">Key Encapsulation Mechanisms (KEMs)</a>
+</h1>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+<thead><tr>
+<th class="left">Value</th>
+<th class="left">KEM</th>
+<th class="left">Nenc</th>
+<th class="left">Npk</th>
+<th class="left">Reference</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">0x0000</td>
+<td class="left">(reserved)</td>
+<td class="left">N/A</td>
+<td class="left">N/A</td>
+<td class="left">N/A</td>
+</tr>
+<tr>
+<td class="left">0x0001</td>
+<td class="left">DHKEM(P-256)</td>
+<td class="left">32</td>
+<td class="left">32</td>
+<td class="left"><a href="#NISTCurves" class="xref">[NISTCurves]</a></td>
+</tr>
+<tr>
+<td class="left">0x0002</td>
+<td class="left">DHKEM(Curve25519)</td>
+<td class="left">32</td>
+<td class="left">32</td>
+<td class="left"><a href="#RFC7748" class="xref">[RFC7748]</a></td>
+</tr>
+<tr>
+<td class="left">0x0003</td>
+<td class="left">DHKEM(P-521)</td>
+<td class="left">65</td>
+<td class="left">65</td>
+<td class="left"><a href="#NISTCurves" class="xref">[NISTCurves]</a></td>
+</tr>
+<tr>
+<td class="left">0x0004</td>
+<td class="left">DHKEM(Curve448)</td>
+<td class="left">56</td>
+<td class="left">56</td>
+<td class="left"><a href="#RFC7748" class="xref">[RFC7748]</a></td>
+</tr>
+</tbody>
+</table>
+<p id="rfc.section.7.1.p.1">For the NIST curves P-256 and P-521, the Marshal function of the DH scheme produces the normal (non-compressed) representation of the public key, according to <a href="#SECG" class="xref">[SECG]</a>.  When these curves are used, the recipient of an HPKE ciphertext MUST validate that the ephemeral public key <samp>pkE</samp> is on the curve.  The relevant validation procedures are defined in <a href="#keyagreement" class="xref">[keyagreement]</a></p>
+<p id="rfc.section.7.1.p.2">For the CFRG curves Curve25519 and Curve448, the Marshal function is the identity function, since these curves already use fixed-length octet strings for public keys.</p>
+<h1 id="rfc.section.7.2">
+<a href="#rfc.section.7.2">7.2.</a> <a href="#key-derivation-functions-kdfs" id="key-derivation-functions-kdfs">Key Derivation Functions (KDFs)</a>
+</h1>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+<thead><tr>
+<th class="left">Value</th>
+<th class="left">KDF</th>
+<th class="left">Nh</th>
+<th class="left">Reference</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">0x0000</td>
+<td class="left">(reserved)</td>
+<td class="left">N/A</td>
+<td class="left">N/A</td>
+</tr>
+<tr>
+<td class="left">0x0001</td>
+<td class="left">HKDF-SHA256</td>
+<td class="left">32</td>
+<td class="left"><a href="#RFC5869" class="xref">[RFC5869]</a></td>
+</tr>
+<tr>
+<td class="left">0x0002</td>
+<td class="left">HKDF-SHA512</td>
+<td class="left">64</td>
+<td class="left"><a href="#RFC5869" class="xref">[RFC5869]</a></td>
+</tr>
+</tbody>
+</table>
+<h1 id="rfc.section.7.3">
+<a href="#rfc.section.7.3">7.3.</a> <a href="#authentication-encryption-with-associated-data-aead-functions" id="authentication-encryption-with-associated-data-aead-functions">Authentication Encryption with Associated Data (AEAD) Functions</a>
+</h1>
+<table cellpadding="3" cellspacing="0" class="tt full center">
+<thead><tr>
+<th class="left">Value</th>
+<th class="left">AEAD</th>
+<th class="left">Nk</th>
+<th class="left">Nn</th>
+<th class="left">Reference</th>
+</tr></thead>
+<tbody>
+<tr>
+<td class="left">0x0000</td>
+<td class="left">(reserved)</td>
+<td class="left">N/A</td>
+<td class="left">N/A</td>
+<td class="left">N/A</td>
+</tr>
+<tr>
+<td class="left">0x0001</td>
+<td class="left">AES-GCM-128</td>
+<td class="left">16</td>
+<td class="left">12</td>
+<td class="left"><a href="#GCM" class="xref">[GCM]</a></td>
+</tr>
+<tr>
+<td class="left">0x0002</td>
+<td class="left">AES-GCM-256</td>
+<td class="left">32</td>
+<td class="left">12</td>
+<td class="left"><a href="#GCM" class="xref">[GCM]</a></td>
+</tr>
+<tr>
+<td class="left">0x0003</td>
+<td class="left">ChaCha20Poly1305</td>
+<td class="left">32</td>
+<td class="left">12</td>
+<td class="left"><a href="#RFC8439" class="xref">[RFC8439]</a></td>
+</tr>
+</tbody>
+</table>
+<h1 id="rfc.section.8">
+<a href="#rfc.section.8">8.</a> <a href="#security-considerations" id="security-considerations">Security Considerations</a>
+</h1>
+<p id="rfc.section.8.p.1">[[ TODO ]]</p>
+<h1 id="rfc.section.9">
+<a href="#rfc.section.9">9.</a> <a href="#iana-considerations" id="iana-considerations">IANA Considerations</a>
+</h1>
+<p id="rfc.section.9.p.1">[[ TODO: Make IANA registries for the above ]]</p>
+<h1 id="rfc.references">
+<a href="#rfc.references">10.</a> References</h1>
+<h1 id="rfc.references.1">
+<a href="#rfc.references.1">10.1.</a> Normative References</h1>
+<table><tbody>
+<tr>
+<td class="reference"><b id="RFC2119">[RFC2119]</b></td>
+<td class="top">
+<a>Bradner, S.</a>, "<a href="https://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC5116">[RFC5116]</b></td>
+<td class="top">
+<a>McGrew, D.</a>, "<a href="https://tools.ietf.org/html/rfc5116">An Interface and Algorithms for Authenticated Encryption</a>", RFC 5116, DOI 10.17487/RFC5116, January 2008.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8174">[RFC8174]</b></td>
+<td class="top">
+<a>Leiba, B.</a>, "<a href="https://tools.ietf.org/html/rfc8174">Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</a>", BCP 14, RFC 8174, DOI 10.17487/RFC8174, May 2017.</td>
+</tr>
+</tbody></table>
+<h1 id="rfc.references.2">
+<a href="#rfc.references.2">10.2.</a> Informative References</h1>
+<table><tbody>
+<tr>
+<td class="reference"><b id="ANSI">[ANSI]</b></td>
+<td class="top">"<a>Public Key Cryptography for the Financial Services Industry -- Key Agreement and Key Transport Using Elliptic Curve Cryptography</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="fiveG">[fiveG]</b></td>
+<td class="top">"<a href="https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=3169">Security architecture and procedures for 5G System</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="GCM">[GCM]</b></td>
+<td class="top">
+<a>Dworkin, M.</a>, "<a>Recommendation for block cipher modes of operation :</a>", National Institute of Standards and Technology report, DOI 10.6028/nist.sp.800-38d, 2007.</td>
+</tr>
+<tr>
+<td class="reference"><b id="I-D.ietf-mls-protocol">[I-D.ietf-mls-protocol]</b></td>
+<td class="top">
+<a>Barnes, R.</a>, <a>Millican, J.</a>, <a>Omara, E.</a>, <a>Cohn-Gordon, K.</a> and <a>R. Robert</a>, "<a href="https://tools.ietf.org/html/draft-ietf-mls-protocol-06">The Messaging Layer Security (MLS) Protocol</a>", Internet-Draft draft-ietf-mls-protocol-06, May 2019.</td>
+</tr>
+<tr>
+<td class="reference"><b id="I-D.ietf-tls-esni">[I-D.ietf-tls-esni]</b></td>
+<td class="top">
+<a>Rescorla, E.</a>, <a>Oku, K.</a>, <a>Sullivan, N.</a> and <a>C. Wood</a>, "<a href="https://tools.ietf.org/html/draft-ietf-tls-esni-03">Encrypted Server Name Indication for TLS 1.3</a>", Internet-Draft draft-ietf-tls-esni-03, March 2019.</td>
+</tr>
+<tr>
+<td class="reference"><b id="IEEE">[IEEE]</b></td>
+<td class="top">"<a>IEEE 1363a, Standard Specifications for Public Key Cryptography - Amendment 1 -- Additional Techniques</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="ISO">[ISO]</b></td>
+<td class="top">"<a>ISO/IEC 18033-2, Information Technology - Security Techniques - Encryption Algorithms - Part 2 -- Asymmetric Ciphers</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="keyagreement">[keyagreement]</b></td>
+<td class="top">
+<a>Barker, E.</a>, <a>Chen, L.</a>, <a>Roginsky, A.</a> and <a>M. Smid</a>, "<a>Recommendation for Pair-Wise Key Establishment Schemes Using Discrete Logarithm Cryptography</a>", National Institute of Standards and Technology report, DOI 10.6028/nist.sp.800-56ar2, May 2013.</td>
+</tr>
+<tr>
+<td class="reference"><b id="MAEA10">[MAEA10]</b></td>
+<td class="top">"<a href="http://sceweb.sce.uhcl.edu/yang/teaching/csci5234WebSecurityFall2011/Chaum-blind-signatures.PDF">A Comparison of the Standardized Versions of ECIES</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="NISTCurves">[NISTCurves]</b></td>
+<td class="top">"<a>Digital Signature Standard (DSS)</a>", National Institute of Standards and Technology report, DOI 10.6028/nist.fips.186-4, July 2013.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC5869">[RFC5869]</b></td>
+<td class="top">
+<a>Krawczyk, H.</a> and <a>P. Eronen</a>, "<a href="https://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key Derivation Function (HKDF)</a>", RFC 5869, DOI 10.17487/RFC5869, May 2010.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC6637">[RFC6637]</b></td>
+<td class="top">
+<a>Jivsov, A.</a>, "<a href="https://tools.ietf.org/html/rfc6637">Elliptic Curve Cryptography (ECC) in OpenPGP</a>", RFC 6637, DOI 10.17487/RFC6637, June 2012.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC7748">[RFC7748]</b></td>
+<td class="top">
+<a>Langley, A.</a>, <a>Hamburg, M.</a> and <a>S. Turner</a>, "<a href="https://tools.ietf.org/html/rfc7748">Elliptic Curves for Security</a>", RFC 7748, DOI 10.17487/RFC7748, January 2016.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8439">[RFC8439]</b></td>
+<td class="top">
+<a>Nir, Y.</a> and <a>A. Langley</a>, "<a href="https://tools.ietf.org/html/rfc8439">ChaCha20 and Poly1305 for IETF Protocols</a>", RFC 8439, DOI 10.17487/RFC8439, June 2018.</td>
+</tr>
+<tr>
+<td class="reference"><b id="S01">[S01]</b></td>
+<td class="top">"<a href="http://www.shoup.net/papers/iso-2_1.pdf">A Proposal for an ISO Standard for Public Key Encryption (verison 2.1)</a>", n.d..</td>
+</tr>
+<tr>
+<td class="reference"><b id="SECG">[SECG]</b></td>
+<td class="top">"<a href="http://www.secg.org/download/aid-780/sec1-v2.pdf">Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2</a>", n.d..</td>
+</tr>
+</tbody></table>
+<h1 id="rfc.appendix.A">
+<a href="#rfc.appendix.A">Appendix A.</a> <a href="#possible-todos" id="possible-todos">Possible TODOs</a>
+</h1>
+<p id="rfc.section.A.p.1">The following extensions might be worth specifying:</p>
+<p></p>
+
+<ul>
+<li>Multiple recipients - It might be possible to add some simplifications / assurances for the case where the same value is being encrypted to multiple recipients.</li>
+<li>Test vectors - Obviously, we can provide decryption test vectors in this document.  In order to provide known-answer tests, we would have to introduce a non-secure deterministic mode where the ephemeral key pair is derived from the inputs.  And to do that safely, we would need to augment the decrypt function to detect the deterministic mode and fail.</li>
+<li>A reference implementation in hacspec or similar</li>
+</ul>
+<h1 id="rfc.authors"><a href="#rfc.authors">Authors' Addresses</a></h1>
+<div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Richard L. Barnes</span> 
+	  <span class="n hidden">
+		<span class="family-name">Barnes</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Cisco</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:rlb@ipv.sx">rlb@ipv.sx</a></span>
+
+  </address>
+</div><div class="avoidbreak">
+  <address class="vcard">
+	<span class="vcardline">
+	  <span class="fn">Karthik Bhargavan</span> 
+	  <span class="n hidden">
+		<span class="family-name">Bhargavan</span>
+	  </span>
+	</span>
+	<span class="org vcardline">Inria</span>
+	<span class="adr">
+	  
+	  <span class="vcardline">
+		<span class="locality"></span> 
+		<span class="region"></span>
+		<span class="code"></span>
+	  </span>
+	  <span class="country-name vcardline"></span>
+	</span>
+	<span class="vcardline">EMail: <a href="mailto:karthikeyan.bhargavan@inria.fr">karthikeyan.bhargavan@inria.fr</a></span>
+
+  </address>
+</div>
+
+</body>
+</html>
+
