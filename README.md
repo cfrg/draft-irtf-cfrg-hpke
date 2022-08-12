@@ -33,6 +33,7 @@ This requires that you have the necessary software installed.  See
 | [zig-hpke](https://github.com/jedisct1/zig-hpke) | Zig | RFC9180 | All |
 | [libhpke](https://github.com/cisco/mlspp/tree/main/lib/hpke) | C++ (OpenSSL) | RFC9180 | All |
 | [hacl-star-hpke](https://github.com/project-everest/hacl-star/blob/_blipp_hpke/specs/Spec.Agile.HPKE.fsti) | F\* | draft-05 | All |
+| [hpke-py](https://github.com/ctz/hpke-py) | Python (cryptography.io) | RFC9180 | Base, Auth |
 | [hpke-js](https://github.com/dajiaji/hpke-js) | Javascript (built on WebCrypto API) | RFC9180 | All |
 
 Submit a PR if you would like your implementation to be added!
