@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-08-12T11:55:08.277244+00:00",
+  "timestamp": "2023-07-23T19:21:54.453277+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hpke",
   "labels": [
     {
@@ -24,14 +24,14 @@
       "color": "a2eeef"
     },
     {
-      "name": "help wanted",
-      "description": "Extra attention is needed",
-      "color": "008672"
-    },
-    {
       "name": "good first issue",
       "description": "Good for newcomers",
       "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
     },
     {
       "name": "invalid",
@@ -18602,24 +18602,26 @@
       "id": "PR_kwDOC3hbXs48pE8z",
       "title": "Add Tink to implementations",
       "url": "https://github.com/cfrg/draft-irtf-cfrg-hpke/pull/252",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "chris-wood",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "@fernandolobato can you please confirm that this is correct?",
       "createdAt": "2022-08-04T11:22:07Z",
-      "updatedAt": "2022-08-12T11:55:04Z",
+      "updatedAt": "2022-08-12T11:55:18Z",
       "baseRepository": "cfrg/draft-irtf-cfrg-hpke",
       "baseRefName": "master",
       "baseRefOid": "ae58ca548b5cd8dc082033a698290ed2ca5ad4ac",
       "headRepository": "cfrg/draft-irtf-cfrg-hpke",
       "headRefName": "chris-wood-patch-2",
       "headRefOid": "902da7c734cc0c8b05ede65f2b3bd01f77517347",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2022-08-12T11:55:18Z",
+      "mergedAt": "2022-08-12T11:55:18Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "fa197012fafd190d1a0b3bdc9b6baa0c7bad9c9a"
+      },
       "comments": [
         {
           "author": "fernandolobato",
@@ -18630,6 +18632,56 @@
         }
       ],
       "reviews": []
+    },
+    {
+      "number": 253,
+      "id": "PR_kwDOC3hbXs5VlZ7K",
+      "title": "Add hpke-rb to Existing HPKE implementations",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hpke/pull/253",
+      "state": "MERGED",
+      "author": "sylph01",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Hi,\r\n\r\nI implemented HPKE in Ruby and released it as a gem:\r\n\r\n- https://github.com/sylph01/hpke-rb\r\n- https://rubygems.org/gems/hpke",
+      "createdAt": "2023-07-15T13:38:53Z",
+      "updatedAt": "2023-07-23T19:21:09Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-hpke",
+      "baseRefName": "master",
+      "baseRefOid": "91d5d69a5aa9beeb3b2527c80448f77b982c84a9",
+      "headRepository": "sylph01/draft-irtf-cfrg-hpke",
+      "headRefName": "add-hpke-rb",
+      "headRefOid": "08147ae02df879fd61ad5ad919f87b45c369a529",
+      "closedAt": "2023-07-23T19:21:08Z",
+      "mergedAt": "2023-07-23T19:21:08Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "3b96bb246c89d1b787ab548d6a1ca015977b9223"
+      },
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thank you!",
+          "createdAt": "2023-07-23T19:21:06Z",
+          "updatedAt": "2023-07-23T19:21:06Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOC3hbXs5b7uxL",
+          "commit": {
+            "abbreviatedOid": "08147ae"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2023-07-23T19:20:08Z",
+          "updatedAt": "2023-07-23T19:20:08Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
