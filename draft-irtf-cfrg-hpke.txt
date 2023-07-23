@@ -5,11 +5,11 @@
 Internet Research Task Force (IRTF)                            R. Barnes
 Internet-Draft                                                     Cisco
 Intended status: Informational                              K. Bhargavan
-Expires: 13 February 2023                                        B. Lipp
+Expires: 24 January 2024                                         B. Lipp
                                                                    Inria
                                                                  C. Wood
                                                               Cloudflare
-                                                          12 August 2022
+                                                            23 July 2023
 
 
                       Hybrid Public Key Encryption
@@ -49,18 +49,18 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 February 2023.
+   This Internet-Draft will expire on 24 January 2024.
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 1]
+Barnes, et al.           Expires 24 January 2024                [Page 1]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 Copyright Notice
 
-   Copyright (c) 2022 IETF Trust and the persons identified as the
+   Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 2]
+Barnes, et al.           Expires 24 January 2024                [Page 2]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
      9.1.  Security Properties . . . . . . . . . . . . . . . . . . .  28
@@ -165,9 +165,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 3]
+Barnes, et al.           Expires 24 January 2024                [Page 3]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
        B.4.1.  Base Setup Information  . . . . . . . . . . . . . . .  82
@@ -221,9 +221,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 4]
+Barnes, et al.           Expires 24 January 2024                [Page 4]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Currently, there are numerous competing and non-interoperable
@@ -277,9 +277,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 5]
+Barnes, et al.           Expires 24 January 2024                [Page 5]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    *  I2OSP(n, w): Convert non-negative integer n to a w-length, big-
@@ -333,9 +333,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 6]
+Barnes, et al.           Expires 24 January 2024                [Page 6]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
       -  AuthEncap(pkR, skS) (optional): Same as Encap(), and the
@@ -389,9 +389,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 7]
+Barnes, et al.           Expires 24 January 2024                [Page 7]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Beyond the above, a KEM MAY also expose the following functions,
@@ -445,9 +445,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 8]
+Barnes, et al.           Expires 24 January 2024                [Page 8]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    *  DH(skX, pkY): Perform a non-interactive Diffie-Hellman exchange
@@ -501,9 +501,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023                [Page 9]
+Barnes, et al.           Expires 24 January 2024                [Page 9]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    def AuthEncap(pkR, skS):
@@ -557,9 +557,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 10]
+Barnes, et al.           Expires 24 January 2024               [Page 10]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    assurance that the KEM shared secret was generated by the holder of
@@ -613,9 +613,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 11]
+Barnes, et al.           Expires 24 January 2024               [Page 11]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    A _context_ is an implementation-specific structure that encodes the
@@ -669,9 +669,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 12]
+Barnes, et al.           Expires 24 January 2024               [Page 12]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    The psk and psk_id fields MUST appear together or not at all.  That
@@ -725,9 +725,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 13]
+Barnes, et al.           Expires 24 January 2024               [Page 13]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    default_psk = ""
@@ -781,9 +781,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 14]
+Barnes, et al.           Expires 24 January 2024               [Page 14]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 5.1.1.  Encryption to a Public Key
@@ -837,9 +837,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 15]
+Barnes, et al.           Expires 24 January 2024               [Page 15]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 5.1.3.  Authentication Using an Asymmetric Key
@@ -893,9 +893,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 16]
+Barnes, et al.           Expires 24 January 2024               [Page 16]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    def SetupAuthPSKS(pkR, info, psk, psk_id, skS):
@@ -949,9 +949,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 17]
+Barnes, et al.           Expires 24 January 2024               [Page 17]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    left with zero), but MUST raise an error if the sequence number
@@ -1005,9 +1005,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 18]
+Barnes, et al.           Expires 24 January 2024               [Page 18]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Context<ROLE>.IncrementSeq() fails with an error when seq overflows,
@@ -1061,9 +1061,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 19]
+Barnes, et al.           Expires 24 January 2024               [Page 19]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    def Seal<MODE>(pkR, info, aad, pt, ...):
@@ -1117,9 +1117,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 20]
+Barnes, et al.           Expires 24 January 2024               [Page 20]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 7.  Algorithm Identifiers
@@ -1173,9 +1173,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 21]
+Barnes, et al.           Expires 24 January 2024               [Page 21]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    For X25519 and X448, the SerializePublicKey() and
@@ -1229,9 +1229,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 22]
+Barnes, et al.           Expires 24 January 2024               [Page 22]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    For P-256, P-384, and P-521, the DeriveKeyPair() function of the KEM
@@ -1285,9 +1285,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 23]
+Barnes, et al.           Expires 24 January 2024               [Page 23]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 7.1.4.  Validation of Inputs and Outputs
@@ -1341,9 +1341,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 24]
+Barnes, et al.           Expires 24 January 2024               [Page 24]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
                              Table 3: KDF IDs
@@ -1397,9 +1397,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 25]
+Barnes, et al.           Expires 24 January 2024               [Page 25]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    The value for exporter_context, which is an input to LabeledExpand(),
@@ -1453,9 +1453,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 26]
+Barnes, et al.           Expires 24 January 2024               [Page 26]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 8.1.  Auxiliary Authenticated Application Information
@@ -1509,9 +1509,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 27]
+Barnes, et al.           Expires 24 January 2024               [Page 27]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Implicit errors may also occur.  As an example, certain classes of
@@ -1565,9 +1565,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 28]
+Barnes, et al.           Expires 24 January 2024               [Page 28]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    *  Export key secrecy: Indistinguishability of each export secret
@@ -1621,9 +1621,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 29]
+Barnes, et al.           Expires 24 January 2024               [Page 29]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    As shown by [ABHKLR20], key-compromise impersonation attacks are
@@ -1677,9 +1677,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 30]
+Barnes, et al.           Expires 24 January 2024               [Page 30]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Analysis of the PSK, Auth, and AuthPSK modes defined in this document
@@ -1733,9 +1733,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 31]
+Barnes, et al.           Expires 24 January 2024               [Page 31]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    If non-DH-based KEMs are to be used with HPKE, further analysis will
@@ -1789,9 +1789,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 32]
+Barnes, et al.           Expires 24 January 2024               [Page 32]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    In future work, the analysis from [ABHKLR20] can be extended to cover
@@ -1845,9 +1845,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 33]
+Barnes, et al.           Expires 24 January 2024               [Page 33]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    chosen by the adversary, it can create KEM ciphertexts in the name of
@@ -1901,9 +1901,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 34]
+Barnes, et al.           Expires 24 January 2024               [Page 34]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    HPKE is specified to use HKDF as its key derivation function.  HKDF
@@ -1957,9 +1957,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 35]
+Barnes, et al.           Expires 24 January 2024               [Page 35]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    LabeledExpand() with a suite_id as defined in Section 4, which will
@@ -2013,9 +2013,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 36]
+Barnes, et al.           Expires 24 January 2024               [Page 36]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 9.7.2.  Downgrade Prevention
@@ -2069,9 +2069,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 37]
+Barnes, et al.           Expires 24 January 2024               [Page 37]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 9.7.6.  Hiding Plaintext Length
@@ -2125,9 +2125,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 38]
+Barnes, et al.           Expires 24 January 2024               [Page 38]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    The cost of this approach is an additional KEM operation each for the
@@ -2181,9 +2181,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 39]
+Barnes, et al.           Expires 24 January 2024               [Page 39]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 11.1.  KEM Identifiers
@@ -2237,9 +2237,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 40]
+Barnes, et al.           Expires 24 January 2024               [Page 40]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    Initial contents: Provided in Table 3
@@ -2293,9 +2293,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 41]
+Barnes, et al.           Expires 24 January 2024               [Page 41]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
@@ -2349,9 +2349,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 42]
+Barnes, et al.           Expires 24 January 2024               [Page 42]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    [HHK06]    Herranz, J., Hofheinz, D., and E. Kiltz, "Some
@@ -2366,16 +2366,16 @@ Internet-Draft                    HPKE                       August 2022
               Barnes, R., Beurdouche, B., Robert, R., Millican, J.,
               Omara, E., and K. Cohn-Gordon, "The Messaging Layer
               Security (MLS) Protocol", Work in Progress, Internet-
-              Draft, draft-ietf-mls-protocol-16, 11 July 2022,
-              <https://www.ietf.org/archive/id/draft-ietf-mls-protocol-
-              16.txt>.
+              Draft, draft-ietf-mls-protocol-20, 27 March 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
+              protocol-20>.
 
    [I-D.ietf-tls-esni]
               Rescorla, E., Oku, K., Sullivan, N., and C. A. Wood, "TLS
               Encrypted Client Hello", Work in Progress, Internet-Draft,
-              draft-ietf-tls-esni-14, 13 February 2022,
-              <https://www.ietf.org/archive/id/draft-ietf-tls-esni-
-              14.txt>.
+              draft-ietf-tls-esni-16, 6 April 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-tls-
+              esni-16>.
 
    [IEEE1363] Institute of Electrical and Electronics Engineers, "IEEE
               1363a, Standard Specifications for Public Key Cryptography
@@ -2405,9 +2405,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 43]
+Barnes, et al.           Expires 24 January 2024               [Page 43]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    [LGR20]    Len, J., Grubbs, P., and T. Ristenpart, "Partitioning
@@ -2461,9 +2461,9 @@ Internet-Draft                    HPKE                       August 2022
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 44]
+Barnes, et al.           Expires 24 January 2024               [Page 44]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    [RFC8937]  Cremers, C., Garratt, L., Smyshlyaev, S., Sullivan, N.,
@@ -2517,9 +2517,9 @@ Appendix B.  Test Vectors
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 45]
+Barnes, et al.           Expires 24 January 2024               [Page 45]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    2.  Context creation intermediate values and outputs: This includes
@@ -2573,9 +2573,9 @@ B.1.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 46]
+Barnes, et al.           Expires 24 January 2024               [Page 46]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -2629,9 +2629,9 @@ B.1.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 47]
+Barnes, et al.           Expires 24 January 2024               [Page 47]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -2685,9 +2685,9 @@ B.1.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 48]
+Barnes, et al.           Expires 24 January 2024               [Page 48]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -2741,9 +2741,9 @@ B.1.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 49]
+Barnes, et al.           Expires 24 January 2024               [Page 49]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 1
@@ -2797,9 +2797,9 @@ B.1.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 50]
+Barnes, et al.           Expires 24 January 2024               [Page 50]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -2853,9 +2853,9 @@ B.1.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 51]
+Barnes, et al.           Expires 24 January 2024               [Page 51]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -2909,9 +2909,9 @@ B.1.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 52]
+Barnes, et al.           Expires 24 January 2024               [Page 52]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -2965,9 +2965,9 @@ B.1.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 53]
+Barnes, et al.           Expires 24 January 2024               [Page 53]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3021,9 +3021,9 @@ B.1.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 54]
+Barnes, et al.           Expires 24 January 2024               [Page 54]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3077,9 +3077,9 @@ B.1.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 55]
+Barnes, et al.           Expires 24 January 2024               [Page 55]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -3133,9 +3133,9 @@ B.1.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 56]
+Barnes, et al.           Expires 24 January 2024               [Page 56]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3189,9 +3189,9 @@ B.1.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 57]
+Barnes, et al.           Expires 24 January 2024               [Page 57]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3245,9 +3245,9 @@ B.2.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 58]
+Barnes, et al.           Expires 24 January 2024               [Page 58]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -3301,9 +3301,9 @@ B.2.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 59]
+Barnes, et al.           Expires 24 January 2024               [Page 59]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3357,9 +3357,9 @@ B.2.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 60]
+Barnes, et al.           Expires 24 January 2024               [Page 60]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3413,9 +3413,9 @@ B.2.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 61]
+Barnes, et al.           Expires 24 January 2024               [Page 61]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 1
@@ -3469,9 +3469,9 @@ B.2.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 62]
+Barnes, et al.           Expires 24 January 2024               [Page 62]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3525,9 +3525,9 @@ B.2.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 63]
+Barnes, et al.           Expires 24 January 2024               [Page 63]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3581,9 +3581,9 @@ B.2.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 64]
+Barnes, et al.           Expires 24 January 2024               [Page 64]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -3637,9 +3637,9 @@ B.2.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 65]
+Barnes, et al.           Expires 24 January 2024               [Page 65]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3693,9 +3693,9 @@ B.2.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 66]
+Barnes, et al.           Expires 24 January 2024               [Page 66]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3749,9 +3749,9 @@ B.2.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 67]
+Barnes, et al.           Expires 24 January 2024               [Page 67]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -3805,9 +3805,9 @@ B.2.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 68]
+Barnes, et al.           Expires 24 January 2024               [Page 68]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -3861,9 +3861,9 @@ B.2.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 69]
+Barnes, et al.           Expires 24 January 2024               [Page 69]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -3917,9 +3917,9 @@ B.3.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 70]
+Barnes, et al.           Expires 24 January 2024               [Page 70]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -3973,9 +3973,9 @@ B.3.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 71]
+Barnes, et al.           Expires 24 January 2024               [Page 71]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4029,9 +4029,9 @@ B.3.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 72]
+Barnes, et al.           Expires 24 January 2024               [Page 72]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4085,9 +4085,9 @@ B.3.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 73]
+Barnes, et al.           Expires 24 January 2024               [Page 73]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 1
@@ -4141,9 +4141,9 @@ B.3.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 74]
+Barnes, et al.           Expires 24 January 2024               [Page 74]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4197,9 +4197,9 @@ B.3.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 75]
+Barnes, et al.           Expires 24 January 2024               [Page 75]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4253,9 +4253,9 @@ B.3.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 76]
+Barnes, et al.           Expires 24 January 2024               [Page 76]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -4309,9 +4309,9 @@ B.3.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 77]
+Barnes, et al.           Expires 24 January 2024               [Page 77]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4365,9 +4365,9 @@ B.3.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 78]
+Barnes, et al.           Expires 24 January 2024               [Page 78]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4421,9 +4421,9 @@ B.3.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 79]
+Barnes, et al.           Expires 24 January 2024               [Page 79]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -4477,9 +4477,9 @@ B.3.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 80]
+Barnes, et al.           Expires 24 January 2024               [Page 80]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4533,9 +4533,9 @@ B.3.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 81]
+Barnes, et al.           Expires 24 January 2024               [Page 81]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4589,9 +4589,9 @@ B.4.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 82]
+Barnes, et al.           Expires 24 January 2024               [Page 82]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -4645,9 +4645,9 @@ B.4.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 83]
+Barnes, et al.           Expires 24 January 2024               [Page 83]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4701,9 +4701,9 @@ B.4.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 84]
+Barnes, et al.           Expires 24 January 2024               [Page 84]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4757,9 +4757,9 @@ B.4.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 85]
+Barnes, et al.           Expires 24 January 2024               [Page 85]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 1
@@ -4813,9 +4813,9 @@ B.4.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 86]
+Barnes, et al.           Expires 24 January 2024               [Page 86]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -4869,9 +4869,9 @@ B.4.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 87]
+Barnes, et al.           Expires 24 January 2024               [Page 87]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -4925,9 +4925,9 @@ B.4.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 88]
+Barnes, et al.           Expires 24 January 2024               [Page 88]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -4981,9 +4981,9 @@ B.4.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 89]
+Barnes, et al.           Expires 24 January 2024               [Page 89]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5037,9 +5037,9 @@ B.4.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 90]
+Barnes, et al.           Expires 24 January 2024               [Page 90]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5093,9 +5093,9 @@ B.4.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 91]
+Barnes, et al.           Expires 24 January 2024               [Page 91]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -5149,9 +5149,9 @@ B.4.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 92]
+Barnes, et al.           Expires 24 January 2024               [Page 92]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5205,9 +5205,9 @@ B.4.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 93]
+Barnes, et al.           Expires 24 January 2024               [Page 93]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5261,9 +5261,9 @@ B.5.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 94]
+Barnes, et al.           Expires 24 January 2024               [Page 94]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -5317,9 +5317,9 @@ B.5.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 95]
+Barnes, et al.           Expires 24 January 2024               [Page 95]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5373,9 +5373,9 @@ B.5.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 96]
+Barnes, et al.           Expires 24 January 2024               [Page 96]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5429,9 +5429,9 @@ B.5.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 97]
+Barnes, et al.           Expires 24 January 2024               [Page 97]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 1
@@ -5485,9 +5485,9 @@ B.5.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 98]
+Barnes, et al.           Expires 24 January 2024               [Page 98]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5541,9 +5541,9 @@ B.5.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023               [Page 99]
+Barnes, et al.           Expires 24 January 2024               [Page 99]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5597,9 +5597,9 @@ B.5.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 100]
+Barnes, et al.           Expires 24 January 2024              [Page 100]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -5653,9 +5653,9 @@ B.5.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 101]
+Barnes, et al.           Expires 24 January 2024              [Page 101]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5709,9 +5709,9 @@ B.5.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 102]
+Barnes, et al.           Expires 24 January 2024              [Page 102]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5765,9 +5765,9 @@ B.5.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 103]
+Barnes, et al.           Expires 24 January 2024              [Page 103]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -5821,9 +5821,9 @@ B.5.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 104]
+Barnes, et al.           Expires 24 January 2024              [Page 104]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -5877,9 +5877,9 @@ B.5.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 105]
+Barnes, et al.           Expires 24 January 2024              [Page 105]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -5933,9 +5933,9 @@ B.6.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 106]
+Barnes, et al.           Expires 24 January 2024              [Page 106]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -5989,9 +5989,9 @@ B.6.1.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 107]
+Barnes, et al.           Expires 24 January 2024              [Page 107]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -6045,9 +6045,9 @@ B.6.1.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 108]
+Barnes, et al.           Expires 24 January 2024              [Page 108]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6101,9 +6101,9 @@ B.6.2.  PSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 109]
+Barnes, et al.           Expires 24 January 2024              [Page 109]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    9ae4a142e0c03418f0a1479ff78a3db07ae2c2e89e5840f712c174ba2118e90fdcb
@@ -6157,9 +6157,9 @@ B.6.2.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 110]
+Barnes, et al.           Expires 24 January 2024              [Page 110]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -6213,9 +6213,9 @@ B.6.2.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 111]
+Barnes, et al.           Expires 24 January 2024              [Page 111]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6269,9 +6269,9 @@ B.6.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 112]
+Barnes, et al.           Expires 24 January 2024              [Page 112]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    c328539a60b3bc3c05fed22838584a726b9c176796cad0169ba4093332cbd2dc3a9f
@@ -6325,9 +6325,9 @@ B.6.3.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 113]
+Barnes, et al.           Expires 24 January 2024              [Page 113]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -6381,9 +6381,9 @@ B.6.3.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 114]
+Barnes, et al.           Expires 24 January 2024              [Page 114]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6437,9 +6437,9 @@ B.6.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 115]
+Barnes, et al.           Expires 24 January 2024              [Page 115]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    b85b4bdd0bb77f1f889e7ee51f465a308f08c666ad3407f75dc046b2ff5a24dbe2ed
@@ -6493,9 +6493,9 @@ B.6.4.1.  Encryptions
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 116]
+Barnes, et al.           Expires 24 January 2024              [Page 116]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    sequence number: 0
@@ -6549,9 +6549,9 @@ B.6.4.2.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 117]
+Barnes, et al.           Expires 24 January 2024              [Page 117]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6605,9 +6605,9 @@ B.7.1.  Base Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 118]
+Barnes, et al.           Expires 24 January 2024              [Page 118]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 0
@@ -6661,9 +6661,9 @@ B.7.1.1.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 119]
+Barnes, et al.           Expires 24 January 2024              [Page 119]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
 B.7.2.  PSK Setup Information
@@ -6717,9 +6717,9 @@ B.7.2.1.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 120]
+Barnes, et al.           Expires 24 January 2024              [Page 120]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6773,9 +6773,9 @@ B.7.3.  Auth Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 121]
+Barnes, et al.           Expires 24 January 2024              [Page 121]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 2
@@ -6829,9 +6829,9 @@ B.7.3.1.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 122]
+Barnes, et al.           Expires 24 January 2024              [Page 122]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6885,9 +6885,9 @@ B.7.4.  AuthPSK Setup Information
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 123]
+Barnes, et al.           Expires 24 January 2024              [Page 123]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    mode: 3
@@ -6941,9 +6941,9 @@ B.7.4.1.  Exported Values
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 124]
+Barnes, et al.           Expires 24 January 2024              [Page 124]
 
-Internet-Draft                    HPKE                       August 2022
+Internet-Draft                    HPKE                         July 2023
 
 
    exporter_context:
@@ -6997,4 +6997,4 @@ Authors' Addresses
 
 
 
-Barnes, et al.          Expires 13 February 2023              [Page 125]
+Barnes, et al.           Expires 24 January 2024              [Page 125]
