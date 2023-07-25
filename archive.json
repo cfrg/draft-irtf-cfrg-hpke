@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2023-07-23T19:21:54.453277+00:00",
+  "timestamp": "2023-07-25T11:41:38.648907+00:00",
   "repo": "cfrg/draft-irtf-cfrg-hpke",
   "labels": [
     {
@@ -18682,6 +18682,42 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 254,
+      "id": "PR_kwDOC3hbXs5WTpEn",
+      "title": "Adding Apple CryptoKit to the list of HPKE Implementations",
+      "url": "https://github.com/cfrg/draft-irtf-cfrg-hpke/pull/254",
+      "state": "MERGED",
+      "author": "FredericJacobs",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Starting in the fall releases, Apple platforms will be supporting HPKE in the SDK directly.",
+      "createdAt": "2023-07-25T08:43:02Z",
+      "updatedAt": "2023-07-25T11:40:58Z",
+      "baseRepository": "cfrg/draft-irtf-cfrg-hpke",
+      "baseRefName": "master",
+      "baseRefOid": "3b96bb246c89d1b787ab548d6a1ca015977b9223",
+      "headRepository": "FredericJacobs/draft-irtf-cfrg-hpke",
+      "headRefName": "patch-1",
+      "headRefOid": "af54979d24b84886d8926ddf79d2db4fb37f6f82",
+      "closedAt": "2023-07-25T11:40:58Z",
+      "mergedAt": "2023-07-25T11:40:58Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "73bcc810885ac72dac16212f419764965454e0d8"
+      },
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "COLLABORATOR",
+          "body": "\ud83c\udf89 \u2764\ufe0f ",
+          "createdAt": "2023-07-25T11:40:51Z",
+          "updatedAt": "2023-07-25T11:40:51Z"
+        }
+      ],
+      "reviews": []
     }
   ]
 }
