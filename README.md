@@ -37,6 +37,7 @@ This requires that you have the necessary software installed.  See
 | [hpke-js](https://github.com/dajiaji/hpke-js) | Javascript (built on WebCrypto API) | RFC9180 | All |
 | [Tink](https://developers.google.com/tink/hybrid?hl=en) | Java, Python, Go, C++ | RFC9180 | Base |
 | [hpke-rb](https://github.com/sylph01/hpke-rb) | Ruby (OpenSSL) | RFC9180 | All |
+| [Apple CryptoKit](https://developer.apple.com/documentation/cryptokit/hpke) | Swift | RFC9180 | All |
 
 Submit a PR if you would like your implementation to be added!
 
