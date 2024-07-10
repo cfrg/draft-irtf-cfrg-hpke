@@ -38,6 +38,7 @@ This requires that you have the necessary software installed.  See
 | [Tink](https://developers.google.com/tink/hybrid?hl=en) | Java, Python, Go, C++ | RFC9180 | Base |
 | [hpke-rb](https://github.com/sylph01/hpke-rb) | Ruby (OpenSSL) | RFC9180 | All |
 | [Apple CryptoKit](https://developer.apple.com/documentation/cryptokit/hpke) | Swift | RFC9180 | All |
+| [BouncyCastle](https://javadoc.io/doc/org.bouncycastle/bcprov-jdk14/1.74/org/bouncycastle/crypto/hpke/HPKE.html) | Java | RFC9180 | Base, Auth |
 
 Submit a PR if you would like your implementation to be added!
 
